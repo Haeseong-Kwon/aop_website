@@ -15,7 +15,7 @@ export function Hero() {
                     className="mb-12"
                 >
                     <h1 className="text-huge leading-[0.8] tracking-[-0.05em] mb-4">
-                        AOP: The<br className="md:hidden" /> Art of<br />Platform
+                        AOP: The<br className="md:hidden" /> Art of<br />Programming
                     </h1>
                 </motion.div>
 

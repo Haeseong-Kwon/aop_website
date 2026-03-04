@@ -84,7 +84,7 @@ export function Navbar() {
                             transition={{ delay: 0.8 }}
                             className="absolute bottom-12 flex flex-col items-center gap-4 text-neutral-500"
                         >
-                            <p className="text-xs uppercase tracking-widest font-bold">The Art of Platform</p>
+                            <p className="text-xs uppercase tracking-widest font-bold">The Art of Programming</p>
                             <div className="flex gap-8 text-sm">
                                 <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
                                 <a href="#" className="hover:text-white transition-colors">Instagram</a>
