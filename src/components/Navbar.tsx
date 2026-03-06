@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function Navbar() {
     const [isOpen, setIsOpen] = React.useState(false);
@@ -29,12 +28,12 @@ export function Navbar() {
         <>
             <motion.nav
                 style={{ backgroundColor: isOpen ? "transparent" : backgroundColor }}
-                className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-8 py-6 md:px-12 transition-all duration-300"
+                className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 py-5 md:px-10 transition-all duration-300 border-b border-white/10"
             >
                 <div className="flex items-center">
                     <Link
                         href="/"
-                        className="text-2xl font-black tracking-tighter text-white z-[110]"
+                        className="text-xl md:text-2xl font-black tracking-tighter text-white z-[110]"
                         onClick={() => setIsOpen(false)}
                     >
                         AOP
@@ -43,10 +42,10 @@ export function Navbar() {
 
                 <button
                     onClick={toggleMenu}
-                    className="p-2 text-white hover:opacity-70 transition-opacity z-[110]"
+                    className="p-1.5 text-white hover:opacity-70 transition-opacity z-[110]"
                     aria-label="Toggle Menu"
                 >
-                    {isOpen ? <X size={32} strokeWidth={1.5} /> : <Menu size={32} strokeWidth={1.5} />}
+                    {isOpen ? <X size={28} strokeWidth={1.5} /> : <Menu size={28} strokeWidth={1.5} />}
                 </button>
             </motion.nav>
 
@@ -57,9 +56,9 @@ export function Navbar() {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.1 }}
                         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed inset-0 z-[90] bg-black flex flex-col items-center justify-center p-8"
+                        className="fixed inset-0 z-[90] bg-black flex flex-col items-center justify-center p-6 md:p-10"
                     >
-                        <div className="flex flex-col items-center gap-8">
+                        <div className="flex flex-col items-center gap-6">
                             {menuItems.map((item, index) => (
                                 <motion.div
                                     key={item.name}
@@ -70,7 +69,7 @@ export function Navbar() {
                                     <Link
                                         href={item.href}
                                         onClick={toggleMenu}
-                                        className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-white hover:text-neutral-500 transition-colors"
+                                        className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white hover:text-neutral-500 transition-colors"
                                     >
                                         {item.name}
                                     </Link>
@@ -82,10 +81,10 @@ export function Navbar() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.8 }}
-                            className="absolute bottom-12 flex flex-col items-center gap-4 text-neutral-500"
+                            className="absolute bottom-8 flex flex-col items-center gap-3 text-neutral-500"
                         >
-                            <p className="text-xs uppercase tracking-widest font-bold">The Art of Programming</p>
-                            <div className="flex gap-8 text-sm">
+                            <p className="text-[10px] uppercase tracking-[0.3em] font-black">The Art of Programming</p>
+                            <div className="flex gap-6 text-sm">
                                 <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
                                 <a href="#" className="hover:text-white transition-colors">Instagram</a>
                             </div>

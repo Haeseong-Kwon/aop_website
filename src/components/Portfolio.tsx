@@ -6,12 +6,12 @@ import { ArrowUpRight } from "lucide-react";
 
 export function Portfolio() {
     return (
-        <section id="portfolio" className="py-24 md:py-48 px-8 md:px-12 bg-black text-white noise">
+        <section id="portfolio" className="py-20 md:py-28 px-6 md:px-10 bg-black text-white noise">
             <div className="max-w-[120rem] mx-auto">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-32 border-b border-white/10 pb-16">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 border-b border-white/10 pb-8 md:pb-10">
                     <div className="max-w-2xl">
-                        <p className="text-xs uppercase tracking-[0.5em] text-neutral-500 mb-6 font-bold">The Craft</p>
-                        <h3 className="text-huge leading-[0.8] mb-8">
+                        <p className="text-[10px] md:text-xs uppercase tracking-[0.45em] text-neutral-500 mb-4 font-black">The Craft</p>
+                        <h3 className="text-5xl md:text-8xl leading-[0.82] mb-5 tracking-[-0.03em]">
                             Selected<br />Works
                         </h3>
                     </div>
@@ -31,7 +31,7 @@ export function Portfolio() {
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 1, delay: index * 0.1 }}
-                            className="group relative bg-black p-12 md:p-24 h-[500px] md:h-[700px] flex flex-col justify-between overflow-hidden cursor-pointer"
+                            className="group relative bg-black p-8 md:p-12 h-[380px] md:h-[480px] flex flex-col justify-between overflow-hidden cursor-pointer"
                         >
                             <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.02] transition-colors duration-700" />
 
@@ -40,17 +40,17 @@ export function Portfolio() {
                                     <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-[#0052FF] mb-4 block">
                                         {project.category}
                                     </span>
-                                    <h4 className="text-4xl md:text-7xl font-black mb-6 uppercase tracking-tight group-hover:tracking-tighter transition-all duration-700">
+                                    <h4 className="text-3xl md:text-5xl font-black mb-4 uppercase tracking-tight group-hover:tracking-tighter transition-all duration-700">
                                         {project.title}
                                     </h4>
                                 </div>
-                                <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500">
-                                    <ArrowUpRight size={24} strokeWidth={1.5} />
+                                <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500">
+                                    <ArrowUpRight size={18} strokeWidth={1.5} />
                                 </div>
                             </div>
 
                             <div className="relative z-10">
-                                <p className="text-neutral-400 max-w-sm text-sm md:text-base leading-relaxed mb-8 opacity-0 group-hover:opacity-100 transform translate-y-8 group-hover:translate-y-0 transition-all duration-700">
+                                <p className="text-neutral-400 max-w-sm text-sm md:text-[15px] leading-relaxed mb-5 opacity-0 group-hover:opacity-100 transform translate-y-6 group-hover:translate-y-0 transition-all duration-700">
                                     {project.description}
                                 </p>
                                 <div className="flex flex-wrap gap-3">
@@ -63,7 +63,7 @@ export function Portfolio() {
                             </div>
 
                             {/* Background Number or Identifier for Cheil Style */}
-                            <span className="absolute -bottom-12 -right-12 text-[15rem] font-black text-white/[0.02] pointer-events-none group-hover:text-white/[0.05] transition-colors duration-700">
+                            <span className="absolute -bottom-7 -right-7 text-[10rem] md:text-[12rem] font-black text-white/[0.03] pointer-events-none group-hover:text-white/[0.06] transition-colors duration-700">
                                 0{index + 1}
                             </span>
                         </motion.div>

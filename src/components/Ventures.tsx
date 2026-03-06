@@ -25,17 +25,17 @@ export function Ventures() {
     ];
 
     return (
-        <section id="services" className="py-24 md:py-48 px-8 md:px-12 bg-white text-black relative">
+        <section id="services" className="py-20 md:py-28 px-6 md:px-10 bg-white text-black relative">
             <div className="max-w-[120rem] mx-auto">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-32 border-b border-black/10 pb-16">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 border-b border-black/10 pb-8 md:pb-10">
                     <div className="max-w-2xl">
-                        <p className="text-xs uppercase tracking-[0.5em] text-neutral-400 mb-6 font-bold">Innovation Hub</p>
-                        <h3 className="text-huge leading-[0.8] mb-8">
+                        <p className="text-[10px] md:text-xs uppercase tracking-[0.45em] text-neutral-400 mb-4 font-black">Innovation Hub</p>
+                        <h3 className="text-5xl md:text-8xl leading-[0.82] mb-5 tracking-[-0.03em]">
                             Internal<br />Ventures
                         </h3>
                     </div>
                     <div className="md:max-w-xs">
-                        <p className="text-neutral-500 text-sm leading-relaxed font-medium">
+                        <p className="text-neutral-600 text-sm leading-relaxed font-medium">
                             AOP는 단순히 타사의 프로젝트를 개발하는 것에 그치지 않고,
                             산업을 재정의하는 혁신적인 독자 플랫폼들을 직접 인큐베이팅합니다.
                         </p>
@@ -50,26 +50,26 @@ export function Ventures() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: index * 0.2 }}
-                            className="group relative border-b border-black/10 hover:bg-neutral-50 transition-colors duration-500 py-24 md:py-32 flex flex-col md:flex-row items-start md:items-center justify-between gap-12"
+                            className="group relative border-b border-black/10 hover:bg-neutral-50 transition-colors duration-500 py-10 md:py-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8"
                         >
                             <div className="flex flex-col max-w-2xl">
-                                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-6 inline-flex items-center gap-4">
+                                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-4 inline-flex items-center gap-3">
                                     <span
-                                        className="w-12 h-[1px]"
+                                        className="w-8 h-[2px]"
                                         style={{ backgroundColor: service.color }}
                                     />
                                     {service.category}
                                 </span>
-                                <h4 className="text-5xl md:text-8xl font-black mb-6 uppercase tracking-[-0.04em]">
+                                <h4 className="text-4xl md:text-7xl font-black mb-4 uppercase tracking-[-0.04em]">
                                     {service.name}
                                 </h4>
                                 <p
-                                    className="text-xl md:text-3xl font-bold mb-8 leading-tight tracking-tight"
+                                    className="text-lg md:text-2xl font-bold mb-5 leading-tight tracking-tight"
                                     style={{ color: service.color }}
                                 >
                                     {service.tagline}
                                 </p>
-                                <p className="text-neutral-500 text-sm md:text-base max-w-xl leading-relaxed font-medium">
+                                <p className="text-neutral-600 text-sm md:text-base max-w-xl leading-relaxed font-medium">
                                     {service.body}
                                 </p>
                             </div>
@@ -80,9 +80,9 @@ export function Ventures() {
                             >
                                 <Link
                                     href="#"
-                                    className="w-20 h-20 md:w-32 md:h-32 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500"
+                                    className="w-14 h-14 md:w-20 md:h-20 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500"
                                 >
-                                    <ArrowUpRight size={32} strokeWidth={1.5} />
+                                    <ArrowUpRight size={22} strokeWidth={1.5} />
                                 </Link>
                             </motion.div>
                         </motion.div>
