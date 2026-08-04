@@ -1,96 +1,144 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { NAV_ITEMS, SITE } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
-    const [isOpen, setIsOpen] = React.useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const [activeId, setActiveId] = useState<string>("");
     const { scrollY } = useScroll();
 
-    const backgroundColor = useTransform(
-        scrollY,
-        [0, 100],
-        ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.95)"]
-    );
+    useMotionValueEvent(scrollY, "change", (value) => setScrolled(value > 24));
 
-    const toggleMenu = () => setIsOpen(!isOpen);
+    // 현재 화면에 걸린 섹션 하이라이트
+    useEffect(() => {
+        const sections = NAV_ITEMS.map((item) =>
+            document.querySelector(item.href)
+        ).filter((el): el is Element => el !== null);
 
-    const menuItems = [
-        { name: "About", href: "#hero" },
-        { name: "Ventures", href: "#services" },
-        { name: "Portfolio", href: "#portfolio" },
-        { name: "Contact", href: "#contact" },
-    ];
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+                if (visible) setActiveId(`#${visible.target.id}`);
+            },
+            { rootMargin: "-40% 0px -50% 0px", threshold: [0, 0.25, 0.5] }
+        );
+
+        sections.forEach((section) => observer.observe(section));
+        return () => observer.disconnect();
+    }, []);
+
+    // 모바일 메뉴가 열린 동안 배경 스크롤 잠금
+    useEffect(() => {
+        document.body.style.overflow = isOpen ? "hidden" : "";
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
 
     return (
         <>
-            <motion.nav
-                style={{ backgroundColor: isOpen ? "transparent" : backgroundColor }}
-                className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 py-5 md:px-10 transition-all duration-300 border-b border-white/10"
+            <header
+                className={cn(
+                    "fixed inset-x-0 top-0 z-[110] transition-colors duration-500",
+                    scrolled && !isOpen
+                        ? "border-b border-border bg-bg/70 backdrop-blur-xl"
+                        : "border-b border-transparent"
+                )}
             >
-                <div className="flex items-center">
+                <nav
+                    aria-label="주요 메뉴"
+                    className="container-x flex h-16 items-center justify-between md:h-20"
+                >
                     <Link
                         href="/"
-                        className="text-xl md:text-2xl font-black tracking-tighter text-white z-[110]"
                         onClick={() => setIsOpen(false)}
+                        className="relative z-[120] font-mono text-lg tracking-[-0.02em]"
                     >
-                        AOP
+                        {SITE.name}
                     </Link>
-                </div>
 
-                <button
-                    onClick={toggleMenu}
-                    className="p-1.5 text-white hover:opacity-70 transition-opacity z-[110]"
-                    aria-label="Toggle Menu"
-                >
-                    {isOpen ? <X size={28} strokeWidth={1.5} /> : <Menu size={28} strokeWidth={1.5} />}
-                </button>
-            </motion.nav>
+                    <ul className="hidden items-center gap-8 md:flex">
+                        {NAV_ITEMS.map((item) => (
+                            <li key={item.href}>
+                                <a
+                                    href={item.href}
+                                    className={cn(
+                                        "underline-sweep font-mono text-[13px] tracking-[0.06em] transition-colors duration-300",
+                                        activeId === item.href
+                                            ? "text-text"
+                                            : "text-muted hover:text-text"
+                                    )}
+                                >
+                                    {item.label}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <button
+                        type="button"
+                        onClick={() => setIsOpen((open) => !open)}
+                        aria-expanded={isOpen}
+                        aria-controls="mobile-menu"
+                        aria-label={isOpen ? "메뉴 닫기" : "메뉴 열기"}
+                        className="relative z-[120] -mr-2 p-2 md:hidden"
+                    >
+                        {isOpen ? <X size={22} /> : <Menu size={22} />}
+                    </button>
+                </nav>
+            </header>
 
             <AnimatePresence>
-                {isOpen && (
+                {isOpen ? (
                     <motion.div
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.1 }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed inset-0 z-[90] bg-black flex flex-col items-center justify-center p-6 md:p-10"
+                        id="mobile-menu"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.35 }}
+                        className="fixed inset-0 z-[100] flex flex-col justify-center bg-bg px-6 md:hidden"
                     >
-                        <div className="flex flex-col items-center gap-6">
-                            {menuItems.map((item, index) => (
-                                <motion.div
-                                    key={item.name}
-                                    initial={{ opacity: 0, y: 30 }}
+                        <ul className="space-y-2">
+                            {NAV_ITEMS.map((item, index) => (
+                                <motion.li
+                                    key={item.href}
+                                    initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 + index * 0.1, duration: 0.6 }}
+                                    transition={{
+                                        delay: 0.1 + index * 0.06,
+                                        duration: 0.5,
+                                        ease: [0.16, 1, 0.3, 1],
+                                    }}
                                 >
-                                    <Link
+                                    <a
                                         href={item.href}
-                                        onClick={toggleMenu}
-                                        className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white hover:text-neutral-500 transition-colors"
+                                        onClick={() => setIsOpen(false)}
+                                        className="block py-3 text-3xl tracking-[-0.03em]"
                                     >
-                                        {item.name}
-                                    </Link>
-                                </motion.div>
+                                        {item.label}
+                                    </a>
+                                </motion.li>
                             ))}
-                        </div>
+                        </ul>
 
-                        <motion.div
+                        <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: 0.8 }}
-                            className="absolute bottom-8 flex flex-col items-center gap-3 text-neutral-500"
+                            transition={{ delay: 0.5 }}
+                            className="type-eyebrow absolute bottom-10 left-6"
                         >
-                            <p className="text-[10px] uppercase tracking-[0.3em] font-black">The Art of Programming</p>
-                            <div className="flex gap-6 text-sm">
-                                <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
-                                <a href="#" className="hover:text-white transition-colors">Instagram</a>
-                            </div>
-                        </motion.div>
+                            {SITE.slogan} — {SITE.fullName}
+                        </motion.p>
                     </motion.div>
-                )}
+                ) : null}
             </AnimatePresence>
         </>
     );
