@@ -21,19 +21,19 @@ export function PrismLight({ className }: { className?: string }) {
             <defs>
                 {/* 면: 경계에서 멀어질수록 검게 떨어진다 */}
                 <linearGradient id="prism-top" x1="0.5" y1="1" x2="0.35" y2="0">
-                    <stop offset="0%" stopColor="var(--color-violet)" stopOpacity="0.42" />
-                    <stop offset="55%" stopColor="var(--color-violet-deep)" stopOpacity="0.3" />
+                    <stop offset="0%" stopColor="var(--color-beam)" stopOpacity="0.42" />
+                    <stop offset="55%" stopColor="var(--color-beam-deep)" stopOpacity="0.3" />
                     <stop offset="100%" stopColor="#000000" stopOpacity="0.95" />
                 </linearGradient>
 
                 <linearGradient id="prism-left" x1="1" y1="0" x2="0" y2="0.7">
-                    <stop offset="0%" stopColor="var(--color-violet)" stopOpacity="0.5" />
-                    <stop offset="45%" stopColor="var(--color-violet-deep)" stopOpacity="0.26" />
+                    <stop offset="0%" stopColor="var(--color-beam)" stopOpacity="0.5" />
+                    <stop offset="45%" stopColor="var(--color-beam-deep)" stopOpacity="0.26" />
                     <stop offset="100%" stopColor="#000000" stopOpacity="0.98" />
                 </linearGradient>
 
                 <linearGradient id="prism-right" x1="0" y1="0" x2="1" y2="0.85">
-                    <stop offset="0%" stopColor="var(--color-violet)" stopOpacity="0.3" />
+                    <stop offset="0%" stopColor="var(--color-beam)" stopOpacity="0.3" />
                     <stop offset="60%" stopColor="#000000" stopOpacity="0.96" />
                     <stop offset="100%" stopColor="#000000" />
                 </linearGradient>
@@ -51,7 +51,7 @@ export function PrismLight({ className }: { className?: string }) {
 
                 <radialGradient id="prism-core" cx="0.5" cy="0.5" r="0.5">
                     <stop offset="0%" stopColor="var(--color-glow)" stopOpacity="0.85" />
-                    <stop offset="100%" stopColor="var(--color-violet)" stopOpacity="0" />
+                    <stop offset="100%" stopColor="var(--color-beam)" stopOpacity="0" />
                 </radialGradient>
             </defs>
 
@@ -73,7 +73,7 @@ export function PrismLight({ className }: { className?: string }) {
             <g filter="url(#prism-bloom)" opacity="0.75">
                 <path
                     d={`M120,300 L${VX},${VY} L1440,100 M${VX},${VY} L${VX},900`}
-                    stroke="var(--color-violet)"
+                    stroke="var(--color-beam)"
                     strokeWidth="6"
                     fill="none"
                 />

@@ -46,7 +46,7 @@ export function Navbar() {
                 <nav
                     aria-label="주요 메뉴"
                     className={cn(
-                        "flex w-full max-w-3xl items-center justify-between gap-4 py-2.5 pl-5 pr-2.5 md:pl-6",
+                        "flex w-full max-w-5xl items-center justify-between gap-4 py-2.5 pl-5 pr-2.5 md:pl-6",
                         isOpen ? "bg-transparent" : "pill-bar"
                     )}
                 >
@@ -58,7 +58,7 @@ export function Navbar() {
                         <span className="font-mono text-[16px] font-medium tracking-[-0.02em] text-bright">
                             {SITE.name}
                         </span>
-                        <span className="hidden text-[12px] text-faint sm:inline">
+                        <span className="hidden whitespace-nowrap text-[12px] text-faint xl:inline">
                             {SITE.slogan}
                         </span>
                     </Link>
@@ -72,7 +72,7 @@ export function Navbar() {
                                     <a
                                         href={item.href}
                                         className={cn(
-                                            "relative z-10 block rounded-full px-3 py-1.5 font-mono text-[12px] tracking-[0.02em] transition-colors duration-300",
+                                            "relative z-10 block whitespace-nowrap rounded-full px-3 py-1.5 font-mono text-[12px] tracking-[0.02em] transition-colors duration-300",
                                             isActive
                                                 ? "text-bright"
                                                 : "text-muted hover:text-bright"

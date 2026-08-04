@@ -15,6 +15,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     { label: "Capability", href: "#capability" },
     { label: "Products", href: "#products" },
     { label: "Technology", href: "#technology" },
+    { label: "Approach", href: "#approach" },
     { label: "Research", href: "#research" },
     { label: "Partners", href: "#partners" },
     { label: "Contact", href: "#contact" },
@@ -76,7 +77,7 @@ export const CAPABILITIES: readonly Capability[] = [
     },
 ];
 
-export type ProductStatus = "live" | "coming-soon" | "affiliate";
+export type ProductStatus = "live" | "coming-soon";
 
 export interface Product {
     id: string;
@@ -89,8 +90,9 @@ export interface Product {
     highlights: readonly string[];
     link: string | null;
     status: ProductStatus;
-    /** 플레이스홀더 비주얼의 그라디언트 스톱. */
-    // TODO: 실제 에셋 교체 — 제품 스크린샷 확보 시 next/image로 대체
+    /** 프로덕션 실화면 캡처. 없으면 그라디언트 목업으로 대체된다. */
+    image: string | null;
+    /** image가 없을 때 쓰는 플레이스홀더 그라디언트 스톱. */
     hue: [string, string];
 }
 
@@ -105,20 +107,22 @@ export const PRODUCTS: readonly Product[] = [
         highlights: ["시장 판단", "추적 세팅", "상세페이지 진단", "퍼포먼스 리포트"],
         link: "https://www.autopilot.it.kr/",
         status: "live",
-        hue: ["#6366f1", "#312e81"],
+        image: "/products/autopilot.jpg",
+        hue: ["#4a8cff", "#0a2a66"],
     },
     {
-        id: "buyerpilot",
-        name: "BuyerPilot",
-        nameKo: "바이어에이전트",
-        domain: "출시 예정",
-        tagline: "수출의 첫 고객을 찾아내는 에이전트",
+        id: "inspec",
+        name: "INSPEC",
+        nameKo: "인스펙",
+        domain: "inspec.it.kr",
+        tagline: "시공의 모든 순간을 기록으로 지킵니다",
         description:
-            "HS코드와 품목만으로 해외 시장을 진단하고, 진입 가능한 국가와 실제 바이어 후보를 리포트로 만들어냅니다. 데이터 반출이 어려운 곳을 위해 온프레미스 배포를 지원합니다.",
-        highlights: ["HS코드 분석", "국가별 진입성", "바이어 후보", "온프레미스"],
-        link: null,
-        status: "coming-soon",
-        hue: ["#0d9488", "#134e4a"],
+            "중립적인 감리자가 철거부터 마감까지 현장에 동행합니다. 인테리어 시공에서 가장 불투명한 구간을 사진과 체크리스트로 남겨, 시공 품질을 말이 아니라 기록으로 증명합니다.",
+        highlights: ["중립 감리", "단계별 분리 결제", "GPS·촬영시간 증거", "결과 공유"],
+        link: "https://inspec.it.kr/",
+        status: "live",
+        image: "/products/inspec.jpg",
+        hue: ["#4a8cff", "#0a2a66"],
     },
     {
         id: "talkpicplus",
@@ -131,21 +135,61 @@ export const PRODUCTS: readonly Product[] = [
         highlights: ["패턴 교수법", "VOD 구조", "학습 이력 진단", "추천"],
         link: "https://talkpic-plus.vercel.app/",
         status: "live",
-        hue: ["#8b5cf6", "#4c1d95"],
+        image: "/products/talkpicplus.jpg",
+        hue: ["#4a8cff", "#0a2a66"],
     },
     {
-        id: "inspec",
-        name: "INSPEC",
-        nameKo: "인스펙",
-        domain: "주식회사 인스펙",
-        tagline: "공사 현장을 대신 지켜보는 감리자",
+        id: "buyerpilot",
+        name: "BuyerPilot",
+        nameKo: "바이어에이전트",
+        domain: "출시 예정",
+        tagline: "수출의 첫 고객을 찾아내는 에이전트",
         description:
-            "인테리어 시공에서 가장 불투명한 구간에 전문 감리자를 파견합니다. 현장 점검 결과를 표준화된 리포트로 남겨, 시공 품질을 말이 아니라 기록으로 증명합니다.",
-        highlights: ["감리자 파견", "현장 점검", "표준 리포트", "시공 검수"],
-        // TODO: 인스펙 서비스 URL 확정 시 링크 연결
+            "HS코드와 품목만으로 해외 시장을 진단하고, 진입 가능한 국가와 실제 바이어 후보를 리포트로 만들어냅니다. 데이터 반출이 어려운 곳을 위해 온프레미스 배포를 지원합니다.",
+        highlights: ["HS코드 분석", "국가별 진입성", "바이어 후보", "온프레미스"],
         link: null,
-        status: "affiliate",
-        hue: ["#0ea5e9", "#0c4a6e"],
+        status: "coming-soon",
+        // TODO: 실제 에셋 교체 — 출시 후 프로덕션 화면 캡처로 대체
+        image: null,
+        hue: ["#4a8cff", "#0a2a66"],
+    },
+];
+
+/** 스크롤에 따라 어절 단위로 점등되는 선언문. */
+export const MANIFESTO = {
+    eyebrow: "What we build",
+    lines: [
+        "우리는 모델을 만들지 않습니다.",
+        "모델 위에서 일이 실제로 끝나게 만드는 층을 만듭니다.",
+        "계획하고, 멈추고, 되돌리고, 측정하는 것 —",
+        "그 층이 제품과 연구를 잇습니다.",
+    ],
+} as const;
+
+export interface ApproachStep {
+    id: string;
+    title: string;
+    description: string;
+}
+
+export const APPROACH: readonly ApproachStep[] = [
+    {
+        id: "observe",
+        title: "운영에서 문제를 만난다",
+        description:
+            "네 개의 제품이 실사용 트래픽 위에서 돌아갑니다. 무엇이 실패했는지는 추정이 아니라 트레이스로 남고, 비용과 지연이 함께 기록됩니다.",
+    },
+    {
+        id: "solve",
+        title: "원천기술로 푼다",
+        description:
+            "반복되는 실패 유형만 골라 제어 계층의 문제로 다시 정의합니다. 고치기 전에 회귀 스위트를 먼저 만들어, 같은 실패가 다시 나면 배포 전에 걸리게 합니다.",
+    },
+    {
+        id: "return",
+        title: "제품으로 되돌린다",
+        description:
+            "검증된 해법은 자사 제품에 가장 먼저 배포됩니다. 거기서 한 번 더 버티면 계열사와 파트너사의 현장으로 나갑니다.",
     },
 ];
 
@@ -316,6 +360,12 @@ export const SECTIONS = {
         title: "제품이 되기 *이전*의 문제들",
         description:
             "당장 제품에 들어가지 않는 주제도 다룹니다. 생성 설계, 과학 계산, 관측 가능성 — 각 트랙은 다음 기능이 되거나 특허로 남습니다.",
+    },
+    approach: {
+        eyebrow: "APPROACH",
+        title: "문제는 운영에서 오고, *해법*은 제품으로 돌아갑니다",
+        description:
+            "연구실에서 시작해 제품으로 내려오는 순서가 아닙니다. 반대로 갑니다. 실제로 돌아가는 제품에서 문제를 만나고, 그것만 기술로 풉니다.",
     },
     partners: {
         eyebrow: "PARTNERS",

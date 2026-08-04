@@ -9,22 +9,27 @@
   --color-bg: #000000;
   --color-surface: rgb(255 255 255 / 0.035);
   --color-surface-2: rgb(255 255 255 / 0.07);
-  --color-border: rgb(255 255 255 / 0.1);
-  --color-border-strong: rgb(255 255 255 / 0.22);
-  --color-text: rgb(255 255 255 / 0.88);
+  /*
+   * 가독성 기준: 본문 0.92, 보조 0.72, 최약 0.5.
+   * 검정 위 흰 글자는 0.5 아래로 내려가면 실사용 환경(밝은 조명·저품질 패널)에서
+   * 급격히 읽기 어려워진다. 장식보다 판독을 우선한다.
+   */
+  --color-border: rgb(255 255 255 / 0.14);
+  --color-border-strong: rgb(255 255 255 / 0.28);
+  --color-text: rgb(255 255 255 / 0.92);
   --color-bright: rgb(255 255 255);
-  --color-muted: rgb(255 255 255 / 0.56);
-  --color-faint: rgb(255 255 255 / 0.32);
+  --color-muted: rgb(255 255 255 / 0.72);
+  --color-faint: rgb(255 255 255 / 0.5);
   --color-accent: #ffffff;
   --color-accent-fg: #000000;
   --color-signal: #3dd68c;
-  --color-destructive: #f0605c;
+  --color-destructive: #ff7b76;
 
-  /* 발광 그래픽 팔레트 — 흰 코어에서 바이올렛으로 떨어진다 */
-  --color-glow: #c9b8ff;
-  --color-violet: #8b5cf6;
-  --color-violet-deep: #3b0764;
-  --color-violet-soft: rgb(139 92 246 / 0.14);
+  /* 포인트 컬러 — 흰 코어에서 푸른색으로 떨어진다 */
+  --color-glow: #bcd8ff;
+  --color-beam: #4a8cff;
+  --color-beam-deep: #0a2a66;
+  --color-beam-soft: rgb(74 140 255 / 0.14);
 
   /* 레퍼런스와 동일 계열의 한글 지오메트릭 산세 */
   --font-sans: "SUIT Variable", SUIT, ui-sans-serif, system-ui, sans-serif;
@@ -110,34 +115,33 @@
   }
 
   .type-body {
-    font-size: 1.0625rem;
-    line-height: 1.75;
-    letter-spacing: -0.005em;
+    font-size: 1.09375rem;
+    line-height: 1.8;
+    letter-spacing: -0.003em;
   }
 
   .type-eyebrow {
     font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--color-faint);
+    letter-spacing: 0.16em;
+    color: var(--color-muted);
   }
 
   /*
-   * 강조어 — 서체를 바꾸지 않고 발광 그라디언트로 처리한다.
-   * background-clip:text이라 글자색이 투명해지므로, 광은 text-shadow가 아니라
-   * drop-shadow 필터로 준다(투명 글자에는 text-shadow가 먹지 않는다).
+   * 강조어 — 서체를 바꾸지 않고 그라디언트로 처리한다.
+   * drop-shadow 헤일로는 쓰지 않는다: 마스크 리빌 래퍼의 overflow:hidden이
+   * 글리프 밖으로 번진 광을 어절 상자 모양의 사각형으로 잘라낸다.
    */
   .em-glow {
     background-image: linear-gradient(
       170deg,
       var(--color-glow) 0%,
-      var(--color-violet) 78%
+      var(--color-beam) 78%
     );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 0 22px rgb(139 92 246 / 0.45));
   }
 
   /* ---- 레이아웃 ---- */
@@ -266,7 +270,11 @@
     backdrop-filter: blur(20px) saturate(140%);
   }
 
-  /* 발광 그래픽을 담는 큰 라운드 패널 — 레퍼런스의 핵심 그릇 */
+  /*
+   * 발광 그래픽을 담는 큰 라운드 패널.
+   * 빛은 패널을 가로지르지 않고 '테두리에서 스며드는' 방식으로만 쓴다 —
+   * 글자 위를 지나가면 카드와 그래픽이 서로를 방해한다.
+   */
   .light-panel {
     position: relative;
     overflow: hidden;
@@ -274,11 +282,35 @@
     border-radius: 24px;
     background:
       radial-gradient(
-        120% 90% at 78% 8%,
-        rgb(139 92 246 / 0.16),
-        transparent 58%
+        95% 80% at 100% 0%,
+        rgb(74 140 255 / 0.3),
+        transparent 62%
       ),
-      linear-gradient(165deg, #0c0814 0%, #050208 62%, #000000 100%);
+      radial-gradient(
+        75% 65% at 0% 100%,
+        rgb(74 140 255 / 0.15),
+        transparent 60%
+      ),
+      linear-gradient(160deg, #08101f 0%, #04070e 58%, #000000 100%);
+  }
+
+  /* 패널 상단을 지나는 엣지 라이트 — 카드 경계 자체가 광원이 된다 */
+  .light-panel::before {
+    content: "";
+    position: absolute;
+    inset-inline: 12%;
+    /* overflow:hidden에 잘리지 않도록 경계 안쪽에 붙인다 */
+    top: 0;
+    height: 1px;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-glow) 45%,
+      var(--color-beam) 62%,
+      transparent
+    );
   }
 
   /* 패널 안의 대형 지표 — 굵기를 낮춰야 커질수록 우아해진다 */

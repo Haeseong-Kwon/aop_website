@@ -30,9 +30,9 @@ export function RibbonLight({
         >
             <defs>
                 <linearGradient id={gradientId} x1="0" y1="1" x2="1" y2="0">
-                    <stop offset="0%" stopColor="var(--color-violet)" stopOpacity="0.15" />
+                    <stop offset="0%" stopColor="var(--color-beam)" stopOpacity="0.15" />
                     <stop offset="45%" stopColor="var(--color-glow)" stopOpacity="1" />
-                    <stop offset="100%" stopColor="var(--color-violet)" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="var(--color-beam)" stopOpacity="0.35" />
                 </linearGradient>
 
                 <filter id={bloomId} x="-25%" y="-25%" width="150%" height="150%">
@@ -48,7 +48,7 @@ export function RibbonLight({
 
             <motion.path
                 d={path}
-                stroke="var(--color-violet)"
+                stroke="var(--color-beam)"
                 strokeWidth="9"
                 fill="none"
                 filter={`url(#${bloomId})`}

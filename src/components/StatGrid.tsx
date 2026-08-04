@@ -1,5 +1,8 @@
-import { Reveal } from "@/components/motion/Reveal";
-import { RibbonLight } from "@/components/visual/RibbonLight";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { PARTNERS, PATENTS, PIPELINE, PRODUCTS } from "@/lib/constants";
 
 /**
@@ -9,49 +12,116 @@ import { PARTNERS, PATENTS, PIPELINE, PRODUCTS } from "@/lib/constants";
 const STATS = [
     {
         value: PRODUCTS.length,
-        caption: ["마케팅·수출·교육·건설에서", "운영·개발 중인 에이전트 제품"],
+        label: "Products",
+        caption: "마케팅·건설·교육·수출에서 운영·개발 중인 에이전트 제품",
     },
     {
         value: PIPELINE.length,
-        caption: ["요청 하나가 결과가 되기까지", "거치는 실행 파이프라인 단계"],
+        label: "Pipeline stages",
+        caption: "요청 하나가 결과가 되기까지 거치는 실행 단계",
     },
     {
         value: PATENTS.length,
-        caption: ["공정 검증과 개인화 추천에", "관해 출원한 특허"],
+        label: "Patents filed",
+        caption: "공정 검증과 개인화 추천에 관해 출원한 특허",
     },
     {
         value: PARTNERS.length,
-        caption: ["각자의 산업에서 기술을 검증하는", "계열사와 파트너사"],
+        label: "Network",
+        caption: "각자의 산업에서 기술을 검증하는 계열사와 파트너사",
     },
 ];
 
+/**
+ * 화면에 들어올 때 0에서 목표값까지 세어 올린다.
+ * 모션 축소 환경에서는 애니메이션 없이 최종값을 바로 반환한다 —
+ * 이펙트 안에서 setState로 처리하면 불필요한 연쇄 렌더가 생긴다.
+ */
+function useCountUp(target: number, active: boolean) {
+    const [counted, setCounted] = useState(0);
+    const prefersReduced = useReducedMotion();
+
+    useEffect(() => {
+        if (!active || prefersReduced) return;
+
+        const duration = 900;
+        const start = performance.now();
+        let frame = 0;
+
+        const tick = (now: number) => {
+            const progress = Math.min(1, (now - start) / duration);
+            // easeOutExpo — 끝에서 부드럽게 멈춘다
+            const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+            setCounted(Math.round(eased * target));
+            if (progress < 1) frame = requestAnimationFrame(tick);
+        };
+
+        frame = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frame);
+    }, [active, target, prefersReduced]);
+
+    return prefersReduced ? target : counted;
+}
+
+function StatCell({
+    stat,
+    index,
+    active,
+}: {
+    stat: (typeof STATS)[number];
+    index: number;
+    active: boolean;
+}) {
+    const value = useCountUp(stat.value, active);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-15%" }}
+            transition={{ duration: 0.7, delay: index * 0.09, ease: [0.16, 1, 0.3, 1] }}
+            className="group relative px-6 py-10 md:px-10 md:py-14"
+        >
+            <p className="type-eyebrow">{stat.label}</p>
+            <p className="stat-value mt-6">{String(value).padStart(2, "0")}</p>
+
+            {/* 셀마다 밑줄이 빛을 머금는다 — 그래픽이 텍스트를 피해 경계로 물러난다 */}
+            <span className="mt-6 block h-px w-full bg-border">
+                <motion.span
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true, margin: "-15%" }}
+                    transition={{
+                        duration: 1,
+                        delay: 0.25 + index * 0.09,
+                        ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="block h-px w-full origin-left bg-[linear-gradient(90deg,var(--color-glow),var(--color-beam)_55%,transparent)]"
+                />
+            </span>
+
+            <p className="mt-5 max-w-[24ch] text-[13.5px] leading-relaxed text-muted">
+                {stat.caption}
+            </p>
+        </motion.div>
+    );
+}
+
 export function StatGrid() {
+    const ref = useRef<HTMLDivElement>(null);
+    const inView = useInView(ref, { once: true, margin: "-20%" });
+
     return (
         <section className="relative pb-[clamp(4rem,8vw,7rem)]">
             <div className="container-x">
-                <div className="light-panel px-6 py-14 md:px-14 md:py-20">
-                    <div aria-hidden className="absolute inset-0 opacity-90">
-                        <RibbonLight id="stats" />
-                    </div>
-
-                    <Reveal className="relative" y={14}>
-                        <p className="type-eyebrow">By the numbers</p>
-                    </Reveal>
-
-                    <div className="relative mt-12 grid gap-x-12 gap-y-12 sm:grid-cols-2">
+                <div ref={ref} className="light-panel">
+                    {/* 셀 사이 하이라인 격자 — 카드가 하나의 설계된 단위로 읽힌다 */}
+                    <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
+                        {/* 셀 배경은 최소한만 — 패널 그라디언트가 비쳐야 카드가 하나로 읽힌다 */}
                         {STATS.map((stat, index) => (
-                            <Reveal key={stat.caption[1]} delay={index * 0.08} y={16}>
-                                <p className="stat-value">
-                                    {String(stat.value).padStart(2, "0")}
-                                </p>
-                                <div className="mt-5 border-t border-border pt-4">
-                                    <p className="text-[13px] leading-relaxed text-muted">
-                                        {stat.caption[0]}
-                                        <br />
-                                        {stat.caption[1]}
-                                    </p>
-                                </div>
-                            </Reveal>
+                            <div key={stat.label} className="bg-bg/15">
+                                <StatCell stat={stat} index={index} active={inView} />
+                            </div>
                         ))}
                     </div>
                 </div>

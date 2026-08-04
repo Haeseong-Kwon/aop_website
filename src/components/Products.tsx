@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import Image from "next/image";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PRODUCTS, SECTIONS, type Product } from "@/lib/constants";
@@ -10,7 +11,6 @@ import { cn } from "@/lib/utils";
 const STATUS_LABEL: Record<Product["status"], string> = {
     live: "Live",
     "coming-soon": "Coming Soon",
-    affiliate: "계열 서비스",
 };
 
 function StatusBadge({ status }: { status: Product["status"] }) {
@@ -21,7 +21,7 @@ function StatusBadge({ status }: { status: Product["status"] }) {
             className={cn(
                 "badge",
                 isLive
-                    ? "border-transparent bg-signal/10 text-signal"
+                    ? "border-transparent bg-signal/12 text-signal"
                     : "border-border text-muted"
             )}
         >
@@ -36,43 +36,76 @@ function StatusBadge({ status }: { status: Product["status"] }) {
     );
 }
 
-/** 제품 화면 자리를 채우는 브라우저 크롬 목업. */
-// TODO: 실제 에셋 교체 — 제품 스크린샷을 next/image로 대체
+/**
+ * 프로덕션 실화면. 이미지가 없는 제품(미출시)만 그라디언트 목업으로 떨어진다.
+ * 스크롤에 따라 이미지가 프레임 안에서 천천히 밀려 깊이감을 만든다.
+ */
 function ProductVisual({ product }: { product: Product }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: ref,
+        offset: ["start end", "end start"],
+    });
+    const imageY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+
     return (
-        <div className="overflow-hidden rounded-xl border border-border">
+        <div
+            ref={ref}
+            className="relative overflow-hidden rounded-xl border border-border"
+        >
             <div className="browser-chrome">
                 <span className="browser-dot" />
                 <span className="browser-dot" />
                 <span className="browser-dot" />
-                <span className="ml-3 truncate rounded-md bg-surface px-2.5 py-1 font-mono text-[11px] text-faint">
+                <span className="ml-3 truncate rounded-md bg-surface px-2.5 py-1 font-mono text-[11px] text-muted">
                     {product.domain}
                 </span>
             </div>
-            <div
-                className="relative h-44 w-full md:h-56"
-                style={{
-                    backgroundImage: `radial-gradient(110% 120% at 18% 0%, ${product.hue[0]}, ${product.hue[1]})`,
-                }}
-            >
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:38px_38px]" />
-                <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_120%,rgba(0,0,0,0.35),transparent)]" />
-                <span className="absolute bottom-5 left-6 font-mono text-[11px] uppercase tracking-[0.22em] text-white/80">
-                    {product.id}
-                </span>
+
+            <div className="relative aspect-[16/9] w-full overflow-hidden bg-surface">
+                {/* 오버스캔은 세로로만 — 좌우까지 넓히면 화면 양끝 글자가 잘린다 */}
+                {product.image ? (
+                    <motion.div
+                        style={{ y: imageY }}
+                        className="absolute inset-x-0 -top-[6%] -bottom-[6%]"
+                    >
+                        <Image
+                            src={product.image}
+                            alt={`${product.name} 서비스 화면`}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 720px"
+                            className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+                        />
+                    </motion.div>
+                ) : (
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            backgroundImage: `radial-gradient(110% 120% at 18% 0%, ${product.hue[0]}, ${product.hue[1]})`,
+                        }}
+                    >
+                        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:38px_38px]" />
+                        <span className="absolute bottom-5 left-6 font-mono text-[11px] uppercase tracking-[0.22em] text-white/85">
+                            {product.id}
+                        </span>
+                    </div>
+                )}
             </div>
         </div>
     );
 }
 
-function ProductPanel({ product }: { product: Product }) {
+function ProductPanel({ product, index }: { product: Product; index: number }) {
     const hasLink = product.link !== null;
 
     const body = (
         <>
             <ProductVisual product={product} />
 
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+                <span className="font-mono text-[11px] tracking-[0.18em] text-faint">
+                    {String(index + 1).padStart(2, "0")}
+                </span>
                 <StatusBadge status={product.status} />
                 {product.nameKo ? (
                     <span className="text-sm text-muted">{product.nameKo}</span>
@@ -80,14 +113,16 @@ function ProductPanel({ product }: { product: Product }) {
             </div>
 
             <h3 className="type-h2 mt-5">{product.name}</h3>
-            <p className="mt-3 text-lg text-bright">{product.tagline}</p>
+            <p className="mt-4 text-[clamp(1.0625rem,1.5vw,1.375rem)] leading-snug tracking-[-0.02em] text-bright">
+                {product.tagline}
+            </p>
             <p className="type-body mt-5 max-w-xl text-muted">{product.description}</p>
 
-            <ul className="mt-7 flex flex-wrap gap-2">
+            <ul className="mt-8 flex flex-wrap gap-2">
                 {product.highlights.map((highlight) => (
                     <li
                         key={highlight}
-                        className="rounded-full border border-border bg-surface-2 px-3 py-1 text-[12px] text-muted"
+                        className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-[12.5px] text-text"
                     >
                         {highlight}
                     </li>
@@ -95,17 +130,15 @@ function ProductPanel({ product }: { product: Product }) {
             </ul>
 
             {hasLink ? (
-                <span className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-bright">
-                    <span className="underline-sweep">사이트 방문</span>
+                <span className="mt-9 inline-flex items-center gap-1.5 text-sm font-medium text-bright">
+                    <span className="underline-sweep">{product.domain} 방문</span>
                     <ArrowUpRight
                         size={15}
                         className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     />
                 </span>
             ) : (
-                <span className="mt-8 inline-flex text-sm text-faint">
-                    {product.status === "coming-soon" ? "출시 준비 중" : "계열사 운영 서비스"}
-                </span>
+                <span className="mt-9 inline-flex text-sm text-muted">출시 준비 중</span>
             )}
         </>
     );
@@ -118,7 +151,7 @@ function ProductPanel({ product }: { product: Product }) {
             target="_blank"
             rel="noreferrer noopener"
             data-cursor="card"
-            className={cn(shared, "hover:-translate-y-1 hover:border-bright/40")}
+            className={cn(shared, "hover:-translate-y-1 hover:border-beam/50")}
         >
             {body}
         </a>
@@ -148,12 +181,12 @@ function ProductSlide({
         <motion.div
             ref={ref}
             id={`product-${product.id}`}
-            initial={{ opacity: 0, y: 28 }}
+            initial={{ opacity: 0, y: 36 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
         >
-            <ProductPanel product={product} />
+            <ProductPanel product={product} index={index} />
         </motion.div>
     );
 }
@@ -166,7 +199,7 @@ export function Products() {
             <div className="container-x">
                 <SectionHeading {...SECTIONS.products} />
 
-                <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:gap-16">
+                <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,250px)_minmax(0,1fr)] lg:gap-16">
                     {/* 좌측 인디케이터 — lg 이상에서만 스티키 */}
                     <div className="hidden lg:block">
                         <div className="sticky top-28">
@@ -175,12 +208,12 @@ export function Products() {
                                     <li key={product.id}>
                                         <a
                                             href={`#product-${product.id}`}
-                                            className="relative flex items-baseline gap-3 py-2.5 pl-5"
+                                            className="relative flex items-baseline gap-3 py-3 pl-5"
                                         >
                                             {active === index ? (
                                                 <motion.span
                                                     layoutId="product-indicator"
-                                                    className="absolute -left-px top-0 h-full w-0.5 bg-bright"
+                                                    className="absolute -left-px top-0 h-full w-0.5 bg-beam"
                                                     transition={{
                                                         type: "spring",
                                                         stiffness: 400,
@@ -188,15 +221,15 @@ export function Products() {
                                                     }}
                                                 />
                                             ) : null}
-                                            <span className="font-mono text-[11px] tracking-[0.14em] text-faint">
+                                            <span className="font-mono text-[11px] tracking-[0.16em] text-faint">
                                                 {String(index + 1).padStart(2, "0")}
                                             </span>
                                             <span
                                                 className={cn(
                                                     "text-[15px] transition-colors duration-300",
                                                     active === index
-                                                        ? "text-text"
-                                                        : "text-muted hover:text-text"
+                                                        ? "text-bright"
+                                                        : "text-muted hover:text-bright"
                                                 )}
                                             >
                                                 {product.name}
@@ -208,7 +241,7 @@ export function Products() {
                         </div>
                     </div>
 
-                    <div className="space-y-6 lg:space-y-20">
+                    <div className="space-y-6 lg:space-y-24">
                         {PRODUCTS.map((product, index) => (
                             <ProductSlide
                                 key={product.id}

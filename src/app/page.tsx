@@ -4,6 +4,8 @@ import { Hero } from "@/components/Hero";
 import { WordEquation } from "@/components/WordEquation";
 import { StatGrid } from "@/components/StatGrid";
 import { Capability } from "@/components/Capability";
+import { Manifesto } from "@/components/Manifesto";
+import { Approach } from "@/components/Approach";
 import { Products } from "@/components/Products";
 import { Research } from "@/components/Research";
 import { Partners } from "@/components/Partners";
@@ -43,9 +45,11 @@ export default function Home() {
         <Hero />
         <WordEquation />
         <StatGrid />
+        <Manifesto />
         <Capability />
         <Products />
         <Technology />
+        <Approach />
         <Research />
         <Partners />
         <Contact />

@@ -1,5 +1,7 @@
-import { Reveal } from "@/components/motion/Reveal";
-import { EMPHASIS_CLASS, parseEmphasis } from "@/lib/emphasis";
+"use client";
+
+import { motion } from "framer-motion";
+import { MaskedText } from "@/components/motion/MaskedText";
 import { cn } from "@/lib/utils";
 
 interface SectionHeadingProps {
@@ -21,34 +23,39 @@ export function SectionHeading({
     const centered = align === "center";
 
     return (
-        <Reveal
-            className={cn(
-                "max-w-3xl",
-                centered && "mx-auto text-center",
-                className
-            )}
-        >
-            <p className="type-eyebrow">{eyebrow}</p>
-            <h2 className="type-h2 mt-6 text-balance">
-                {parseEmphasis(title).map((segment, i) => (
-                    <span
-                        key={i}
-                        className={segment.em ? EMPHASIS_CLASS : undefined}
-                    >
-                        {segment.text}
-                    </span>
-                ))}
-            </h2>
+        <div className={cn("max-w-3xl", centered && "mx-auto text-center", className)}>
+            <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, margin: "-12%" }}
+                transition={{ duration: 0.6 }}
+                className="type-eyebrow"
+            >
+                {eyebrow}
+            </motion.p>
+
+            <MaskedText
+                as="h2"
+                text={title}
+                trigger="inView"
+                delay={0.08}
+                className="type-h2 mt-6"
+            />
+
             {description ? (
-                <p
+                <motion.p
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-12%" }}
+                    transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     className={cn(
                         "type-body mt-7 max-w-2xl text-muted",
                         centered && "mx-auto"
                     )}
                 >
                     {description}
-                </p>
+                </motion.p>
             ) : null}
-        </Reveal>
+        </div>
     );
 }
