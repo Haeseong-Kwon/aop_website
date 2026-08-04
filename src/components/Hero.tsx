@@ -5,7 +5,8 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { MaskedText } from "@/components/motion/MaskedText";
 import { MagneticButton } from "@/components/motion/MagneticButton";
-import { HERO, SITE } from "@/lib/constants";
+import { AgentRunPanel } from "@/components/hero/AgentRunPanel";
+import { HERO, PARTNERS } from "@/lib/constants";
 
 export function Hero() {
     const ref = useRef<HTMLElement>(null);
@@ -15,86 +16,105 @@ export function Hero() {
     });
 
     // 0.3배속 패럴랙스 — reducedMotion="user"에서는 MotionConfig가 transform을 무력화한다.
-    const meshY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-    const meshScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
-    const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+    const auroraY = useTransform(scrollYProgress, [0, 1], ["0%", "28%"]);
+    const panelY = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
 
     return (
-        <section
-            ref={ref}
-            id="hero"
-            className="relative flex min-h-[100svh] items-center overflow-hidden pt-32 pb-24"
-        >
-            {/* TODO: 실제 에셋 교체 — 현재는 CSS gradient mesh */}
+        <section ref={ref} id="hero" className="relative overflow-hidden pt-32 pb-20 md:pt-40">
             <motion.div
                 aria-hidden
-                style={{ y: meshY, scale: meshScale }}
-                className="pointer-events-none absolute inset-0 -z-10"
+                style={{ y: auroraY }}
+                className="pointer-events-none absolute inset-x-0 top-[-30%] -z-10 h-[80vh]"
             >
-                <div className="absolute left-1/2 top-[-20%] h-[70vh] w-[110vw] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(91,91,214,0.22),transparent_62%)] blur-3xl" />
-                <div className="absolute left-[10%] top-[35%] h-[40vh] w-[45vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(61,214,140,0.08),transparent_65%)] blur-3xl" />
+                <div className="absolute left-1/2 top-0 h-full w-[120vw] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_50%_at_50%_45%,color-mix(in_oklab,var(--accent)_22%,transparent),transparent_70%)] blur-2xl" />
+                <div className="absolute left-[12%] top-[45%] h-[36vh] w-[40vw] bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--accent-2)_14%,transparent),transparent_70%)] blur-3xl" />
             </motion.div>
 
-            <motion.div style={{ opacity: contentOpacity }} className="container-x relative">
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.6 }}
-                    className="type-eyebrow"
-                >
-                    {HERO.eyebrow}
-                </motion.p>
+            <div className="container-x relative">
+                <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+                    <div>
+                        <motion.span
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="badge border-border bg-surface text-muted"
+                        >
+                            <span className="size-1.5 rounded-full bg-accent-2" />
+                            {HERO.eyebrow}
+                        </motion.span>
 
-                <MaskedText
-                    as="h1"
-                    text={HERO.headline}
-                    delay={0.15}
-                    className="type-display mt-8 max-w-[16ch]"
-                />
+                        <MaskedText
+                            as="h1"
+                            text={HERO.headline}
+                            delay={0.18}
+                            className="type-display mt-7 max-w-[14ch] text-balance"
+                        />
 
-                <motion.p
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="type-body mt-10 max-w-xl text-muted"
-                >
-                    {HERO.sub}
-                </motion.p>
+                        <motion.p
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.7, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                            className="type-body mt-8 max-w-lg text-muted"
+                        >
+                            {HERO.sub}
+                        </motion.p>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.7, delay: 0.68, ease: [0.16, 1, 0.3, 1] }}
+                            className="mt-10 flex flex-wrap items-center gap-3"
+                        >
+                            <MagneticButton
+                                href={HERO.primaryCta.href}
+                                className="btn btn-primary group"
+                            >
+                                {HERO.primaryCta.label}
+                                <ArrowRight
+                                    size={16}
+                                    className="transition-transform duration-300 group-hover:translate-x-1"
+                                />
+                            </MagneticButton>
+
+                            <MagneticButton
+                                href={HERO.secondaryCta.href}
+                                className="btn btn-ghost"
+                            >
+                                {HERO.secondaryCta.label}
+                            </MagneticButton>
+                        </motion.div>
+                    </div>
+
+                    <motion.div
+                        style={{ y: panelY }}
+                        initial={{ opacity: 0, y: 28 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                        <AgentRunPanel />
+                    </motion.div>
+                </div>
 
                 <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.62, ease: [0.16, 1, 0.3, 1] }}
-                    className="mt-12 flex flex-wrap items-center gap-4"
-                >
-                    <MagneticButton
-                        href={HERO.primaryCta.href}
-                        className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-text transition-colors hover:bg-accent/85"
-                    >
-                        {HERO.primaryCta.label}
-                        <ArrowRight
-                            size={16}
-                            className="transition-transform duration-300 group-hover:translate-x-1"
-                        />
-                    </MagneticButton>
-
-                    <MagneticButton
-                        href={HERO.secondaryCta.href}
-                        className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-muted transition-colors hover:border-text/30 hover:text-text"
-                    >
-                        {HERO.secondaryCta.label}
-                    </MagneticButton>
-                </motion.div>
-
-                <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 1 }}
-                    className="type-eyebrow mt-24"
+                    transition={{ duration: 0.8, delay: 1.1 }}
+                    className="mt-16 border-t border-border pt-8 md:mt-20"
                 >
-                    {SITE.slogan} — {SITE.fullName}
-                </motion.p>
-            </motion.div>
+                    <p className="type-eyebrow">계열 · 파트너</p>
+                    <ul className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-4">
+                        {PARTNERS.map((partner) => (
+                            // TODO: 로고 SVG 교체 — 현재는 워드마크 타이포그래피
+                            <li
+                                key={partner.id}
+                                className="font-mono text-sm tracking-[-0.01em] text-faint transition-colors duration-300 hover:text-muted"
+                            >
+                                {partner.nameEn}
+                            </li>
+                        ))}
+                    </ul>
+                </motion.div>
+            </div>
         </section>
     );
 }
