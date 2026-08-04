@@ -2,8 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
+import {
+    AnimatePresence,
+    motion,
+    useMotionValueEvent,
+    useScroll,
+} from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { NAV_ITEMS, SITE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -49,50 +55,71 @@ export function Navbar() {
                 className={cn(
                     "fixed inset-x-0 top-0 z-[110] transition-colors duration-500",
                     scrolled && !isOpen
-                        ? "border-b border-border bg-bg/70 backdrop-blur-xl"
+                        ? "border-b border-border bg-bg/72 backdrop-blur-xl backdrop-saturate-150"
                         : "border-b border-transparent"
                 )}
             >
                 <nav
                     aria-label="주요 메뉴"
-                    className="container-x flex h-16 items-center justify-between md:h-20"
+                    className="container-x flex h-16 items-center justify-between gap-6 md:h-[68px]"
                 >
                     <Link
                         href="/"
                         onClick={() => setIsOpen(false)}
-                        className="relative z-[120] font-mono text-lg tracking-[-0.02em]"
+                        className="relative z-[120] flex items-baseline gap-2"
                     >
-                        {SITE.name}
+                        <span className="font-mono text-[17px] font-medium tracking-[-0.02em]">
+                            {SITE.name}
+                        </span>
+                        <span className="hidden text-[13px] text-faint sm:inline">
+                            {SITE.slogan}
+                        </span>
                     </Link>
 
-                    <ul className="hidden items-center gap-8 md:flex">
-                        {NAV_ITEMS.map((item) => (
-                            <li key={item.href}>
-                                <a
-                                    href={item.href}
-                                    className={cn(
-                                        "underline-sweep font-mono text-[13px] tracking-[0.06em] transition-colors duration-300",
-                                        activeId === item.href
-                                            ? "text-text"
-                                            : "text-muted hover:text-text"
-                                    )}
-                                >
-                                    {item.label}
-                                </a>
-                            </li>
-                        ))}
+                    <ul className="hidden items-center gap-1 md:flex">
+                        {NAV_ITEMS.map((item) => {
+                            const isActive = activeId === item.href;
+
+                            return (
+                                <li key={item.href} className="relative">
+                                    <a
+                                        href={item.href}
+                                        className={cn(
+                                            "relative z-10 block rounded-full px-3.5 py-1.5 font-mono text-[12.5px] tracking-[0.02em] transition-colors duration-300",
+                                            isActive ? "text-text" : "text-muted hover:text-text"
+                                        )}
+                                    >
+                                        {item.label}
+                                    </a>
+                                    {isActive ? (
+                                        <motion.span
+                                            layoutId="nav-pill"
+                                            className="absolute inset-0 rounded-full bg-surface-2"
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 380,
+                                                damping: 34,
+                                            }}
+                                        />
+                                    ) : null}
+                                </li>
+                            );
+                        })}
                     </ul>
 
-                    <button
-                        type="button"
-                        onClick={() => setIsOpen((open) => !open)}
-                        aria-expanded={isOpen}
-                        aria-controls="mobile-menu"
-                        aria-label={isOpen ? "메뉴 닫기" : "메뉴 열기"}
-                        className="relative z-[120] -mr-2 p-2 md:hidden"
-                    >
-                        {isOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <ThemeToggle />
+                        <button
+                            type="button"
+                            onClick={() => setIsOpen((open) => !open)}
+                            aria-expanded={isOpen}
+                            aria-controls="mobile-menu"
+                            aria-label={isOpen ? "메뉴 닫기" : "메뉴 열기"}
+                            className="relative z-[120] grid size-9 place-items-center rounded-full border border-border bg-surface text-muted transition-colors hover:text-text md:hidden"
+                        >
+                            {isOpen ? <X size={16} /> : <Menu size={16} />}
+                        </button>
+                    </div>
                 </nav>
             </header>
 
@@ -106,14 +133,14 @@ export function Navbar() {
                         transition={{ duration: 0.35 }}
                         className="fixed inset-0 z-[100] flex flex-col justify-center bg-bg px-6 md:hidden"
                     >
-                        <ul className="space-y-2">
+                        <ul className="space-y-1">
                             {NAV_ITEMS.map((item, index) => (
                                 <motion.li
                                     key={item.href}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{
-                                        delay: 0.1 + index * 0.06,
+                                        delay: 0.1 + index * 0.055,
                                         duration: 0.5,
                                         ease: [0.16, 1, 0.3, 1],
                                     }}
@@ -121,8 +148,11 @@ export function Navbar() {
                                     <a
                                         href={item.href}
                                         onClick={() => setIsOpen(false)}
-                                        className="block py-3 text-3xl tracking-[-0.03em]"
+                                        className="flex items-baseline gap-4 border-b border-border py-4 text-2xl tracking-[-0.03em]"
                                     >
+                                        <span className="font-mono text-[11px] text-faint">
+                                            {String(index + 1).padStart(2, "0")}
+                                        </span>
                                         {item.label}
                                     </a>
                                 </motion.li>

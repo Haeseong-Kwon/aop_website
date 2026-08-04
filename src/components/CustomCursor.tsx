@@ -6,11 +6,14 @@ import { useRichMotion } from "@/hooks/useReducedMotion";
 
 type CursorMode = "default" | "link" | "card";
 
-const RING_SIZE = { default: 28, link: 48, card: 64 } as const;
+const RING_SIZE = { default: 28, link: 46, card: 62 } as const;
 
 /**
  * 도트 + 지연 추종 링. 터치 기기와 prefers-reduced-motion에서는 렌더 자체를 하지 않는다.
  * 카드에는 data-cursor="card"를 붙이면 링 안에 VIEW 라벨이 뜬다.
+ *
+ * 링 색은 --text 토큰을 그대로 쓴다. mix-blend-difference는 라이트 테마에서
+ * 링을 배경과 같은 색으로 만들어 버려 쓰지 않는다.
  */
 export function CustomCursor() {
     const rich = useRichMotion();
@@ -33,7 +36,9 @@ export function CustomCursor() {
             const target = event.target as HTMLElement | null;
             if (target?.closest?.('[data-cursor="card"]')) {
                 setMode("card");
-            } else if (target?.closest?.("a, button, [role='button'], input, textarea, select")) {
+            } else if (
+                target?.closest?.("a, button, [role='button'], input, textarea, select")
+            ) {
                 setMode("link");
             } else {
                 setMode("default");
@@ -59,21 +64,40 @@ export function CustomCursor() {
         <div aria-hidden className="pointer-events-none fixed inset-0 z-[9999]">
             <motion.div
                 className="absolute rounded-full bg-text"
-                style={{ x: dotX, y: dotY, width: 6, height: 6, translateX: "-50%", translateY: "-50%" }}
+                style={{
+                    x: dotX,
+                    y: dotY,
+                    width: 5,
+                    height: 5,
+                    translateX: "-50%",
+                    translateY: "-50%",
+                }}
                 animate={{ opacity: visible && mode === "default" ? 1 : 0 }}
                 transition={{ duration: 0.2 }}
             />
             <motion.div
-                className="absolute flex items-center justify-center rounded-full border border-text font-mono text-[9px] tracking-[0.18em] text-text mix-blend-difference"
-                style={{ x: ringX, y: ringY, translateX: "-50%", translateY: "-50%" }}
+                className="absolute flex items-center justify-center rounded-full border border-text/60 font-mono text-[9px] tracking-[0.16em]"
+                style={{
+                    x: ringX,
+                    y: ringY,
+                    translateX: "-50%",
+                    translateY: "-50%",
+                }}
                 animate={{
                     width: size,
                     height: size,
                     opacity: visible ? 1 : 0,
+                    backgroundColor:
+                        mode === "default"
+                            ? "color-mix(in oklab, var(--text) 0%, transparent)"
+                            : "color-mix(in oklab, var(--text) 7%, transparent)",
                 }}
                 transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >
-                <motion.span animate={{ opacity: mode === "card" ? 1 : 0 }} transition={{ duration: 0.2 }}>
+                <motion.span
+                    animate={{ opacity: mode === "card" ? 1 : 0 }}
+                    transition={{ duration: 0.2 }}
+                >
                     VIEW
                 </motion.span>
             </motion.div>
