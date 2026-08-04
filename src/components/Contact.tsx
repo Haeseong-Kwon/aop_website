@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight, Check, Mail } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "@/components/motion/Reveal";
-import { INQUIRY_TYPES, SITE } from "@/lib/constants";
+import { INQUIRY_TYPES, SECTIONS, SITE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const contactSchema = z.object({
@@ -20,7 +20,7 @@ const contactSchema = z.object({
 type ContactValues = z.infer<typeof contactSchema>;
 
 const fieldClass =
-    "w-full rounded-lg border border-border bg-surface px-4 py-3 text-[15px] text-text placeholder:text-muted/60 transition-colors focus:border-accent focus:outline-none";
+    "w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[15px] text-text placeholder:text-faint transition-colors focus:border-accent focus:outline-none";
 
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
@@ -63,21 +63,24 @@ export function Contact() {
     return (
         <section id="contact" className="section-y relative">
             <div className="container-x">
-                <div className="grid gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-24">
+                <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
                     <div>
-                        <SectionHeading
-                            eyebrow="CONTACT"
-                            title="문의하기"
-                            description="제품 도입, 기술 협력, 공동 연구 어느 쪽이든 구체적인 상황을 적어주시면 담당자가 직접 회신합니다."
-                        />
+                        <SectionHeading {...SECTIONS.contact} />
 
-                        <Reveal delay={0.1} className="mt-12">
-                            <p className="type-eyebrow">Email</p>
+                        <Reveal delay={0.1} className="mt-10">
                             <a
                                 href={`mailto:${SITE.email}`}
-                                className="underline-sweep mt-3 inline-block text-lg"
+                                className="surface-card group flex items-center gap-3.5 p-4"
                             >
-                                {SITE.email}
+                                <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-2 text-accent">
+                                    <Mail size={15} strokeWidth={1.75} />
+                                </span>
+                                <span>
+                                    <span className="type-eyebrow block">Email</span>
+                                    <span className="underline-sweep mt-0.5 block text-[15px]">
+                                        {SITE.email}
+                                    </span>
+                                </span>
                             </a>
                         </Reveal>
                     </div>
@@ -86,9 +89,9 @@ export function Contact() {
                         <form
                             onSubmit={handleSubmit(onSubmit)}
                             noValidate
-                            className="surface-card space-y-6 p-6 md:p-10"
+                            className="surface-card space-y-5 p-6 md:p-9"
                         >
-                            <div className="grid gap-6 sm:grid-cols-2">
+                            <div className="grid gap-5 sm:grid-cols-2">
                                 <div>
                                     <label htmlFor="name" className="type-eyebrow">
                                         Name
@@ -98,7 +101,7 @@ export function Contact() {
                                         autoComplete="name"
                                         placeholder="홍길동"
                                         aria-invalid={Boolean(errors.name)}
-                                        className={cn(fieldClass, "mt-3")}
+                                        className={cn(fieldClass, "mt-2.5")}
                                         {...register("name")}
                                     />
                                     <FieldError message={errors.name?.message} />
@@ -114,7 +117,7 @@ export function Contact() {
                                         autoComplete="email"
                                         placeholder="you@company.com"
                                         aria-invalid={Boolean(errors.email)}
-                                        className={cn(fieldClass, "mt-3")}
+                                        className={cn(fieldClass, "mt-2.5")}
                                         {...register("email")}
                                     />
                                     <FieldError message={errors.email?.message} />
@@ -128,7 +131,7 @@ export function Contact() {
                                 <select
                                     id="type"
                                     aria-invalid={Boolean(errors.type)}
-                                    className={cn(fieldClass, "mt-3 appearance-none")}
+                                    className={cn(fieldClass, "mt-2.5")}
                                     {...register("type")}
                                 >
                                     {INQUIRY_TYPES.map((type) => (
@@ -149,31 +152,31 @@ export function Contact() {
                                     rows={5}
                                     placeholder="어떤 문제를 풀고 계신지 알려주세요."
                                     aria-invalid={Boolean(errors.message)}
-                                    className={cn(fieldClass, "mt-3 resize-none")}
+                                    className={cn(fieldClass, "mt-2.5 resize-none")}
                                     {...register("message")}
                                 />
                                 <FieldError message={errors.message?.message} />
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-4 pt-2">
+                            <div className="flex flex-wrap items-center gap-4 pt-1">
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-text transition-colors hover:bg-accent/85 disabled:opacity-60"
+                                    className="btn btn-primary group disabled:opacity-60"
                                 >
                                     문의 보내기
                                     <ArrowUpRight
                                         size={16}
-                                        className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+                                        className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                                     />
                                 </button>
 
                                 {sent ? (
                                     <span
                                         role="status"
-                                        className="inline-flex items-center gap-2 text-sm text-accent-2"
+                                        className="inline-flex items-center gap-1.5 text-sm text-accent-2"
                                     >
-                                        <Check size={16} />
+                                        <Check size={15} />
                                         메일 앱이 열렸습니다
                                     </span>
                                 ) : null}
