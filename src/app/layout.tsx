@@ -1,32 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
-import { HERO, SECTIONS, SITE } from "@/lib/constants";
-import { emphasizedChars } from "@/lib/emphasis";
+import { SITE } from "@/lib/constants";
 import "./globals.css";
 
-/*
- * 한글 강조어에만 명조를 쓰므로, 실제로 쓰인 글자만 서브셋으로 받는다.
- * 카피가 바뀌면 이 목록도 자동으로 따라간다 (수 KB 수준).
- */
-const serifKoUrl = `https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500&text=${encodeURIComponent(
-  emphasizedChars([HERO.headline, ...Object.values(SECTIONS).map((s) => s.title)])
-)}&display=swap`;
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  display: "swap",
-});
-
+// 기술적 크롬(파이프라인 노드 라벨, 도메인 칩)에만 쓰는 보조 서체.
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
@@ -88,18 +66,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ko"
-      className={`${inter.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="ko" className={jetbrainsMono.variable}>
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
           rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+          href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css"
         />
-        <link rel="stylesheet" href={serifKoUrl} />
         <meta name="theme-color" content="#000000" />
         <script
           type="application/ld+json"

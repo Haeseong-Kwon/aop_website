@@ -28,25 +28,9 @@ export function stripEmphasis(input: string): string {
     return input.replace(MARKER, (match) => match.slice(1, -1));
 }
 
-const HANGUL = /[가-힣]/;
-
 /**
- * 강조 구간의 스크립트에 맞는 세리프 클래스.
- * Instrument Serif에는 한글 글리프가 없어 그대로 두면 폴백 세리프로 깨진다.
- * 라틴은 이탤릭, 한글은 명조 정체로 나눈다.
+ * 강조는 서체를 바꾸지 않고 발광 그라디언트로 처리한다.
+ * 세리프 혼용은 스크립트마다 다른 서체를 물고 와야 해서 한글에서 자간이 무너졌고,
+ * 레퍼런스의 그래픽 언어와도 맞지 않았다.
  */
-export function emphasisClass(text: string): string {
-    return HANGUL.test(text) ? "serif-em-ko" : "serif-em";
-}
-
-/** Noto Serif KR을 강조어에 쓰인 글자만 서브셋으로 받기 위한 문자 집합. */
-export function emphasizedChars(sources: readonly string[]): string {
-    const chars = sources
-        .flatMap((source) => source.match(MARKER) ?? [])
-        .join("")
-        .replace(/\*/g, "")
-        .split("")
-        .filter((char) => HANGUL.test(char));
-
-    return Array.from(new Set(chars)).join("");
-}
+export const EMPHASIS_CLASS = "em-glow";

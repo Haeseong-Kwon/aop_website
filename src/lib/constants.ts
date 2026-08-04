@@ -24,7 +24,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
 export const HERO = {
     eyebrow: "AI AGENT TECHNOLOGY",
     headline: "에이전트가 일하는 방식을 *설계*합니다",
-    sub: "AOP는 네 개의 AI 에이전트 제품을 직접 운영합니다. 그 제품을 굴리며 얻은 문제로, 에이전트를 더 정확하고 더 싸게 만드는 원천기술을 연구합니다.",
+    sub: "AOP는 네 개의 AI 에이전트 제품을 직접 운영합니다. 마케팅, 수출, 교육, 건설 — 서로 다른 산업이 같은 실행 엔진 위에서 돌아갑니다.",
+    subSecondary:
+        "그 제품을 굴리며 나온 문제가 우리의 연구 주제가 됩니다. 아래 지표는 지금까지 만들어 온 것들입니다.",
     primaryCta: { label: "제품 보기", href: "#products" },
     secondaryCta: { label: "기술 살펴보기", href: "#technology" },
 } as const;

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { emphasisClass, parseEmphasisWords, stripEmphasis } from "@/lib/emphasis";
+import { EMPHASIS_CLASS, parseEmphasisWords, stripEmphasis } from "@/lib/emphasis";
 import { cn } from "@/lib/utils";
 
 interface MaskedTextProps {
@@ -46,7 +46,7 @@ export function MaskedText({
                         {segments.map((segment, i) => (
                             <span
                                 key={i}
-                                className={segment.em ? emphasisClass(segment.text) : undefined}
+                                className={segment.em ? EMPHASIS_CLASS : undefined}
                             >
                                 {segment.text}
                             </span>

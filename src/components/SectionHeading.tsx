@@ -1,5 +1,5 @@
 import { Reveal } from "@/components/motion/Reveal";
-import { emphasisClass, parseEmphasis } from "@/lib/emphasis";
+import { EMPHASIS_CLASS, parseEmphasis } from "@/lib/emphasis";
 import { cn } from "@/lib/utils";
 
 interface SectionHeadingProps {
@@ -33,7 +33,7 @@ export function SectionHeading({
                 {parseEmphasis(title).map((segment, i) => (
                     <span
                         key={i}
-                        className={segment.em ? emphasisClass(segment.text) : undefined}
+                        className={segment.em ? EMPHASIS_CLASS : undefined}
                     >
                         {segment.text}
                     </span>
