@@ -1,26 +1,62 @@
+import { NAV_ITEMS, PARTNERS, SITE } from "@/lib/constants";
+
 export function Footer() {
     return (
-        <footer className="bg-black text-white border-t border-white/10 py-8 px-6 md:px-10">
-            <div className="max-w-[120rem] mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
-                <div className="space-y-3">
-                    <h3 className="text-lg md:text-xl font-black tracking-tight">AOP</h3>
-                    <p className="text-sm text-neutral-500 font-medium">
-                        App / Web / AI Platform Development & Branding
-                    </p>
-                </div>
+        <footer className="relative border-t border-border">
+            <div className="container-x py-16 md:py-20">
+                <div className="grid gap-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+                    <div>
+                        <p className="font-mono text-lg tracking-[-0.02em]">{SITE.name}</p>
+                        <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
+                            {SITE.legalName} · {SITE.fullName}
+                            <br />
+                            AI 에이전트 제품과 원천기술.
+                        </p>
+                        <a
+                            href={`mailto:${SITE.email}`}
+                            className="underline-sweep mt-6 inline-block text-sm"
+                        >
+                            {SITE.email}
+                        </a>
+                    </div>
 
-                <div className="flex flex-col md:items-end gap-4">
-                    <div className="text-left md:text-right">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-500 mb-2">Contact</h4>
-                        <p className="text-sm font-medium">contact@aop.art</p>
-                        <p className="text-sm font-medium">010-XXXX-XXXX</p>
+                    <nav aria-label="푸터 메뉴">
+                        <p className="type-eyebrow">Sitemap</p>
+                        <ul className="mt-5 space-y-3">
+                            {NAV_ITEMS.map((item) => (
+                                <li key={item.href}>
+                                    <a
+                                        href={item.href}
+                                        className="underline-sweep text-sm text-muted transition-colors hover:text-text"
+                                    >
+                                        {item.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+
+                    <div>
+                        <p className="type-eyebrow">Network</p>
+                        <ul className="mt-5 space-y-3">
+                            {PARTNERS.map((partner) => (
+                                <li key={partner.id} className="text-sm text-muted">
+                                    {partner.name}
+                                    <span className="ml-2 font-mono text-[11px] tracking-[0.14em]">
+                                        {partner.relation}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
-            </div>
 
-            <div className="max-w-[120rem] mx-auto mt-8 pt-5 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-neutral-600">
-                <p>© {new Date().getFullYear()} AOP. ALL RIGHTS RESERVED.</p>
-                <p>Designed for excellence.</p>
+                <div className="mt-16 flex flex-col gap-3 border-t border-border pt-8 font-mono text-[11px] uppercase tracking-[0.16em] text-muted sm:flex-row sm:items-center sm:justify-between">
+                    <p>
+                        © {new Date().getFullYear()} {SITE.legalName}. All rights reserved.
+                    </p>
+                    <p>{SITE.slogan}</p>
+                </div>
             </div>
         </footer>
     );
