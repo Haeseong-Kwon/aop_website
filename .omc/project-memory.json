@@ -1,0 +1,285 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1785804992419,
+  "projectRoot": "/Users/haeseong/Desktop/Developing/aop_website",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "16.1.6",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.2.3",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.3",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "eslint"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 5,
+      "lastAccessed": 1785804992361,
+      "keyFiles": [
+        "file.svg",
+        "globe.svg",
+        "next.svg",
+        "vercel.svg",
+        "window.svg"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1785804992362,
+      "keyFiles": []
+    },
+    "src/app": {
+      "path": "src/app",
+      "purpose": "Application code",
+      "fileCount": 4,
+      "lastAccessed": 1785804992381,
+      "keyFiles": [
+        "favicon.ico",
+        "globals.css",
+        "layout.tsx"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 7,
+      "lastAccessed": 1785804992382,
+      "keyFiles": [
+        "CustomCursor.tsx",
+        "Footer.tsx",
+        "Hero.tsx"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 2,
+      "lastAccessed": 1785804992382,
+      "keyFiles": [
+        "constants.ts",
+        "utils.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/components/Products.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1785809810510,
+      "type": "file"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1785810036201,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Technology.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1785809877396,
+      "type": "file"
+    },
+    {
+      "path": "src/app/globals.css",
+      "accessCount": 3,
+      "lastAccessed": 1785810028544,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/constants.ts",
+      "accessCount": 2,
+      "lastAccessed": 1785809604383,
+      "type": "file"
+    },
+    {
+      "path": "src/components/CustomCursor.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785809723424,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Hero.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785809746542,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Navbar.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785809948968,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Footer.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785809956477,
+      "type": "file"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785809961913,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Contact.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785810032992,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Ventures.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809463863,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Portfolio.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809464321,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "accessCount": 1,
+      "lastAccessed": 1785809464535,
+      "type": "file"
+    },
+    {
+      "path": "src/hooks/useReducedMotion.ts",
+      "accessCount": 1,
+      "lastAccessed": 1785809676803,
+      "type": "file"
+    },
+    {
+      "path": "src/hooks/useLenis.ts",
+      "accessCount": 1,
+      "lastAccessed": 1785809681070,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Providers.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809685132,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/Reveal.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809689416,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/MaskedText.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809694957,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/MagneticButton.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809703133,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/SpotlightCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809707790,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/ScrollProgress.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809710110,
+      "type": "file"
+    },
+    {
+      "path": "src/components/SectionHeading.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809730912,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Capability.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809752551,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Research.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809890935,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Partners.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785809897921,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
