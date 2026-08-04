@@ -21,14 +21,14 @@ function StatusBadge({ status }: { status: Product["status"] }) {
             className={cn(
                 "badge",
                 isLive
-                    ? "border-transparent bg-accent-2-soft text-accent-2"
+                    ? "border-transparent bg-signal/10 text-signal"
                     : "border-border text-muted"
             )}
         >
             <span
                 className={cn(
                     "size-1.5 rounded-full",
-                    isLive ? "bg-accent-2" : "bg-faint"
+                    isLive ? "bg-signal" : "bg-faint"
                 )}
             />
             {STATUS_LABEL[status]}
@@ -80,7 +80,7 @@ function ProductPanel({ product }: { product: Product }) {
             </div>
 
             <h3 className="type-h2 mt-5">{product.name}</h3>
-            <p className="mt-3 text-lg text-accent">{product.tagline}</p>
+            <p className="mt-3 text-lg text-bright">{product.tagline}</p>
             <p className="type-body mt-5 max-w-xl text-muted">{product.description}</p>
 
             <ul className="mt-7 flex flex-wrap gap-2">
@@ -95,7 +95,7 @@ function ProductPanel({ product }: { product: Product }) {
             </ul>
 
             {hasLink ? (
-                <span className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+                <span className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-bright">
                     <span className="underline-sweep">사이트 방문</span>
                     <ArrowUpRight
                         size={15}
@@ -118,7 +118,7 @@ function ProductPanel({ product }: { product: Product }) {
             target="_blank"
             rel="noreferrer noopener"
             data-cursor="card"
-            className={cn(shared, "hover:-translate-y-1 hover:border-accent/50")}
+            className={cn(shared, "hover:-translate-y-1 hover:border-bright/40")}
         >
             {body}
         </a>
@@ -180,7 +180,7 @@ export function Products() {
                                             {active === index ? (
                                                 <motion.span
                                                     layoutId="product-indicator"
-                                                    className="absolute -left-px top-0 h-full w-0.5 bg-accent"
+                                                    className="absolute -left-px top-0 h-full w-0.5 bg-bright"
                                                     transition={{
                                                         type: "spring",
                                                         stiffness: 400,

@@ -19,7 +19,7 @@ export function Partners() {
                                     className={cn(
                                         "badge self-start",
                                         partner.relation === "계열"
-                                            ? "border-transparent bg-accent-soft text-accent"
+                                            ? "border-transparent bg-surface-2 text-bright"
                                             : "border-border text-muted"
                                     )}
                                 >

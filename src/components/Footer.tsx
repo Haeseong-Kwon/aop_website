@@ -2,7 +2,7 @@ import { NAV_ITEMS, PARTNERS, SITE } from "@/lib/constants";
 
 export function Footer() {
     return (
-        <footer className="relative border-t border-border bg-bg-2">
+        <footer className="relative border-t border-border bg-bg">
             <div className="container-x py-14 md:py-16">
                 <div className="grid gap-10 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
                     <div>

@@ -89,8 +89,8 @@ export function CustomCursor() {
                     opacity: visible ? 1 : 0,
                     backgroundColor:
                         mode === "default"
-                            ? "color-mix(in oklab, var(--text) 0%, transparent)"
-                            : "color-mix(in oklab, var(--text) 7%, transparent)",
+                            ? "color-mix(in oklab, var(--color-bright) 0%, transparent)"
+                            : "color-mix(in oklab, var(--color-bright) 7%, transparent)",
                 }}
                 transition={{ type: "spring", stiffness: 260, damping: 26 }}
             >

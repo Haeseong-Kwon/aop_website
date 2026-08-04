@@ -2,24 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-    AnimatePresence,
-    motion,
-    useMotionValueEvent,
-    useScroll,
-} from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { NAV_ITEMS, SITE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
+/** 레퍼런스를 따라 화면 상단에 떠 있는 알약형 내비. */
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-    const [activeId, setActiveId] = useState<string>("");
-    const { scrollY } = useScroll();
-
-    useMotionValueEvent(scrollY, "change", (value) => setScrolled(value > 24));
+    const [activeId, setActiveId] = useState("");
 
     // 현재 화면에 걸린 섹션 하이라이트
     useEffect(() => {
@@ -51,32 +42,28 @@ export function Navbar() {
 
     return (
         <>
-            <header
-                className={cn(
-                    "fixed inset-x-0 top-0 z-[110] transition-colors duration-500",
-                    scrolled && !isOpen
-                        ? "border-b border-border bg-bg/72 backdrop-blur-xl backdrop-saturate-150"
-                        : "border-b border-transparent"
-                )}
-            >
+            <header className="fixed inset-x-0 top-4 z-[110] flex justify-center px-4 md:top-6">
                 <nav
                     aria-label="주요 메뉴"
-                    className="container-x flex h-16 items-center justify-between gap-6 md:h-[68px]"
+                    className={cn(
+                        "flex w-full max-w-3xl items-center justify-between gap-4 py-2.5 pl-5 pr-2.5 md:pl-6",
+                        isOpen ? "bg-transparent" : "pill-bar"
+                    )}
                 >
                     <Link
                         href="/"
                         onClick={() => setIsOpen(false)}
                         className="relative z-[120] flex items-baseline gap-2"
                     >
-                        <span className="font-mono text-[17px] font-medium tracking-[-0.02em]">
+                        <span className="font-mono text-[16px] font-medium tracking-[-0.02em] text-bright">
                             {SITE.name}
                         </span>
-                        <span className="hidden text-[13px] text-faint sm:inline">
+                        <span className="hidden text-[12px] text-faint sm:inline">
                             {SITE.slogan}
                         </span>
                     </Link>
 
-                    <ul className="hidden items-center gap-1 md:flex">
+                    <ul className="hidden items-center gap-0.5 md:flex">
                         {NAV_ITEMS.map((item) => {
                             const isActive = activeId === item.href;
 
@@ -85,8 +72,10 @@ export function Navbar() {
                                     <a
                                         href={item.href}
                                         className={cn(
-                                            "relative z-10 block rounded-full px-3.5 py-1.5 font-mono text-[12.5px] tracking-[0.02em] transition-colors duration-300",
-                                            isActive ? "text-text" : "text-muted hover:text-text"
+                                            "relative z-10 block rounded-full px-3 py-1.5 font-mono text-[12px] tracking-[0.02em] transition-colors duration-300",
+                                            isActive
+                                                ? "text-bright"
+                                                : "text-muted hover:text-bright"
                                         )}
                                     >
                                         {item.label}
@@ -107,19 +96,16 @@ export function Navbar() {
                         })}
                     </ul>
 
-                    <div className="flex items-center gap-2">
-                        <ThemeToggle />
-                        <button
-                            type="button"
-                            onClick={() => setIsOpen((open) => !open)}
-                            aria-expanded={isOpen}
-                            aria-controls="mobile-menu"
-                            aria-label={isOpen ? "메뉴 닫기" : "메뉴 열기"}
-                            className="relative z-[120] grid size-9 place-items-center rounded-full border border-border bg-surface text-muted transition-colors hover:text-text md:hidden"
-                        >
-                            {isOpen ? <X size={16} /> : <Menu size={16} />}
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsOpen((open) => !open)}
+                        aria-expanded={isOpen}
+                        aria-controls="mobile-menu"
+                        aria-label={isOpen ? "메뉴 닫기" : "메뉴 열기"}
+                        className="relative z-[120] grid size-9 shrink-0 place-items-center rounded-full border border-border text-muted transition-colors hover:border-bright hover:text-bright md:hidden"
+                    >
+                        {isOpen ? <X size={16} /> : <Menu size={16} />}
+                    </button>
                 </nav>
             </header>
 
@@ -148,7 +134,7 @@ export function Navbar() {
                                     <a
                                         href={item.href}
                                         onClick={() => setIsOpen(false)}
-                                        className="flex items-baseline gap-4 border-b border-border py-4 text-2xl tracking-[-0.03em]"
+                                        className="flex items-baseline gap-4 border-b border-border py-4 text-2xl tracking-[-0.03em] text-bright"
                                     >
                                         <span className="font-mono text-[11px] text-faint">
                                             {String(index + 1).padStart(2, "0")}

@@ -7,6 +7,7 @@ interface SectionHeadingProps {
     title: string;
     description?: string;
     className?: string;
+    /** 레퍼런스를 따라 기본은 중앙 정렬. */
     align?: "left" | "center";
 }
 
@@ -15,20 +16,20 @@ export function SectionHeading({
     title,
     description,
     className,
-    align = "left",
+    align = "center",
 }: SectionHeadingProps) {
+    const centered = align === "center";
+
     return (
         <Reveal
             className={cn(
                 "max-w-3xl",
-                align === "center" && "mx-auto text-center",
+                centered && "mx-auto text-center",
                 className
             )}
         >
-            <p className={cn("type-eyebrow", align === "left" && "eyebrow-rule")}>
-                {eyebrow}
-            </p>
-            <h2 className="type-h2 mt-5 text-balance">
+            <p className="type-eyebrow">{eyebrow}</p>
+            <h2 className="type-h2 mt-6 text-balance">
                 {parseEmphasis(title).map((segment, i) => (
                     <span
                         key={i}
@@ -41,8 +42,8 @@ export function SectionHeading({
             {description ? (
                 <p
                     className={cn(
-                        "type-body mt-6 max-w-2xl text-muted",
-                        align === "center" && "mx-auto"
+                        "type-body mt-7 max-w-2xl text-muted",
+                        centered && "mx-auto"
                     )}
                 >
                     {description}

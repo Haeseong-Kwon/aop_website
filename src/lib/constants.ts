@@ -29,6 +29,13 @@ export const HERO = {
     secondaryCta: { label: "기술 살펴보기", href: "#technology" },
 } as const;
 
+/** 핀 고정 구간에서 가로로 전개되는 회사 명제. */
+export const EQUATION = {
+    terms: [{ en: "Agent" }, { en: "Product" }, { en: "Research" }],
+    caption:
+        "에이전트를 제품으로 만들고, 제품을 굴리며 나온 문제를 연구로 되돌립니다. 세 가지는 순서가 아니라 하나의 순환입니다.",
+} as const;
+
 export interface Capability {
     id: string;
     title: string;

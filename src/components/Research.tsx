@@ -27,7 +27,7 @@ export function Research() {
                             }}
                         >
                             <SpotlightCard className="flex h-full flex-col p-7 md:p-9">
-                                <span className="type-eyebrow text-accent">
+                                <span className="type-eyebrow text-bright">
                                     {track.category}
                                 </span>
                                 <h3 className="type-h3 mt-4">{track.title}</h3>

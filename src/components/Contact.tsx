@@ -20,7 +20,7 @@ const contactSchema = z.object({
 type ContactValues = z.infer<typeof contactSchema>;
 
 const fieldClass =
-    "w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[15px] text-text placeholder:text-faint transition-colors focus:border-accent focus:outline-none";
+    "w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[15px] text-text placeholder:text-faint transition-colors focus:border-bright focus:outline-none";
 
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
@@ -72,7 +72,7 @@ export function Contact() {
                                 href={`mailto:${SITE.email}`}
                                 className="surface-card group flex items-center gap-3.5 p-4"
                             >
-                                <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-2 text-accent">
+                                <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-2 text-bright">
                                     <Mail size={15} strokeWidth={1.75} />
                                 </span>
                                 <span>
@@ -174,7 +174,7 @@ export function Contact() {
                                 {sent ? (
                                     <span
                                         role="status"
-                                        className="inline-flex items-center gap-1.5 text-sm text-accent-2"
+                                        className="inline-flex items-center gap-1.5 text-sm text-signal"
                                     >
                                         <Check size={15} />
                                         메일 앱이 열렸습니다

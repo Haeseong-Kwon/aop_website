@@ -25,7 +25,7 @@ export function Capability() {
                             <Reveal key={capability.id} delay={index * 0.07} y={18}>
                                 <SpotlightCard className="group h-full p-7 md:p-9">
                                     <div className="flex items-start justify-between gap-4">
-                                        <span className="grid size-10 place-items-center rounded-xl border border-border bg-surface-2 text-accent transition-colors duration-500 group-hover:border-accent/40">
+                                        <span className="grid size-10 place-items-center rounded-xl border border-border bg-surface-2 text-bright transition-colors duration-500 group-hover:border-bright/30">
                                             <Icon size={17} strokeWidth={1.75} />
                                         </span>
                                         <span className="font-mono text-[11px] tracking-[0.14em] text-faint">
