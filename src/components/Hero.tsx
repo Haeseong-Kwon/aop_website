@@ -1,77 +1,99 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { MaskedText } from "@/components/motion/MaskedText";
+import { MagneticButton } from "@/components/motion/MagneticButton";
+import { HERO, SITE } from "@/lib/constants";
 
 export function Hero() {
+    const ref = useRef<HTMLElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: ref,
+        offset: ["start start", "end start"],
+    });
+
+    // 0.3배속 패럴랙스 — reducedMotion="user"에서는 MotionConfig가 transform을 무력화한다.
+    const meshY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+    const meshScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+    const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
     return (
-        <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black text-white noise px-6 md:px-10 pt-24">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-950/20 via-transparent to-black z-0 animate-pulse-slow" />
-            <div className="absolute inset-y-0 left-6 md:left-10 w-px bg-white/10" />
-            <div className="absolute inset-y-0 right-6 md:right-10 w-px bg-white/10" />
-
-            <div className="relative z-10 text-center w-full max-w-[120rem] mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                    className="mb-8"
-                >
-                    <h1 className="text-6xl md:text-9xl leading-[0.82] tracking-[-0.05em] mb-3">
-                        AOP: The<br className="md:hidden" /> Art of<br />Programming
-                    </h1>
-                </motion.div>
-
-                <div className="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-10 mt-8 md:mt-12">
-                    <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="text-left md:max-w-xs"
-                    >
-                        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-[#0052FF] mb-2">Vision 2026</p>
-                        <h2 className="text-lg md:text-xl font-bold leading-tight">
-                            &ldquo;기술로 일상을 설계하고, 플랫폼으로 가치를 증명합니다.&rdquo;
-                        </h2>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: 0.6 }}
-                        className="text-left md:max-w-md border-l border-white/10 pl-6"
-                    >
-                        <p className="text-neutral-400 text-sm leading-relaxed">
-                            AOP는 복잡한 세상의 문제들을 명쾌한 사용자 경험으로 치환하는
-                            &lsquo;테크 솔루션 & 브랜드 랩&rsquo;입니다. 비즈니스의 본질을 꿰뚫는
-                            아키텍처와 사용자 중심의 인터페이스를 통해 새로운 연결의 가치를 창조합니다.
-                        </p>
-                    </motion.div>
-                </div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.8 }}
-                    className="mt-10"
-                >
-                    <a
-                        href="#services"
-                        className="group relative inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.25em]"
-                    >
-                        <span className="w-10 h-[1px] bg-white group-hover:w-16 transition-all duration-500" />
-                        Explore Services
-                    </a>
-                </motion.div>
-            </div>
-
+        <section
+            ref={ref}
+            id="hero"
+            className="relative flex min-h-[100svh] items-center overflow-hidden pt-32 pb-24"
+        >
+            {/* TODO: 실제 에셋 교체 — 현재는 CSS gradient mesh */}
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                transition={{ duration: 2, delay: 1.2 }}
-                className="absolute bottom-8 left-6 md:left-10 flex items-center gap-3"
+                aria-hidden
+                style={{ y: meshY, scale: meshScale }}
+                className="pointer-events-none absolute inset-0 -z-10"
             >
-                <div className="w-[1px] h-10 bg-gradient-to-b from-white to-transparent" />
-                <p className="text-[9px] uppercase tracking-[0.4em] text-neutral-500 [writing-mode:vertical-lr]">Scroll</p>
+                <div className="absolute left-1/2 top-[-20%] h-[70vh] w-[110vw] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(91,91,214,0.22),transparent_62%)] blur-3xl" />
+                <div className="absolute left-[10%] top-[35%] h-[40vh] w-[45vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(61,214,140,0.08),transparent_65%)] blur-3xl" />
+            </motion.div>
+
+            <motion.div style={{ opacity: contentOpacity }} className="container-x relative">
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6 }}
+                    className="type-eyebrow"
+                >
+                    {HERO.eyebrow}
+                </motion.p>
+
+                <MaskedText
+                    as="h1"
+                    text={HERO.headline}
+                    delay={0.15}
+                    className="type-display mt-8 max-w-[16ch]"
+                />
+
+                <motion.p
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    className="type-body mt-10 max-w-xl text-muted"
+                >
+                    {HERO.sub}
+                </motion.p>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.62, ease: [0.16, 1, 0.3, 1] }}
+                    className="mt-12 flex flex-wrap items-center gap-4"
+                >
+                    <MagneticButton
+                        href={HERO.primaryCta.href}
+                        className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-text transition-colors hover:bg-accent/85"
+                    >
+                        {HERO.primaryCta.label}
+                        <ArrowRight
+                            size={16}
+                            className="transition-transform duration-300 group-hover:translate-x-1"
+                        />
+                    </MagneticButton>
+
+                    <MagneticButton
+                        href={HERO.secondaryCta.href}
+                        className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-muted transition-colors hover:border-text/30 hover:text-text"
+                    >
+                        {HERO.secondaryCta.label}
+                    </MagneticButton>
+                </motion.div>
+
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1, delay: 1 }}
+                    className="type-eyebrow mt-24"
+                >
+                    {SITE.slogan} — {SITE.fullName}
+                </motion.p>
             </motion.div>
         </section>
     );
