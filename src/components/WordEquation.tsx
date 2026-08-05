@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { NodeField } from "@/components/visual/NodeField";
+import { CircuitLoop } from "@/components/visual/CircuitLoop";
 import { EQUATION } from "@/lib/constants";
 
 /**
@@ -33,10 +34,16 @@ export function WordEquation() {
 
                 <motion.div
                     style={{ x }}
-                    className="flex shrink-0 items-center gap-8 whitespace-nowrap md:gap-16"
+                    className="relative flex shrink-0 items-center gap-8 whitespace-nowrap px-10 py-8 md:gap-16 md:px-16"
                 >
+                    {/* 세 낱말을 감싸고 도는 순환 회로 — 사이트 유일의 무한 루프 */}
+                    <CircuitLoop />
+
                     {EQUATION.terms.map((term, index) => (
-                        <div key={term.en} className="flex items-center gap-8 md:gap-16">
+                        <div
+                            key={term.en}
+                            className="relative flex items-center gap-8 md:gap-16"
+                        >
                             {index > 0 ? (
                                 <span className="text-4xl font-extralight text-faint md:text-6xl">
                                     =

@@ -3,6 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useEnter, useTransition } from "@/hooks/useEnter";
+import { DUR, EASE, STAGGER, VIEWPORT } from "@/lib/motion";
 import { PARTNERS, PATENTS, PIPELINE, PRODUCTS } from "@/lib/constants";
 
 // 서버 렌더 중에는 useLayoutEffect가 경고를 내므로 useEffect로 떨어뜨린다.
@@ -55,7 +57,7 @@ function useCountUp(target: number, active: boolean) {
     useEffect(() => {
         if (!active || prefersReduced) return;
 
-        const duration = 900;
+        const duration = DUR.slow * 1000;
         const start = performance.now();
         let frame = 0;
 
@@ -84,13 +86,16 @@ function StatCell({
     active: boolean;
 }) {
     const value = useCountUp(stat.value, active);
+    const enter = useEnter({ y: 18, delay: index * STAGGER.base, duration: DUR.slow });
+    const ruleTransition = useTransition({
+        duration: 1,
+        delay: 0.25 + index * STAGGER.base,
+        ease: EASE.out,
+    });
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 0.7, delay: index * 0.09, ease: [0.16, 1, 0.3, 1] }}
+            {...enter}
             className="group relative px-6 py-10 md:px-10 md:py-14"
         >
             <p className="type-eyebrow">{stat.label}</p>
@@ -101,12 +106,8 @@ function StatCell({
                 <motion.span
                     initial={{ scaleX: 0 }}
                     whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true, margin: "-15%" }}
-                    transition={{
-                        duration: 1,
-                        delay: 0.25 + index * 0.09,
-                        ease: [0.16, 1, 0.3, 1],
-                    }}
+                    viewport={VIEWPORT}
+                    transition={ruleTransition}
                     className="block h-px w-full origin-left bg-[linear-gradient(90deg,var(--color-glow),var(--color-beam)_55%,transparent)]"
                 />
             </span>
