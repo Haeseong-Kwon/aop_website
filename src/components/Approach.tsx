@@ -1,113 +1,166 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import { SectionHeading } from "@/components/SectionHeading";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useTransition } from "@/hooks/useEnter";
-import { EASE, VIEWPORT } from "@/lib/motion";
+import { FlipPanel } from "@/components/motion/FlipPanel";
+import {
+    RotaryStage,
+    faceIndexFromProgress,
+} from "@/components/motion/RotaryStage";
+import { useEnter, useTransition } from "@/hooks/useEnter";
+import { DUR, EASE, STAGGER, VIEWPORT } from "@/lib/motion";
 import { APPROACH, SECTIONS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 const COUNT = APPROACH.length;
 
-/** 진행 중이 아닌 단계는 0.35로 물러난다. 읽는 위치가 곧 진행 표시기가 된다. */
-const DIMMED = 0.35;
-
-function Step({
+/** 한 단계가 놓이는 면. 3면 프리즘이라 폭이 넓고 낮다. */
+function StepFace({
     step,
     index,
-    progress,
 }: {
     step: (typeof APPROACH)[number];
     index: number;
-    progress: MotionValue<number>;
 }) {
-    const prefersReduced = useReducedMotion();
+    return (
+        <div className="surface-card flex h-full flex-col justify-center p-8 md:p-12">
+            <div className="flex items-center gap-4">
+                <span className="font-mono text-[11px] tracking-[0.18em] text-faint">
+                    {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="h-px flex-1 bg-[linear-gradient(90deg,var(--color-beam),transparent)]" />
+            </div>
 
-    /*
-     * 자기 구간의 앞뒤로 여유를 둬서, 두 단계가 동시에 반쯤 켜진 어정쩡한 상태가
-     * 오래 남지 않게 한다. 경계에서만 짧게 교차한다.
-     */
-    const span = 1 / COUNT;
-    const start = index * span;
-    const opacity = useTransform(
-        progress,
-        [start - span * 0.35, start + span * 0.15, start + span * 0.85, start + span * 1.35],
-        [DIMMED, 1, 1, DIMMED]
+            <h3 className="type-h2 mt-6 max-w-[18ch]">{step.title}</h3>
+            <p className="type-body mt-5 max-w-2xl text-muted">{step.description}</p>
+        </div>
     );
+}
 
-    const markerTransition = useTransition({ duration: 0.5, ease: EASE.out });
+/**
+ * 세 단계가 하나의 순환을 이룬다는 것을, 같은 기둥의 세 면을 돌려 보여준다.
+ *
+ * 이전에는 세 단계를 세로로 쌓고 흐림 정도만 바꿨다. 그러면 "위에서 아래로 흐르는
+ * 목록"으로 읽히는데, 이 섹션이 말하려는 건 순환이다. 같은 입체를 돌리면 세 단계가
+ * 서로 다른 항목이 아니라 한 물체의 세 면이라는 게 형태로 드러난다.
+ *
+ * 스크롤을 가로채지는 않는다 — 속도는 사용자가 쥐고, 우리는 회전만 따라 붙인다.
+ */
+export function Approach() {
+    const pinRef = useRef<HTMLDivElement>(null);
+    const [active, setActive] = useState(0);
+
+    const { scrollYProgress } = useScroll({
+        target: pinRef,
+        offset: ["start start", "end end"],
+    });
+
+    const stageProgress = useTransform(scrollYProgress, [0.14, 0.92], [0, 1]);
+
+    useMotionValueEvent(stageProgress, "change", (value) => {
+        setActive(faceIndexFromProgress(value, COUNT));
+    });
+
+    const faces = APPROACH.map((step, index) => (
+        <StepFace key={step.id} step={step} index={index} />
+    ));
+
+    const heading = <SectionHeading {...SECTIONS.approach} />;
 
     return (
-        <motion.li
-            style={prefersReduced ? undefined : { opacity }}
-            className="relative sm:pl-12"
-        >
+        <section id="approach" className="relative">
+            {/* 넓은 화면: 스크롤이 기둥을 돌린다 */}
+            <div
+                ref={pinRef}
+                className="relative hidden h-[300vh] md:motion-safe:block"
+            >
+                <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
+                    <div className="container-x">
+                        {heading}
+
+                        <StepTicks active={active} />
+
+                        <RotaryStage
+                            progress={stageProgress}
+                            faces={faces}
+                            activeIndex={active}
+                            className="mx-auto mt-8 h-[clamp(17rem,34vh,22rem)] max-w-4xl"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* 좁은 화면: 회전 대신 순차 등장 */}
+            <div className="section-y md:motion-safe:hidden">
+                <div className="container-x">
+                    {heading}
+
+                    <div className="mt-12 space-y-4">
+                        {APPROACH.map((step, index) => (
+                            <StackedStep key={step.id} step={step} index={index} />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+/** 단계 눈금. 회전 중 지금 어디쯤인지 알려주고, 라벨은 판이 넘어가듯 바뀐다. */
+function StepTicks({ active }: { active: number }) {
+    return (
+        <div className="mx-auto mt-12 flex max-w-4xl items-center gap-4">
+            <div className="flex flex-1 gap-1.5">
+                {APPROACH.map((step, index) => (
+                    <span
+                        key={step.id}
+                        className={cn(
+                            "h-px flex-1 transition-colors duration-500",
+                            index <= active ? "bg-beam" : "bg-border"
+                        )}
+                    />
+                ))}
+            </div>
+
+            <FlipPanel trigger={active} axis="x" className="w-40 shrink-0">
+                <span className="block text-right font-mono text-[11px] uppercase tracking-[0.18em] text-bright">
+                    {String(active + 1).padStart(2, "0")} / {String(COUNT).padStart(2, "0")}
+                </span>
+            </FlipPanel>
+        </div>
+    );
+}
+
+function StackedStep({
+    step,
+    index,
+}: {
+    step: (typeof APPROACH)[number];
+    index: number;
+}) {
+    const enter = useEnter({ y: 18, delay: index * STAGGER.loose, duration: DUR.slow });
+    const markerTransition = useTransition({
+        duration: DUR.base,
+        delay: 0.15 + index * STAGGER.loose,
+        ease: EASE.out,
+    });
+
+    return (
+        <motion.div {...enter} className="surface-card relative p-6">
             <motion.span
                 aria-hidden
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={VIEWPORT}
                 transition={markerTransition}
-                className="absolute left-0 top-2 hidden size-[15px] place-items-center rounded-full border border-beam bg-bg sm:grid"
-            >
-                <span className="size-[5px] rounded-full bg-beam" />
-            </motion.span>
-
+                className="absolute left-0 top-6 h-8 w-px bg-beam"
+            />
             <p className="font-mono text-[11px] tracking-[0.18em] text-faint">
                 {String(index + 1).padStart(2, "0")}
             </p>
             <h3 className="type-h3 mt-3">{step.title}</h3>
             <p className="type-body mt-4 text-muted">{step.description}</p>
-        </motion.li>
-    );
-}
-
-/**
- * 세 단계가 순환한다는 것을 세로 레일과 순차 점등으로 보여준다.
- * 스크롤 하이재킹은 하지 않는다 — 스크롤 속도는 사용자가 쥐고, 우리는 강조만 옮긴다.
- */
-export function Approach() {
-    const ref = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ["start 0.8", "end 0.5"],
-    });
-
-    const railTransition = useTransition({ duration: 1.6, ease: EASE.out });
-
-    return (
-        <section id="approach" className="section-y relative">
-            <div className="container-x">
-                <SectionHeading {...SECTIONS.approach} />
-
-                <div ref={ref} className="relative mx-auto mt-20 max-w-3xl">
-                    {/* 세로 레일 */}
-                    <span
-                        aria-hidden
-                        className="absolute left-[7px] top-2 hidden h-full w-px bg-border sm:block"
-                    >
-                        <motion.span
-                            initial={{ scaleY: 0 }}
-                            whileInView={{ scaleY: 1 }}
-                            viewport={VIEWPORT}
-                            transition={railTransition}
-                            className="block h-full w-px origin-top bg-[linear-gradient(180deg,var(--color-glow),var(--color-beam)_45%,transparent)]"
-                        />
-                    </span>
-
-                    <ol className="space-y-14">
-                        {APPROACH.map((step, index) => (
-                            <Step
-                                key={step.id}
-                                step={step}
-                                index={index}
-                                progress={scrollYProgress}
-                            />
-                        ))}
-                    </ol>
-                </div>
-            </div>
-        </section>
+        </motion.div>
     );
 }

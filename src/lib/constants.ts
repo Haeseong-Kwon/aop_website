@@ -87,6 +87,22 @@ export const CAPABILITIES: readonly Capability[] = [
 
 export type ProductStatus = "live" | "coming-soon";
 
+/**
+ * 제품 화면에서 에이전트가 읽어야 하는 영역. 퍼센트 좌표.
+ *
+ * Frontier의 Visual Grounding 트랙이 실제로 하는 일을 자사 제품 화면 위에
+ * 그대로 표시한 것이다 — 연구 섹션의 주장과 제품 섹션의 그림이 같은 내용이어야
+ * 두 섹션이 따로 노는 인상을 주지 않는다.
+ */
+export interface ProductRegion {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    label: string;
+    confidence: number;
+}
+
 export interface Product {
     id: string;
     name: string;
@@ -102,6 +118,7 @@ export interface Product {
     image: string | null;
     /** image가 없을 때 쓰는 플레이스홀더 그라디언트 스톱. */
     hue: [string, string];
+    regions: readonly ProductRegion[];
 }
 
 export const PRODUCTS: readonly Product[] = [
@@ -117,6 +134,16 @@ export const PRODUCTS: readonly Product[] = [
         status: "live",
         image: "/products/autopilot.jpg",
         hue: ["#4a8cff", "#0a2a66"],
+        /*
+         * 좌표는 실제 캡처를 보고 잡았다. 화면은 16:9로 잘리고 위를 기준으로 정렬되므로
+         * 원본 세로의 위쪽 약 88%만 보인다 — 그 보이는 영역을 100%로 놓은 값이다.
+         */
+        regions: [
+            { x: 2.5, y: 1, w: 95, h: 5.5, label: "nav", confidence: 0.98 },
+            { x: 33, y: 36, w: 33, h: 19, label: "headline", confidence: 0.96 },
+            { x: 21, y: 66.5, w: 57.5, h: 8, label: "body", confidence: 0.93 },
+            { x: 38, y: 79, w: 23.5, h: 6.5, label: "cta", confidence: 0.97 },
+        ],
     },
     {
         id: "inspec",
@@ -131,6 +158,12 @@ export const PRODUCTS: readonly Product[] = [
         status: "live",
         image: "/products/inspec.jpg",
         hue: ["#4a8cff", "#0a2a66"],
+        regions: [
+            { x: 2, y: 2, w: 96, h: 5, label: "nav", confidence: 0.98 },
+            { x: 81.5, y: 13, w: 16.5, h: 12, label: "lidar status", confidence: 0.95 },
+            { x: 2.5, y: 29, w: 45, h: 21, label: "headline", confidence: 0.96 },
+            { x: 2.5, y: 71, w: 28, h: 7.5, label: "cta", confidence: 0.94 },
+        ],
     },
     {
         id: "talkpicplus",
@@ -145,6 +178,12 @@ export const PRODUCTS: readonly Product[] = [
         status: "live",
         image: "/products/talkpicplus.jpg",
         hue: ["#4a8cff", "#0a2a66"],
+        regions: [
+            { x: 3, y: 2, w: 94, h: 6.5, label: "nav", confidence: 0.97 },
+            { x: 5, y: 26, w: 40, h: 32, label: "headline", confidence: 0.95 },
+            { x: 63, y: 33, w: 20, h: 44, label: "figure", confidence: 0.92 },
+            { x: 5, y: 78, w: 30, h: 8, label: "cta", confidence: 0.95 },
+        ],
     },
     {
         id: "buyerpilot",
@@ -160,6 +199,8 @@ export const PRODUCTS: readonly Product[] = [
         // TODO: 실제 에셋 교체 — 출시 후 프로덕션 화면 캡처로 대체
         image: null,
         hue: ["#4a8cff", "#0a2a66"],
+        // 아직 검출할 화면이 없다. 없는 제품에 신뢰도 숫자를 지어내지 않는다.
+        regions: [],
     },
 ];
 

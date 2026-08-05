@@ -76,6 +76,11 @@ interface ParticlesProps {
     scroll: React.RefObject<number>;
     /** 드래그 orbit 목표 각도 */
     orbit: React.RefObject<{ x: number; y: number }>;
+    /**
+     * 오브젝트를 옆으로 밀어내는 거리(월드 단위).
+     * 설명 패널이 무대 왼쪽을 덮으므로 그만큼 오른쪽으로 비켜서야 가려지지 않는다.
+     */
+    offsetX: number;
     onQualityDrop: () => void;
 }
 
@@ -84,6 +89,7 @@ function Particles({
     count,
     scroll,
     orbit,
+    offsetX,
     onQualityDrop,
 }: ParticlesProps) {
     const pointsRef = useRef<THREE.Points>(null);
@@ -177,6 +183,9 @@ function Particles({
         const target = orbit.current ?? { x: 0, y: 0 };
         current.current.x += (target.x - current.current.x) * 0.08;
         current.current.y += (target.y - current.current.y) * 0.08;
+
+        // 설명 패널을 피해 옆으로 비켜선다. 회전축은 오브젝트 자신이 유지한다.
+        points.position.x = offsetX;
 
         // 자동 회전 0.12 rad/s에 드래그 오프셋을 더한다
         autoYaw.current += delta * 0.12;
@@ -286,6 +295,7 @@ interface PerceptionSceneProps {
     scroll: React.RefObject<number>;
     orbit: React.RefObject<{ x: number; y: number }>;
     anchors: readonly [number, number, number][];
+    offsetX: number;
     onProject: (projected: Projected[]) => void;
 }
 
@@ -295,6 +305,7 @@ export function PerceptionScene({
     scroll,
     orbit,
     anchors,
+    offsetX,
     onProject,
 }: PerceptionSceneProps) {
     /*
@@ -321,6 +332,7 @@ export function PerceptionScene({
                 count={particleCount}
                 scroll={scroll}
                 orbit={orbit}
+                offsetX={offsetX}
                 onQualityDrop={() => setQuality((prev) => prev * 0.6)}
             />
             <AnchorProjector anchors={anchors} onProject={onProject} />

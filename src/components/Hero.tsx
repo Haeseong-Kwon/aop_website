@@ -1,15 +1,58 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { MaskedText } from "@/components/motion/MaskedText";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { PrismLight } from "@/components/visual/PrismLight";
 import { NoiseField } from "@/components/visual/NoiseField";
+import { DetectionOverlay } from "@/components/visual/DetectionOverlay";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useTransition } from "@/hooks/useEnter";
 import { DUR, EASE, STAGGER } from "@/lib/motion";
 import { HERO } from "@/lib/constants";
+
+/*
+ * 히어로 그래픽 위 검출 박스의 좌표(퍼센트).
+ * PrismLight의 꼭짓점(700,585 / viewBox 1440x900)과 두 발광 경계면 위에 놓았다 —
+ * 실제 그래픽 위의 특징점이라야 인식으로 읽히고, 아무 데나 놓으면 무늬가 된다.
+ */
+const HERO_BOXES = [
+    { x: 44.5, y: 59, w: 8, h: 12, label: "vertex", confidence: 0.99 },
+    { x: 60, y: 22, w: 22, h: 16, label: "edge", confidence: 0.94 },
+    { x: 14, y: 30, w: 16, h: 14, label: "edge", confidence: 0.91 },
+] as const;
+
+/**
+ * 로드 후 한 차례만 도는 인식 패스.
+ * PrismLight 위에 겹치고, 다 끝나면 스스로 사라진다.
+ */
+function HeroPerception() {
+    const prefersReduced = useReducedMotion();
+    const [done, setDone] = useState(false);
+
+    useEffect(() => {
+        if (prefersReduced) return;
+        const timer = setTimeout(() => setDone(true), 4200);
+        return () => clearTimeout(timer);
+    }, [prefersReduced]);
+
+    // 모션 축소 환경에서는 스캔 자체가 의미 없는 장식이 되므로 아예 그리지 않는다
+    if (prefersReduced || done) return null;
+
+    return (
+        <motion.div
+            aria-hidden
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 1, 0] }}
+            transition={{ duration: 4.2, times: [0, 0.18, 0.78, 1], delay: 1.1 }}
+        >
+            <DetectionOverlay boxes={HERO_BOXES} active className="opacity-80" />
+        </motion.div>
+    );
+}
 
 /** 로드 직후 순차로 들어오는 블록. 스크롤 등장이 아니라 시간축 등장이다. */
 function LoadIn({
@@ -68,6 +111,13 @@ export function Hero() {
                     <NoiseField />
                 </div>
                 <PrismLight className="absolute inset-0" />
+
+                {/*
+                 * 인식 레이어. 히어로 그래픽의 꼭짓점과 두 경계면을 한 번 훑고 사라진다.
+                 * 남겨두지 않는 이유: 계속 붙어 있으면 헤드라인과 경쟁하고, 무엇보다
+                 * "지금 읽었다"는 신호가 "항상 읽는 중"이라는 소음으로 바뀐다.
+                 */}
+                <HeroPerception />
                 {/* 좌측 스크림 — 발광면 위에서도 헤드라인 대비를 유지한다 */}
                 <div className="absolute inset-0 bg-[linear-gradient(100deg,#000_6%,rgba(0,0,0,0.72)_30%,transparent_58%)]" />
                 {/* 좁은 화면에서는 본문이 빔 위로 겹치므로 전면 베일을 한 겹 더 얹는다 */}

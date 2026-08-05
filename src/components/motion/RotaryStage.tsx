@@ -1,0 +1,161 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion, useTransform, type MotionValue } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+/*
+ * 스크롤에 따라 회전하는 다면체 무대.
+ *
+ * 각 면에 한 단계씩 올리고, 스크롤 진행도가 회전각을 만든다. 면의 내용은 진짜 DOM이라
+ * 글자가 선택되고 스크린리더에 잡힌다 — 이걸 WebGL 텍스처로 그렸다면 전부 잃는다.
+ *
+ * 회전은 등속이 아니다. 진행도의 대부분을 '면이 정면으로 서 있는' 상태로 쓰고,
+ * 넘어가는 구간만 짧게 준다. 등속으로 돌리면 읽을 수 있는 순간이 거의 없어서
+ * 3D가 내용을 방해하는 장치가 되어버린다.
+ */
+
+interface RotaryStageProps {
+    /** 0~1 스크롤 진행도. 이 값이 회전각이 된다. */
+    progress: MotionValue<number>;
+    faces: React.ReactNode[];
+    /** 현재 정면에 선 면. 접근성 처리와 오버레이 동기화에 쓴다. */
+    activeIndex: number;
+    className?: string;
+    /** 면 하나의 높이. 모든 면이 같은 높이를 쓴다. */
+    faceClassName?: string;
+}
+
+/**
+ * 원근 거리(px). 이 값이 작을수록 입체감이 강해지고 앞면이 크게 확대된다.
+ * CSS 변수로 빼지 않는 이유: 아래 역보정 계산이 같은 값을 알아야 한다.
+ */
+const PERSPECTIVE = 2200;
+
+/**
+ * 진행도 → 회전각 구간표.
+ *
+ * hold 비율만큼은 각도를 고정하고, 나머지 구간에서만 다음 면으로 넘어간다.
+ */
+function buildSteps(count: number, hold: number) {
+    const segment = 1 / count;
+    const step = 360 / count;
+
+    const input: number[] = [];
+    const output: number[] = [];
+
+    for (let i = 0; i < count; i += 1) {
+        const start = i * segment;
+        input.push(start, start + segment * hold);
+        output.push(-i * step, -i * step);
+    }
+
+    // 마지막 면은 끝까지 정면을 유지한다 — 섹션을 벗어나며 뒤통수를 보일 이유가 없다
+    input.push(1);
+    output.push(-(count - 1) * step);
+
+    return { input, output };
+}
+
+/*
+ * 회전을 쓸 수 없는 환경(모션 축소·좁은 화면)에서는 이 컴포넌트를 마운트하지 않고,
+ * 호출부가 통째로 다른 레이아웃을 렌더한다. 여기서 면을 세로로 쌓는 폴백을 두면
+ * 무대의 고정 높이 안에 카드 여러 장이 들어가 잘린다 — 실제로 그렇게 잘렸었다.
+ */
+export function RotaryStage({
+    progress,
+    faces,
+    activeIndex,
+    className,
+    faceClassName,
+}: RotaryStageProps) {
+    const count = faces.length;
+    const step = 360 / count;
+
+    const { input, output } = buildSteps(count, 0.62);
+    const rotateY = useTransform(progress, input, output);
+    // 아주 얕은 상하 기울기. 정면 투영만 있으면 입체로 읽히지 않는다.
+    const rotateX = useTransform(progress, [0, 0.5, 1], [5, -1, 5]);
+
+    /*
+     * 면을 밖으로 밀어내는 거리. 정N각기둥의 아포템이다.
+     * 이 값이 틀어지면 회전할 때 이웃한 면끼리 모서리가 어긋나 벌어진다.
+     */
+    const [radius, setRadius] = useState(0);
+    const [stage, setStage] = useState<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!stage) return;
+
+        const measure = () => {
+            const width = stage.getBoundingClientRect().width;
+            setRadius(width / 2 / Math.tan(Math.PI / count));
+        };
+
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(stage);
+        return () => observer.disconnect();
+    }, [stage, count]);
+
+    /*
+     * 원근 역보정.
+     *
+     * 면을 translateZ(radius)로 앞으로 밀면 원근 때문에 확대되어 그려진다. 반지름이
+     * 폭의 절반쯤 되는 4면체에서는 30% 가까이 커져서 카드가 컨테이너를 넘고 옆 요소를
+     * 덮는다. 무리를 s배 줄이면 최종 배율이 s·P/(P−r·s)가 되고, 이걸 1로 놓고 풀면
+     * s = P/(P+r)이다. 정면에 선 면이 정확히 무대 크기가 된다.
+     */
+    const scale = PERSPECTIVE / (PERSPECTIVE + radius);
+
+    return (
+        <div
+            ref={setStage}
+            style={{ perspective: `${PERSPECTIVE}px` }}
+            className={cn("relative", className)}
+        >
+            <motion.div
+                style={{
+                    rotateY,
+                    rotateX,
+                    scale,
+                    transformStyle: "preserve-3d",
+                }}
+                className="relative h-full w-full"
+            >
+                {faces.map((face, index) => {
+                    const isActive = index === activeIndex;
+
+                    return (
+                        <div
+                            key={index}
+                            /*
+                             * 뒤를 보는 면은 접근성 트리에서도 빼야 한다.
+                             * 보이지 않는 카드의 링크로 탭이 들어가면 포커스가 사라진다.
+                             */
+                            aria-hidden={!isActive}
+                            inert={!isActive}
+                            style={{
+                                transform: `rotateY(${index * step}deg) translateZ(${radius}px)`,
+                                backfaceVisibility: "hidden",
+                            }}
+                            className={cn(
+                                "absolute inset-0 transition-opacity duration-300",
+                                // 옆면이 완전히 또렷하면 정면이 어느 쪽인지 읽히지 않는다
+                                isActive ? "opacity-100" : "opacity-45",
+                                faceClassName
+                            )}
+                        >
+                            {face}
+                        </div>
+                    );
+                })}
+            </motion.div>
+        </div>
+    );
+}
+
+/** 진행도에서 현재 정면 면의 인덱스를 뽑는다. */
+export function faceIndexFromProgress(value: number, count: number) {
+    return Math.min(count - 1, Math.max(0, Math.floor(value * count + 0.001)));
+}

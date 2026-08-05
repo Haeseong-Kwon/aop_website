@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { MaskedText } from "@/components/motion/MaskedText";
+import { FlipPanel } from "@/components/motion/FlipPanel";
 import { FrontierVisualizer } from "@/components/frontier/FrontierVisualizer";
 import { WebcamDemo } from "@/components/frontier/WebcamDemo";
 import type { ShapeId } from "@/components/frontier/shapes";
@@ -18,6 +19,9 @@ import { cn } from "@/lib/utils";
  * Research 섹션과 계층이 다르다. Research는 제품이 되기 전의 탐색이고,
  * 여기는 이미 제품 안에서 돌고 있는 인식 계층이다. 그 차이가 카피뿐 아니라
  * 시각 위계에서도 드러나야 해서, 이 섹션만 3D 오브젝트를 갖는다.
+ *
+ * 트랙 설명은 3D 무대 밖이 아니라 안에 올린다 — 인식 대상과 인식 결과가
+ * 나란히 놓여야 "무엇을 어떻게 읽는가"가 한 장면으로 읽힌다.
  */
 export function Frontier() {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -29,12 +33,9 @@ export function Frontier() {
      * 어느 쪽으로 돌리든 오브젝트는 하나의 상태만 따라간다.
      */
     const orbitRef = useRef({ x: 0, y: 0 });
-    const handleCameraControl = useCallback(
-        (delta: { x: number; y: number }) => {
-            orbitRef.current = delta;
-        },
-        []
-    );
+    const handleCameraControl = useCallback((delta: { x: number; y: number }) => {
+        orbitRef.current = delta;
+    }, []);
 
     const eyebrowEnter = useEnter({ y: 8 });
     const descriptionEnter = useEnter({ y: 14, delay: 0.2, duration: DUR.slow });
@@ -86,92 +87,87 @@ export function Frontier() {
                         className="type-h2 mt-6"
                     />
 
-                    <motion.p
-                        {...descriptionEnter}
-                        className="type-body mt-7 text-muted"
-                    >
+                    <motion.p {...descriptionEnter} className="type-body mt-7 text-muted">
                         {FRONTIER.description}
                     </motion.p>
                 </div>
 
-                <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-start lg:gap-14">
-                    {/* 좌: 트랙 탭 + 본문 */}
-                    <div>
-                        <div
-                            ref={tabsRef}
-                            role="tablist"
-                            aria-label="원천기술 연구 트랙"
-                            aria-orientation="vertical"
-                            onKeyDown={handleKeyDown}
-                            className="flex flex-col"
-                        >
-                            {FRONTIER_TRACKS.map((track, index) => {
-                                const isActive = index === activeIndex;
+                {/* 트랙 탭 — 무대 위에 가로로 얹는다 */}
+                <div
+                    ref={tabsRef}
+                    role="tablist"
+                    aria-label="원천기술 연구 트랙"
+                    onKeyDown={handleKeyDown}
+                    className="mt-14 grid grid-cols-2 gap-px border-y border-border bg-border md:grid-cols-4"
+                >
+                    {FRONTIER_TRACKS.map((track, index) => {
+                        const isActive = index === activeIndex;
 
-                                return (
-                                    <button
-                                        key={track.id}
-                                        type="button"
-                                        role="tab"
-                                        id={`frontier-tab-${track.id}`}
-                                        aria-selected={isActive}
-                                        aria-controls={`frontier-panel-${track.id}`}
-                                        /* 활성 탭만 탭 순서에 남긴다 — 나머지는 화살표 키로 이동한다 */
-                                        tabIndex={isActive ? 0 : -1}
-                                        onClick={() => setActiveIndex(index)}
-                                        className={cn(
-                                            "relative flex items-baseline gap-4 border-t border-border py-4 text-left transition-colors last:border-b",
-                                            isActive
-                                                ? "text-bright"
-                                                : "text-muted hover:text-bright"
-                                        )}
-                                    >
-                                        {isActive ? (
-                                            <motion.span
-                                                layoutId="frontier-indicator"
-                                                aria-hidden
-                                                className="absolute -top-px left-0 h-px w-full bg-[linear-gradient(90deg,var(--color-glow),var(--color-beam)_60%,transparent)]"
-                                                transition={EASE.spring}
-                                            />
-                                        ) : null}
-
-                                        <span className="font-mono text-[11px] tracking-[0.18em] text-faint">
-                                            {track.index}
-                                        </span>
-                                        <span className="font-mono text-[15px] tracking-[-0.01em]">
-                                            {track.name}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        <div
-                            role="tabpanel"
-                            id={`frontier-panel-${active.id}`}
-                            aria-labelledby={`frontier-tab-${active.id}`}
-                            className="mt-8"
-                        >
-                            {/*
-                             * key를 바꿔 탭 전환마다 다시 마운트한다.
-                             * 모션 축소 환경에서는 transition이 0.01s라 즉시 교체된다.
-                             */}
-                            <motion.div
-                                key={active.id}
-                                initial={{ opacity: 0, y: prefersReduced ? 0 : 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={
-                                    prefersReduced
-                                        ? { duration: 0.01 }
-                                        : { duration: DUR.base, ease: EASE.out }
-                                }
+                        return (
+                            <button
+                                key={track.id}
+                                type="button"
+                                role="tab"
+                                id={`frontier-tab-${track.id}`}
+                                aria-selected={isActive}
+                                aria-controls="frontier-panel"
+                                /* 활성 탭만 탭 순서에 남긴다 — 나머지는 화살표 키로 이동한다 */
+                                tabIndex={isActive ? 0 : -1}
+                                onClick={() => setActiveIndex(index)}
+                                className={cn(
+                                    "relative bg-bg px-4 py-5 text-left transition-colors",
+                                    isActive ? "text-bright" : "text-muted hover:text-bright"
+                                )}
                             >
+                                {isActive ? (
+                                    <motion.span
+                                        layoutId="frontier-indicator"
+                                        aria-hidden
+                                        className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,var(--color-glow),var(--color-beam)_60%,transparent)]"
+                                        transition={EASE.spring}
+                                    />
+                                ) : null}
+
+                                <span className="block font-mono text-[11px] tracking-[0.18em] text-faint">
+                                    {track.index}
+                                </span>
+                                <span className="mt-2 block font-mono text-[14px] tracking-[-0.01em]">
+                                    {track.name}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/*
+                 * 3D 무대. 인식 오브젝트가 뒤에서 돌고, 그 위에 이번 트랙의 설명이
+                 * 유리판처럼 얹혀 넘어간다.
+                 */}
+                <motion.div {...visualEnter} className="relative mt-8">
+                    <FrontierVisualizer
+                        shape={active.id as ShapeId}
+                        disabled={prefersReduced ?? false}
+                        orbit={orbitRef}
+                    />
+
+                    <div
+                        role="tabpanel"
+                        id="frontier-panel"
+                        aria-labelledby={`frontier-tab-${active.id}`}
+                        /*
+                         * 무대 안쪽 하단. 포인터 이벤트를 통과시켜야 패널 위에서도
+                         * 오브젝트를 드래그해 돌릴 수 있다 — 안의 버튼만 다시 켠다.
+                         */
+                        className="pointer-events-none absolute inset-x-0 bottom-0 p-4 sm:p-6 lg:inset-y-0 lg:right-auto lg:flex lg:w-[46%] lg:flex-col lg:justify-center lg:p-8"
+                    >
+                        <FlipPanel trigger={active.id} axis="x">
+                            <div className="pointer-events-auto rounded-xl border border-border bg-bg/72 p-5 backdrop-blur-md sm:p-6">
                                 <h3 className="type-h3">{active.title}</h3>
-                                <p className="type-body mt-4 text-muted">
+                                <p className="mt-3 text-[15px] leading-relaxed text-muted">
                                     {active.description}
                                 </p>
 
-                                <p className="mt-6 flex items-center gap-2.5">
+                                <p className="mt-5 flex flex-wrap items-center gap-2.5">
                                     <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
                                         적용 제품
                                     </span>
@@ -179,28 +175,22 @@ export function Frontier() {
                                         {active.product}
                                     </span>
                                 </p>
-
-                                {/*
-                                 * 실시간 데모는 Visual Grounding 트랙에만 붙인다 —
-                                 * 화면 요소를 좌표로 읽는 트랙이라야 손 추적 데모가
-                                 * 설명의 일부가 되고, 그 밖에서는 그냥 장난감이 된다.
-                                 */}
-                                {active.id === "grounding" && !prefersReduced ? (
-                                    <WebcamDemo onControl={handleCameraControl} />
-                                ) : null}
-                            </motion.div>
-                        </div>
+                            </div>
+                        </FlipPanel>
                     </div>
+                </motion.div>
 
-                    {/* 우: 3D 인식 오브젝트 */}
-                    <motion.div {...visualEnter}>
-                        <FrontierVisualizer
-                            shape={active.id as ShapeId}
-                            disabled={prefersReduced ?? false}
-                            orbit={orbitRef}
-                        />
-                    </motion.div>
-                </div>
+                {/*
+                 * 실시간 데모는 Visual Grounding 트랙에만 붙인다 — 화면 요소를 좌표로
+                 * 읽는 트랙이라야 손 추적 데모가 설명의 일부가 되고, 그 밖에서는
+                 * 그냥 장난감이 된다. 무대 밖에 두는 이유: 카메라 미리보기까지 무대 위에
+                 * 겹치면 무엇이 인식 대상인지 알 수 없게 된다.
+                 */}
+                {active.id === "grounding" && !prefersReduced ? (
+                    <div className="mx-auto max-w-2xl">
+                        <WebcamDemo onControl={handleCameraControl} />
+                    </div>
+                ) : null}
 
                 <p className="mt-12 border-t border-border pt-6 text-sm text-faint">
                     {FRONTIER.caption}

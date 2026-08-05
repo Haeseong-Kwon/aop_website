@@ -76,6 +76,11 @@ export function FrontierVisualizer({
     const anchorPositions = anchors.map((anchor) => anchor.position);
 
     const [count, setCount] = useState(DESKTOP_PARTICLES);
+    /*
+     * 설명 패널은 lg 이상에서만 무대 왼쪽 46%를 덮는다. 그 아래 폭에서는 패널이
+     * 하단에 가로로 눕기 때문에 오브젝트를 옆으로 밀 이유가 없다.
+     */
+    const [offsetX, setOffsetX] = useState(0);
 
     /*
      * 뷰포트에 들어올 때만 마운트하고, 벗어나면 언마운트해 렌더 루프를 끊는다.
@@ -98,6 +103,9 @@ export function FrontierVisualizer({
                     window.matchMedia("(max-width: 767px)").matches
                         ? MOBILE_PARTICLES
                         : DESKTOP_PARTICLES
+                );
+                setOffsetX(
+                    window.matchMedia("(min-width: 1024px)").matches ? 1.5 : 0
                 );
                 setMounted(true);
             },
@@ -173,7 +181,11 @@ export function FrontierVisualizer({
             onPointerMove={showScene ? handlePointerMove : undefined}
             onPointerUp={showScene ? handlePointerUp : undefined}
             onPointerCancel={showScene ? handlePointerUp : undefined}
-            className="relative aspect-square w-full touch-pan-y select-none overflow-hidden rounded-2xl border border-border bg-[radial-gradient(75%_75%_at_50%_45%,rgba(74,140,255,0.09),transparent_70%)] sm:aspect-[4/3] lg:aspect-square"
+            /*
+             * 무대가 가로로 넓어졌다. 정사각형을 유지하면 데스크톱에서 한 화면을
+             * 통째로 잡아먹어 아래 캡션까지 스크롤이 한참 필요해진다.
+             */
+            className="relative h-[clamp(26rem,62vh,40rem)] w-full touch-pan-y select-none overflow-hidden rounded-2xl border border-border bg-[radial-gradient(70%_80%_at_62%_45%,rgba(74,140,255,0.1),transparent_70%)]"
         >
             {showScene ? (
                 <>
@@ -183,6 +195,7 @@ export function FrontierVisualizer({
                         scroll={scrollRef}
                         orbit={orbitRef}
                         anchors={anchorPositions}
+                        offsetX={offsetX}
                         onProject={handleProject}
                     />
                     <CvOverlay

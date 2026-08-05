@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
-import { TiltCard } from "@/components/motion/TiltCard";
-import { useEnter } from "@/hooks/useEnter";
+import { DetectionOverlay } from "@/components/visual/DetectionOverlay";
+import {
+    RotaryStage,
+    faceIndexFromProgress,
+} from "@/components/motion/RotaryStage";
 import { DUR, EASE } from "@/lib/motion";
 import { PRODUCTS, SECTIONS, type Product } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -28,33 +31,23 @@ function StatusBadge({ status }: { status: Product["status"] }) {
                     : "border-border text-muted"
             )}
         >
-            <span
-                className={cn(
-                    "size-1.5 rounded-full",
-                    isLive ? "bg-signal" : "bg-faint"
-                )}
-            />
+            <span className={cn("size-1.5 rounded-full", isLive ? "bg-signal" : "bg-faint")} />
             {STATUS_LABEL[status]}
         </span>
     );
 }
 
 /**
- * 프로덕션 실화면. 이미지가 없는 제품(미출시)만 그라디언트 목업으로 떨어진다.
- * 스크롤에 따라 이미지가 프레임 안에서 천천히 밀려 깊이감을 만든다.
+ * 프로덕션 실화면 + 인식 오버레이.
+ *
+ * 패럴랙스 오버스캔은 걷어냈다. 이미지를 프레임 안에서 밀면 검출 박스가 화면 요소에서
+ * 어긋나고, 그러면 이 오버레이는 '인식'이 아니라 그냥 붙어 있는 사각형이 된다.
  */
-function ProductVisual({ product }: { product: Product }) {
-    const ref = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ["start end", "end start"],
-    });
-    const imageY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+function ProductVisual({ product, scanned }: { product: Product; scanned: boolean }) {
     const isPending = product.status === "coming-soon";
 
     return (
         <div
-            ref={ref}
             className={cn(
                 "relative overflow-hidden rounded-xl border border-border",
                 isPending && "pending-visual"
@@ -70,20 +63,14 @@ function ProductVisual({ product }: { product: Product }) {
             </div>
 
             <div className="relative aspect-[16/9] w-full overflow-hidden bg-surface">
-                {/* 오버스캔은 세로로만 — 좌우까지 넓히면 화면 양끝 글자가 잘린다 */}
                 {product.image ? (
-                    <motion.div
-                        style={{ y: imageY }}
-                        className="absolute inset-x-0 -top-[6%] -bottom-[6%]"
-                    >
-                        <Image
-                            src={product.image}
-                            alt={`${product.name} 서비스 화면`}
-                            fill
-                            sizes="(max-width: 1024px) 100vw, 720px"
-                            className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
-                        />
-                    </motion.div>
+                    <Image
+                        src={product.image}
+                        alt={`${product.name} 서비스 화면`}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 720px"
+                        className="object-cover object-top"
+                    />
                 ) : (
                     <div
                         className="absolute inset-0"
@@ -97,63 +84,70 @@ function ProductVisual({ product }: { product: Product }) {
                         </span>
                     </div>
                 )}
+
+                {/* 에이전트가 이 화면에서 무엇을 집어내는지 — Visual Grounding 트랙 그대로다 */}
+                <DetectionOverlay boxes={product.regions} active={scanned} />
             </div>
         </div>
     );
 }
 
-function ProductPanel({ product, index }: { product: Product; index: number }) {
+function ProductFace({ product, index, scanned }: { product: Product; index: number; scanned: boolean }) {
     const hasLink = product.link !== null;
 
     const body = (
-        <>
-            {/* 틸트는 스크린샷에만 건다 — 본문 텍스트까지 기울면 읽기가 어려워진다 */}
-            <TiltCard>
-                <ProductVisual product={product} />
-            </TiltCard>
+        <div className="grid h-full gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
+            <ProductVisual product={product} scanned={scanned} />
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-                <span className="font-mono text-[11px] tracking-[0.18em] text-faint">
-                    {String(index + 1).padStart(2, "0")}
-                </span>
-                <StatusBadge status={product.status} />
-                {product.nameKo ? (
-                    <span className="text-sm text-muted">{product.nameKo}</span>
-                ) : null}
+            <div className="flex flex-col">
+                <div className="flex flex-wrap items-center gap-3">
+                    <span className="font-mono text-[11px] tracking-[0.18em] text-faint">
+                        {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <StatusBadge status={product.status} />
+                    {product.nameKo ? (
+                        <span className="text-sm text-muted">{product.nameKo}</span>
+                    ) : null}
+                </div>
+
+                <h3 className="type-h2 mt-4">{product.name}</h3>
+                <p className="mt-3 text-[clamp(1.0625rem,1.4vw,1.3rem)] leading-snug tracking-[-0.02em] text-bright">
+                    {product.tagline}
+                </p>
+                <p className="mt-4 text-[15px] leading-relaxed text-muted">
+                    {product.description}
+                </p>
+
+                <ul className="mt-6 flex flex-wrap gap-2">
+                    {product.highlights.map((highlight) => (
+                        <li
+                            key={highlight}
+                            className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-[12.5px] text-text"
+                        >
+                            {highlight}
+                        </li>
+                    ))}
+                </ul>
+
+                {hasLink ? (
+                    <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-bright">
+                        <span className="underline-sweep">{product.domain} 방문</span>
+                        <ArrowUpRight
+                            size={15}
+                            className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                        />
+                    </span>
+                ) : (
+                    <span className="mt-auto inline-flex pt-6 text-sm text-muted">
+                        출시 준비 중
+                    </span>
+                )}
             </div>
-
-            <h3 className="type-h2 mt-5">{product.name}</h3>
-            <p className="mt-4 text-[clamp(1.0625rem,1.5vw,1.375rem)] leading-snug tracking-[-0.02em] text-bright">
-                {product.tagline}
-            </p>
-            <p className="type-body mt-5 max-w-xl text-muted">{product.description}</p>
-
-            <ul className="mt-8 flex flex-wrap gap-2">
-                {product.highlights.map((highlight) => (
-                    <li
-                        key={highlight}
-                        className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-[12.5px] text-text"
-                    >
-                        {highlight}
-                    </li>
-                ))}
-            </ul>
-
-            {hasLink ? (
-                <span className="mt-9 inline-flex items-center gap-1.5 text-sm font-medium text-bright">
-                    <span className="underline-sweep">{product.domain} 방문</span>
-                    <ArrowUpRight
-                        size={15}
-                        className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                    />
-                </span>
-            ) : (
-                <span className="mt-9 inline-flex text-sm text-muted">출시 준비 중</span>
-            )}
-        </>
+        </div>
     );
 
-    const shared = "group surface-card block p-5 md:p-8";
+    const shared =
+        "group surface-card block h-full overflow-hidden p-5 md:p-7 lg:p-8";
 
     return hasLink ? (
         <a
@@ -161,7 +155,6 @@ function ProductPanel({ product, index }: { product: Product; index: number }) {
             target="_blank"
             rel="noreferrer noopener"
             data-cursor="card"
-            /* 카드 자체는 들어올리지 않는다 — 스크린샷 틸트가 이미 만질 수 있다는 신호를 준다 */
             className={cn(shared, "hover:border-beam/50")}
         >
             {body}
@@ -171,89 +164,141 @@ function ProductPanel({ product, index }: { product: Product; index: number }) {
     );
 }
 
-/** 뷰포트 중앙에 걸린 제품을 좌측 인디케이터에 알린다. */
-function ProductSlide({
-    product,
-    index,
-    onActivate,
-}: {
-    product: Product;
-    index: number;
-    onActivate: (index: number) => void;
-}) {
-    const ref = useRef<HTMLDivElement>(null);
-    const inView = useInView(ref, { margin: "-45% 0px -45% 0px" });
-    const enter = useEnter({ y: 20, blur: true, duration: DUR.slow });
-
-    useEffect(() => {
-        if (inView) onActivate(index);
-    }, [inView, index, onActivate]);
-
-    return (
-        <motion.div ref={ref} id={`product-${product.id}`} {...enter}>
-            <ProductPanel product={product} index={index} />
-        </motion.div>
-    );
-}
-
 export function Products() {
+    const pinRef = useRef<HTMLDivElement>(null);
     const [active, setActive] = useState(0);
+    // 한 번 스캔한 면은 다시 스캔하지 않는다 — 돌아올 때마다 훑으면 소음이 된다
+    const [scanned, setScanned] = useState<Set<number>>(new Set([0]));
+
+    const { scrollYProgress } = useScroll({
+        target: pinRef,
+        offset: ["start start", "end end"],
+    });
+
+    // 앞뒤로 여백을 둬 헤딩이 읽히고, 마지막 면이 충분히 머문 뒤 섹션을 빠져나간다
+    const stageProgress = useTransform(scrollYProgress, [0.12, 0.94], [0, 1]);
+
+    useMotionValueEvent(stageProgress, "change", (value) => {
+        const index = faceIndexFromProgress(value, PRODUCTS.length);
+        setActive(index);
+        setScanned((prev) => (prev.has(index) ? prev : new Set(prev).add(index)));
+    });
+
+    const faces = PRODUCTS.map((product, index) => (
+        <ProductFace
+            key={product.id}
+            product={product}
+            index={index}
+            scanned={scanned.has(index)}
+        />
+    ));
+
+    const heading = <SectionHeading {...SECTIONS.products} />;
 
     return (
-        <section id="products" className="section-y relative">
-            <div className="container-x">
-                <SectionHeading {...SECTIONS.products} />
+        <section id="products" className="relative">
+            {/*
+             * 넓은 화면 + 정밀 포인터: 스크롤이 회전을 만든다.
+             * 좁은 화면에서는 카드 하나가 3D 면에 들어가지 않아 세로로 쌓는다.
+             */}
+            <div
+                ref={pinRef}
+                className="relative hidden h-[420vh] lg:motion-safe:block"
+            >
+                <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
+                    <div className="container-x">
+                        {heading}
 
-                <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,250px)_minmax(0,1fr)] lg:gap-16">
-                    {/* 좌측 인디케이터 — lg 이상에서만 스티키 */}
-                    <div className="hidden lg:block">
-                        <div className="sticky top-28">
-                            <ul className="space-y-0.5 border-l border-border">
-                                {PRODUCTS.map((product, index) => (
-                                    <li key={product.id}>
-                                        <a
-                                            href={`#product-${product.id}`}
-                                            className="relative flex items-baseline gap-3 py-3 pl-5"
-                                        >
-                                            {active === index ? (
-                                                <motion.span
-                                                    layoutId="product-indicator"
-                                                    className="absolute -left-px top-0 h-full w-0.5 bg-beam"
-                                                    transition={EASE.spring}
-                                                />
-                                            ) : null}
-                                            <span className="font-mono text-[11px] tracking-[0.16em] text-faint">
-                                                {String(index + 1).padStart(2, "0")}
-                                            </span>
-                                            <span
-                                                className={cn(
-                                                    "text-[15px] transition-colors duration-300",
-                                                    active === index
-                                                        ? "text-bright"
-                                                        : "text-muted hover:text-bright"
-                                                )}
-                                            >
-                                                {product.name}
-                                            </span>
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
+                        <div className="mt-10 flex items-start gap-10">
+                            <ProductRail active={active} />
+
+                            <RotaryStage
+                                progress={stageProgress}
+                                faces={faces}
+                                activeIndex={active}
+                                className="h-[clamp(24rem,46vh,30rem)] flex-1"
+                            />
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div className="space-y-6 lg:space-y-24">
+            {/* 좁은 화면: 회전 없이 세로 스택 */}
+            <div className="section-y lg:motion-safe:hidden">
+                <div className="container-x">
+                    {heading}
+
+                    <div className="mt-14 space-y-6">
                         {PRODUCTS.map((product, index) => (
-                            <ProductSlide
-                                key={product.id}
-                                product={product}
-                                index={index}
-                                onActivate={setActive}
-                            />
+                            <StackedProduct key={product.id} product={product} index={index} />
                         ))}
                     </div>
                 </div>
             </div>
         </section>
+    );
+}
+
+/** 좌측 진행 레일. 지금 몇 번째 면인지 알려준다. */
+function ProductRail({ active }: { active: number }) {
+    return (
+        <ul className="w-44 shrink-0 space-y-0.5 border-l border-border">
+            {PRODUCTS.map((product, index) => (
+                <li key={product.id} className="relative py-2.5 pl-5">
+                    {active === index ? (
+                        <motion.span
+                            layoutId="product-indicator"
+                            className="absolute -left-px top-0 h-full w-0.5 bg-beam"
+                            transition={EASE.spring}
+                        />
+                    ) : null}
+                    <span className="font-mono text-[11px] tracking-[0.16em] text-faint">
+                        {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                        className={cn(
+                            "ml-3 text-[15px] transition-colors duration-300",
+                            active === index ? "text-bright" : "text-muted"
+                        )}
+                    >
+                        {product.name}
+                    </span>
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+/** 좁은 화면용 — 뷰포트에 들어오면 그 카드만 스캔한다. */
+function StackedProduct({ product, index }: { product: Product; index: number }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [scanned, setScanned] = useState(false);
+
+    useEffect(() => {
+        const element = ref.current;
+        if (!element) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (!entry.isIntersecting) return;
+                setScanned(true);
+                observer.disconnect();
+            },
+            { threshold: 0.35 }
+        );
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: DUR.slow, ease: EASE.out }}
+        >
+            <ProductFace product={product} index={index} scanned={scanned} />
+        </motion.div>
     );
 }

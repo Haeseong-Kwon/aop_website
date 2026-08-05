@@ -357,30 +357,6 @@
     color: var(--color-bright);
   }
 
-  /* ---- 3D 틸트 ---- */
-  .tilt-stage {
-    /* 기운 면의 가장자리가 계단처럼 깨지는 것을 막는다 */
-    transform-style: preserve-3d;
-  }
-
-  .tilt-sheen {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    background: radial-gradient(
-      460px circle at var(--tx, 50%) var(--ty, 50%),
-      rgb(255 255 255 / 0.1),
-      transparent 58%
-    );
-  }
-
-  .tilt-stage:hover .tilt-sheen {
-    opacity: 1;
-  }
-
   /*
    * 미출시 제품 — 채도를 낮추고 노이즈를 얹어 '아직 없는 것'임을 색으로 말한다.
    * Coming Soon 배지 하나로는 스캔하는 눈에 잡히지 않는다.
