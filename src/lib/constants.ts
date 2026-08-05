@@ -22,6 +22,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     { label: "Capability", href: "#capability" },
     { label: "Products", href: "#products" },
     { label: "Technology", href: "#technology" },
+    { label: "Frontier", href: "#frontier" },
     { label: "Approach", href: "#approach" },
     { label: "Research", href: "#research" },
     { label: "Partners", href: "#partners" },
@@ -319,6 +320,69 @@ export const RESEARCH: readonly ResearchTrack[] = [
             "물리 정보 신경망으로 파동 방정식의 해를 근사하고, 기존 수치 해석 결과와 오차를 비교합니다.",
     },
 ];
+
+/**
+ * 원천기술 트랙. RESEARCH와 계층이 다르다 —
+ * RESEARCH는 제품이 되기 전의 탐색 과제, FRONTIER는 제품이 지금 쓰고 있는 기술이다.
+ * 카피와 시각 위계가 그 차이를 드러내야 한다.
+ */
+export interface FrontierTrack {
+    id: string;
+    /** 01~04 */
+    index: string;
+    name: string;
+    title: string;
+    description: string;
+    /** 이 트랙을 실제로 쓰고 있는 제품 */
+    product: string;
+}
+
+export const FRONTIER_TRACKS: readonly FrontierTrack[] = [
+    {
+        id: "grounding",
+        index: "01",
+        name: "Visual Grounding",
+        title: "화면 요소를 좌표로 이해합니다",
+        description:
+            "스크린샷에서 버튼, 입력창, 표를 검출하고 실행 가능한 액션 좌표로 변환합니다. 에이전트가 DOM 없이도 화면을 조작할 수 있는 근거가 됩니다.",
+        product: "Autopilot",
+    },
+    {
+        id: "parsing",
+        index: "02",
+        name: "Structure Parsing",
+        title: "문서와 표를 구조로 복원합니다",
+        description:
+            "상세페이지, 리포트, 견적서의 레이아웃을 계층 구조로 복원해 에이전트가 항목 단위로 판단하게 합니다.",
+        product: "Autopilot / BuyerPilot",
+    },
+    {
+        id: "verification",
+        index: "03",
+        name: "Site Verification",
+        title: "현장 사진을 검증 가능한 증거로 만듭니다",
+        description:
+            "시공 단계별 사진에서 마감 상태와 결함 후보를 검출하고, 촬영 시각·위치와 대조합니다.",
+        product: "INSPEC",
+    },
+    {
+        id: "trace",
+        index: "04",
+        name: "Trace Alignment",
+        title: "판단 근거를 되돌려 봅니다",
+        description:
+            "에이전트의 시각적 판단을 트레이스에 정렬해, 어떤 픽셀 근거로 결정했는지 사후 검증합니다.",
+        product: "전 제품 공통",
+    },
+];
+
+export const FRONTIER = {
+    eyebrow: "FRONTIER R&D",
+    title: "에이전트가 화면을 읽는 방식을 직접 만듭니다",
+    description:
+        "LLM은 텍스트를 읽습니다. 그러나 실제 업무는 화면, 도면, 현장 사진 위에서 벌어집니다. AOP는 에이전트가 시각 정보를 근거로 판단하도록 만드는 인식 계층을 연구합니다.",
+    caption: "이 트랙들은 자사 제품에서 먼저 검증된 뒤 계열사 현장으로 확장됩니다.",
+} as const;
 
 export interface Patent {
     number: string;

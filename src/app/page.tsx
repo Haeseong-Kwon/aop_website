@@ -19,6 +19,10 @@ import { BackToTop } from "@/components/nav/BackToTop";
 const Technology = dynamic(() =>
   import("@/components/Technology").then((mod) => mod.Technology)
 );
+// three.js는 이 청크 안에서 다시 한 겹 지연된다 — 섹션이 뷰포트에 들어와야 받는다.
+const Frontier = dynamic(() =>
+  import("@/components/Frontier").then((mod) => mod.Frontier)
+);
 const CustomCursor = dynamic(() =>
   import("@/components/CustomCursor").then((mod) => mod.CustomCursor)
 );
@@ -49,6 +53,7 @@ export default function Home() {
         <Capability />
         <Products />
         <Technology />
+        <Frontier />
         <Approach />
         <Research />
         <Partners />
