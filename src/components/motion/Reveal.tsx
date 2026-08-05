@@ -1,32 +1,33 @@
 "use client";
 
 import { motion, type HTMLMotionProps } from "framer-motion";
+import { useEnter } from "@/hooks/useEnter";
+import { DUR } from "@/lib/motion";
 
 interface RevealProps extends Omit<HTMLMotionProps<"div">, "children"> {
     children: React.ReactNode;
     delay?: number;
-    /** 진입 시 위로 올라오는 거리(px). */
+    /** 진입 시 위로 올라오는 거리(px). 토큰 규칙상 20을 넘기지 않는다. */
     y?: number;
+    /** 큰 블록에만 켜는 포커스 인 효과. */
+    blur?: boolean;
 }
 
 /**
- * 섹션·카드 공통 진입 모션. reducedMotion="user"가 걸려 있어
- * 모션 축소 환경에서는 opacity 페이드만 남는다.
+ * 섹션·카드 공통 진입 모션. 모든 값은 lib/motion.ts의 토큰에서 온다.
+ * 모션 축소 처리는 useEnter가 흡수한다.
  */
 export function Reveal({
     children,
     delay = 0,
-    y = 24,
+    y = 16,
+    blur = false,
     ...props
 }: RevealProps) {
+    const enter = useEnter({ y, delay, blur, duration: DUR.slow });
+
     return (
-        <motion.div
-            initial={{ opacity: 0, y }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
-            {...props}
-        >
+        <motion.div {...enter} {...props}>
             {children}
         </motion.div>
     );

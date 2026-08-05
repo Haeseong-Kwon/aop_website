@@ -2,6 +2,9 @@
 
 import { Fragment } from "react";
 import { motion } from "framer-motion";
+import { useTransition } from "@/hooks/useEnter";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { DUR, EASE, STAGGER, VIEWPORT } from "@/lib/motion";
 import { EMPHASIS_CLASS, parseEmphasisWords, stripEmphasis } from "@/lib/emphasis";
 import { cn } from "@/lib/utils";
 
@@ -23,12 +26,18 @@ export function MaskedText({
     text,
     className,
     delay = 0,
-    stagger = 0.055,
+    stagger = STAGGER.tight,
     as: Tag = "span",
     trigger = "load",
 }: MaskedTextProps) {
     const words = parseEmphasisWords(text);
     const isInView = trigger === "inView";
+    // 마스크 리빌은 overflow-hidden 안의 y 이동이라 모션 축소 시 완전히 죽여야 한다.
+    // duration만 줄이고 delay를 남기면 어절이 순서대로 '툭툭' 나타나 오히려 더 산만하다.
+    const prefersReduced = useReducedMotion();
+    const transition = useTransition({ duration: DUR.hero, ease: EASE.out });
+    const step = prefersReduced ? 0 : stagger;
+    const startAt = prefersReduced ? 0 : delay;
 
     return (
         <Tag className={cn("inline-block", className)} aria-label={stripEmphasis(text)}>
@@ -49,13 +58,12 @@ export function MaskedText({
                             {...(isInView
                                 ? {
                                       whileInView: { y: 0 },
-                                      viewport: { once: true, margin: "-12%" },
+                                      viewport: VIEWPORT,
                                   }
                                 : { animate: { y: 0 } })}
                             transition={{
-                                duration: 1,
-                                delay: delay + wordIndex * stagger,
-                                ease: [0.16, 1, 0.3, 1],
+                                ...transition,
+                                delay: startAt + wordIndex * step,
                             }}
                         >
                             {segments.map((segment, i) => (

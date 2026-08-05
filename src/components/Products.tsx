@@ -5,6 +5,8 @@ import Image from "next/image";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
+import { useEnter } from "@/hooks/useEnter";
+import { DUR, EASE } from "@/lib/motion";
 import { PRODUCTS, SECTIONS, type Product } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -172,20 +174,14 @@ function ProductSlide({
 }) {
     const ref = useRef<HTMLDivElement>(null);
     const inView = useInView(ref, { margin: "-45% 0px -45% 0px" });
+    const enter = useEnter({ y: 20, blur: true, duration: DUR.slow });
 
     useEffect(() => {
         if (inView) onActivate(index);
     }, [inView, index, onActivate]);
 
     return (
-        <motion.div
-            ref={ref}
-            id={`product-${product.id}`}
-            initial={{ opacity: 0, y: 36 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-15%" }}
-            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <motion.div ref={ref} id={`product-${product.id}`} {...enter}>
             <ProductPanel product={product} index={index} />
         </motion.div>
     );
@@ -214,11 +210,7 @@ export function Products() {
                                                 <motion.span
                                                     layoutId="product-indicator"
                                                     className="absolute -left-px top-0 h-full w-0.5 bg-beam"
-                                                    transition={{
-                                                        type: "spring",
-                                                        stiffness: 400,
-                                                        damping: 36,
-                                                    }}
+                                                    transition={EASE.spring}
                                                 />
                                             ) : null}
                                             <span className="font-mono text-[11px] tracking-[0.16em] text-faint">

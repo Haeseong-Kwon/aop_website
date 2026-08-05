@@ -1,6 +1,7 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "@/components/motion/Reveal";
 import { SpotlightCard } from "@/components/motion/SpotlightCard";
+import { STAGGER } from "@/lib/motion";
 import { PARTNERS, SECTIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,7 @@ export function Partners() {
 
                 <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {PARTNERS.map((partner, index) => (
-                        <Reveal key={partner.id} delay={index * 0.07} y={18}>
+                        <Reveal key={partner.id} delay={index * STAGGER.base} y={18}>
                             {/* TODO: 로고 SVG 교체 — 현재는 워드마크 타이포그래피 */}
                             <SpotlightCard className="flex h-full flex-col p-7">
                                 <span

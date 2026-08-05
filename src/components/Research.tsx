@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { FileText } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { SpotlightCard } from "@/components/motion/SpotlightCard";
 import { Reveal } from "@/components/motion/Reveal";
+import { STAGGER } from "@/lib/motion";
 import { PATENTS, RESEARCH, SECTIONS } from "@/lib/constants";
 
 export function Research() {
@@ -15,16 +15,10 @@ export function Research() {
 
                 <div className="mt-14 grid gap-4 md:grid-cols-2">
                     {RESEARCH.map((track, index) => (
-                        <motion.div
+                        <Reveal
                             key={track.title}
-                            initial={{ opacity: 0, y: 26, rotate: -0.8 }}
-                            whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-                            viewport={{ once: true, margin: "-15%" }}
-                            transition={{
-                                duration: 0.75,
-                                delay: index * 0.07,
-                                ease: [0.16, 1, 0.3, 1],
-                            }}
+                            y={18}
+                            delay={index * STAGGER.base}
                         >
                             <SpotlightCard className="flex h-full flex-col p-7 md:p-9">
                                 <span className="type-eyebrow text-bright">
@@ -45,7 +39,7 @@ export function Research() {
                                     ))}
                                 </div>
                             </SpotlightCard>
-                        </motion.div>
+                        </Reveal>
                     ))}
                 </div>
 

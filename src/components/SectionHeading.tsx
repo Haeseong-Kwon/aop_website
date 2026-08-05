@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { MaskedText } from "@/components/motion/MaskedText";
+import { useEnter } from "@/hooks/useEnter";
+import { DUR } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 interface SectionHeadingProps {
@@ -21,16 +23,12 @@ export function SectionHeading({
     align = "center",
 }: SectionHeadingProps) {
     const centered = align === "center";
+    const eyebrowEnter = useEnter({ y: 8, duration: DUR.base });
+    const descriptionEnter = useEnter({ y: 14, delay: 0.2, duration: DUR.slow });
 
     return (
         <div className={cn("max-w-3xl", centered && "mx-auto text-center", className)}>
-            <motion.p
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true, margin: "-12%" }}
-                transition={{ duration: 0.6 }}
-                className="type-eyebrow"
-            >
+            <motion.p {...eyebrowEnter} className="type-eyebrow">
                 {eyebrow}
             </motion.p>
 
@@ -44,10 +42,7 @@ export function SectionHeading({
 
             {description ? (
                 <motion.p
-                    initial={{ opacity: 0, y: 14 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-12%" }}
-                    transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    {...descriptionEnter}
                     className={cn(
                         "type-body mt-7 max-w-2xl text-muted",
                         centered && "mx-auto"

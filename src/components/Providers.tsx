@@ -2,12 +2,13 @@
 
 import { MotionConfig } from "framer-motion";
 import { useLenis } from "@/hooks/useLenis";
+import { EASE } from "@/lib/motion";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     useLenis();
 
     return (
-        <MotionConfig reducedMotion="user" transition={{ ease: [0.16, 1, 0.3, 1] }}>
+        <MotionConfig reducedMotion="user" transition={{ ease: EASE.out }}>
             {children}
         </MotionConfig>
     );

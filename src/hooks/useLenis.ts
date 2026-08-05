@@ -13,7 +13,16 @@ export function useLenis() {
     useEffect(() => {
         if (prefersReduced) return;
 
-        const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        /*
+         * 스무딩은 '스크롤이 부드럽다'가 느껴지기 직전까지만 건다.
+         * duration을 1.0 위로 올리면 휠을 놓은 뒤에도 화면이 계속 흘러 조작감이 뭉개지고,
+         * 기술회사 톤에서 그건 정밀함이 아니라 굼뜸으로 읽힌다.
+         */
+        const lenis = new Lenis({
+            duration: 0.9,
+            wheelMultiplier: 1,
+            smoothWheel: true,
+        });
 
         let frame = 0;
         const raf = (time: number) => {

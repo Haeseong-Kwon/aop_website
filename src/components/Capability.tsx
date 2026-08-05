@@ -2,6 +2,7 @@ import { Activity, Layers, ShieldCheck, Workflow } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import { SpotlightCard } from "@/components/motion/SpotlightCard";
 import { SectionHeading } from "@/components/SectionHeading";
+import { STAGGER } from "@/lib/motion";
 import { CAPABILITIES, SECTIONS } from "@/lib/constants";
 
 const ICONS = {
@@ -22,7 +23,11 @@ export function Capability() {
                         const Icon = ICONS[capability.id as keyof typeof ICONS];
 
                         return (
-                            <Reveal key={capability.id} delay={index * 0.07} y={18}>
+                            <Reveal
+                                key={capability.id}
+                                delay={index * STAGGER.base}
+                                y={18}
+                            >
                                 <SpotlightCard className="group h-full p-7 md:p-9">
                                     <div className="flex items-start justify-between gap-4">
                                         <span className="grid size-10 place-items-center rounded-xl border border-border bg-surface-2 text-bright transition-colors duration-500 group-hover:border-bright/30">
