@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1785804992419,
+  "lastScanned": 1785908138217,
   "projectRoot": "/Users/haeseong/Desktop/Developing/aop_website",
   "techStack": {
     "languages": [
@@ -74,7 +74,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 5,
-      "lastAccessed": 1785804992361,
+      "lastAccessed": 1785908138171,
       "keyFiles": [
         "file.svg",
         "globe.svg",
@@ -87,14 +87,14 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1785804992362,
+      "lastAccessed": 1785908138173,
       "keyFiles": []
     },
     "src/app": {
       "path": "src/app",
       "purpose": "Application code",
       "fileCount": 4,
-      "lastAccessed": 1785804992381,
+      "lastAccessed": 1785908138178,
       "keyFiles": [
         "favicon.ico",
         "globals.css",
@@ -104,276 +104,283 @@
     "src/components": {
       "path": "src/components",
       "purpose": "UI components",
-      "fileCount": 7,
-      "lastAccessed": 1785804992382,
+      "fileCount": 17,
+      "lastAccessed": 1785908138178,
       "keyFiles": [
-        "CustomCursor.tsx",
-        "Footer.tsx",
-        "Hero.tsx"
+        "Approach.tsx",
+        "Capability.tsx",
+        "Contact.tsx"
       ]
     },
     "src/lib": {
       "path": "src/lib",
       "purpose": "Library code",
-      "fileCount": 2,
-      "lastAccessed": 1785804992382,
+      "fileCount": 3,
+      "lastAccessed": 1785908138179,
       "keyFiles": [
         "constants.ts",
+        "emphasis.ts",
         "utils.ts"
       ]
     }
   },
   "hotPaths": [
     {
-      "path": "src/app/globals.css",
-      "accessCount": 17,
-      "lastAccessed": 1785816172280,
-      "type": "file"
-    },
-    {
-      "path": "src/app/layout.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1785814131845,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/constants.ts",
-      "accessCount": 11,
-      "lastAccessed": 1785815568760,
+      "path": "src/components/Technology.tsx",
+      "accessCount": 16,
+      "lastAccessed": 1785910966117,
       "type": "file"
     },
     {
       "path": "src/components/Products.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1785816078037,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Hero.tsx",
-      "accessCount": 10,
-      "lastAccessed": 1785814513001,
-      "type": "file"
-    },
-    {
-      "path": "src/components/motion/MaskedText.tsx",
-      "accessCount": 10,
-      "lastAccessed": 1785815752388,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Technology.tsx",
-      "accessCount": 8,
-      "lastAccessed": 1785813026321,
-      "type": "file"
-    },
-    {
-      "path": "src/components/SectionHeading.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1785815549973,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Navbar.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1785815764223,
+      "accessCount": 9,
+      "lastAccessed": 1785909545108,
       "type": "file"
     },
     {
       "path": "src/components/StatGrid.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1785815915756,
+      "accessCount": 8,
+      "lastAccessed": 1785909373588,
       "type": "file"
     },
     {
-      "path": "src/app/page.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1785815562421,
+      "path": "src/components/motion/MaskedText.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1785911307749,
       "type": "file"
     },
     {
-      "path": "src/components/Contact.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1785811337099,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Footer.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1785811365870,
-      "type": "file"
-    },
-    {
-      "path": "src/components/CustomCursor.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1785811377928,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Providers.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1785813036205,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/emphasis.ts",
-      "accessCount": 3,
-      "lastAccessed": 1785814053579,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Manifesto.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1785815608461,
+      "path": "src/components/Frontier.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1785910572401,
       "type": "file"
     },
     {
       "path": "src/components/Capability.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1785811231730,
+      "accessCount": 5,
+      "lastAccessed": 1785909901663,
       "type": "file"
     },
     {
       "path": "src/components/Research.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1785811297261,
+      "accessCount": 5,
+      "lastAccessed": 1785910018121,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/constants.ts",
+      "accessCount": 5,
+      "lastAccessed": 1785910080138,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/PerceptionScene.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1785910366142,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/FrontierVisualizer.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1785910539283,
+      "type": "file"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1785908950314,
+      "type": "file"
+    },
+    {
+      "path": "src/components/SectionHeading.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1785909100937,
+      "type": "file"
+    },
+    {
+      "path": "src/components/CapabilityCard.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1785909892131,
       "type": "file"
     },
     {
       "path": "src/components/Partners.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1785910029482,
+      "type": "file"
+    },
+    {
+      "path": "src/components/WordEquation.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1785909348407,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Approach.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1785909973223,
+      "type": "file"
+    },
+    {
+      "path": "src/components/CopyableCode.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1785910001500,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/CvOverlay.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1785910236029,
+      "type": "file"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1785910313426,
+      "type": "file"
+    },
+    {
+      "path": "src/components/visual/CapabilityDiagram.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1785911166856,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/Reveal.tsx",
       "accessCount": 2,
-      "lastAccessed": 1785811303001,
+      "lastAccessed": 1785909040772,
       "type": "file"
     },
     {
-      "path": "src/components/ThemeToggle.tsx",
+      "path": "src/components/Providers.tsx",
       "accessCount": 2,
-      "lastAccessed": 1785811430201,
+      "lastAccessed": 1785909106891,
       "type": "file"
     },
     {
-      "path": "src/components/Ventures.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785809463863,
+      "path": "src/hooks/useLenis.ts",
+      "accessCount": 2,
+      "lastAccessed": 1785909115025,
       "type": "file"
     },
     {
-      "path": "src/components/Portfolio.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785809464321,
+      "path": "src/components/Hero.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785909294025,
       "type": "file"
     },
     {
-      "path": "src/lib/utils.ts",
-      "accessCount": 1,
-      "lastAccessed": 1785809464535,
+      "path": "src/app/globals.css",
+      "accessCount": 2,
+      "lastAccessed": 1785909518491,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/WebcamDemo.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785910669306,
+      "type": "file"
+    },
+    {
+      "path": "src/components/technology/PipelineDiagram.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1785911177883,
       "type": "file"
     },
     {
       "path": "src/hooks/useReducedMotion.ts",
       "accessCount": 1,
-      "lastAccessed": 1785809676803,
+      "lastAccessed": 1785908743622,
       "type": "file"
     },
     {
-      "path": "src/hooks/useLenis.ts",
+      "path": "src/components/Navbar.tsx",
       "accessCount": 1,
-      "lastAccessed": 1785809681070,
-      "type": "file"
-    },
-    {
-      "path": "src/components/motion/Reveal.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785809689416,
-      "type": "file"
-    },
-    {
-      "path": "src/components/motion/MagneticButton.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785809703133,
-      "type": "file"
-    },
-    {
-      "path": "src/components/motion/SpotlightCard.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785809707790,
-      "type": "file"
-    },
-    {
-      "path": "src/components/motion/ScrollProgress.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785809710110,
-      "type": "file"
-    },
-    {
-      "path": "src/components/hero/AgentRunPanel.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785811197305,
-      "type": "file"
-    },
-    {
-      "path": "src/components/visual/NodeField.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785812844837,
-      "type": "file"
-    },
-    {
-      "path": "src/components/nav/SectionDots.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785812864076,
-      "type": "file"
-    },
-    {
-      "path": "src/components/nav/BackToTop.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785812868778,
-      "type": "file"
-    },
-    {
-      "path": "src/components/ScrollCue.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785812872637,
-      "type": "file"
-    },
-    {
-      "path": "src/components/WordEquation.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785812903361,
+      "lastAccessed": 1785908754983,
       "type": "file"
     },
     {
       "path": "src/components/visual/PrismLight.tsx",
       "accessCount": 1,
-      "lastAccessed": 1785814176713,
+      "lastAccessed": 1785908755966,
       "type": "file"
     },
     {
-      "path": "src/components/visual/RibbonLight.tsx",
+      "path": "src/components/motion/SpotlightCard.tsx",
       "accessCount": 1,
-      "lastAccessed": 1785814185921,
+      "lastAccessed": 1785908760644,
       "type": "file"
     },
     {
-      "path": "public/products/autopilot.png",
+      "path": "src/components/nav/SectionDots.tsx",
       "accessCount": 1,
-      "lastAccessed": 1785815233368,
+      "lastAccessed": 1785908761582,
       "type": "file"
     },
     {
-      "path": "public/products/inspec.png",
+      "path": "src/components/visual/NodeField.tsx",
       "accessCount": 1,
-      "lastAccessed": 1785815233558,
+      "lastAccessed": 1785908767281,
       "type": "file"
     },
     {
-      "path": "public/products/talkpicplus.png",
+      "path": "src/lib/emphasis.ts",
       "accessCount": 1,
-      "lastAccessed": 1785815269790,
+      "lastAccessed": 1785908767771,
       "type": "file"
     },
     {
-      "path": "src/components/Approach.tsx",
+      "path": "src/components/Manifesto.tsx",
       "accessCount": 1,
-      "lastAccessed": 1785815501133,
+      "lastAccessed": 1785908768722,
+      "type": "file"
+    },
+    {
+      "path": "src/components/CustomCursor.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785908768883,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 1,
+      "lastAccessed": 1785908987805,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/motion.ts",
+      "accessCount": 1,
+      "lastAccessed": 1785909018402,
+      "type": "file"
+    },
+    {
+      "path": "src/hooks/useEnter.ts",
+      "accessCount": 1,
+      "lastAccessed": 1785909032471,
+      "type": "file"
+    },
+    {
+      "path": "src/components/visual/NoiseField.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785909267985,
+      "type": "file"
+    },
+    {
+      "path": "src/components/visual/CircuitLoop.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785909332601,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/TiltCard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1785909502530,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/shapes.ts",
+      "accessCount": 1,
+      "lastAccessed": 1785910128634,
       "type": "file"
     }
   ],
