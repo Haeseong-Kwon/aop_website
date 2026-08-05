@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/SectionHeading";
+import { TiltCard } from "@/components/motion/TiltCard";
 import { useEnter } from "@/hooks/useEnter";
 import { DUR, EASE } from "@/lib/motion";
 import { PRODUCTS, SECTIONS, type Product } from "@/lib/constants";
@@ -49,11 +50,15 @@ function ProductVisual({ product }: { product: Product }) {
         offset: ["start end", "end start"],
     });
     const imageY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+    const isPending = product.status === "coming-soon";
 
     return (
         <div
             ref={ref}
-            className="relative overflow-hidden rounded-xl border border-border"
+            className={cn(
+                "relative overflow-hidden rounded-xl border border-border",
+                isPending && "pending-visual"
+            )}
         >
             <div className="browser-chrome">
                 <span className="browser-dot" />
@@ -102,7 +107,10 @@ function ProductPanel({ product, index }: { product: Product; index: number }) {
 
     const body = (
         <>
-            <ProductVisual product={product} />
+            {/* 틸트는 스크린샷에만 건다 — 본문 텍스트까지 기울면 읽기가 어려워진다 */}
+            <TiltCard>
+                <ProductVisual product={product} />
+            </TiltCard>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
                 <span className="font-mono text-[11px] tracking-[0.18em] text-faint">
@@ -153,7 +161,8 @@ function ProductPanel({ product, index }: { product: Product; index: number }) {
             target="_blank"
             rel="noreferrer noopener"
             data-cursor="card"
-            className={cn(shared, "hover:-translate-y-1 hover:border-beam/50")}
+            /* 카드 자체는 들어올리지 않는다 — 스크린샷 틸트가 이미 만질 수 있다는 신호를 준다 */
+            className={cn(shared, "hover:border-beam/50")}
         >
             {body}
         </a>
