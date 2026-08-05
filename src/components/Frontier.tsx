@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { MaskedText } from "@/components/motion/MaskedText";
 import { FrontierVisualizer } from "@/components/frontier/FrontierVisualizer";
+import { WebcamDemo } from "@/components/frontier/WebcamDemo";
 import type { ShapeId } from "@/components/frontier/shapes";
 import { useEnter } from "@/hooks/useEnter";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -22,6 +23,18 @@ export function Frontier() {
     const [activeIndex, setActiveIndex] = useState(0);
     const tabsRef = useRef<HTMLDivElement>(null);
     const prefersReduced = useReducedMotion();
+
+    /*
+     * 회전 목표 각도를 섹션이 소유한다. 드래그와 웹캠 데모가 같은 값을 쓰기 때문에,
+     * 어느 쪽으로 돌리든 오브젝트는 하나의 상태만 따라간다.
+     */
+    const orbitRef = useRef({ x: 0, y: 0 });
+    const handleCameraControl = useCallback(
+        (delta: { x: number; y: number }) => {
+            orbitRef.current = delta;
+        },
+        []
+    );
 
     const eyebrowEnter = useEnter({ y: 8 });
     const descriptionEnter = useEnter({ y: 14, delay: 0.2, duration: DUR.slow });
@@ -166,6 +179,15 @@ export function Frontier() {
                                         {active.product}
                                     </span>
                                 </p>
+
+                                {/*
+                                 * 실시간 데모는 Visual Grounding 트랙에만 붙인다 —
+                                 * 화면 요소를 좌표로 읽는 트랙이라야 손 추적 데모가
+                                 * 설명의 일부가 되고, 그 밖에서는 그냥 장난감이 된다.
+                                 */}
+                                {active.id === "grounding" && !prefersReduced ? (
+                                    <WebcamDemo onControl={handleCameraControl} />
+                                ) : null}
                             </motion.div>
                         </div>
                     </div>
@@ -175,6 +197,7 @@ export function Frontier() {
                         <FrontierVisualizer
                             shape={active.id as ShapeId}
                             disabled={prefersReduced ?? false}
+                            orbit={orbitRef}
                         />
                     </motion.div>
                 </div>

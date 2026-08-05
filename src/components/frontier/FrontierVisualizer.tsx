@@ -43,6 +43,11 @@ interface FrontierVisualizerProps {
     shape: ShapeId;
     /** 모션 축소 환경이면 3D를 아예 마운트하지 않는다. */
     disabled: boolean;
+    /**
+     * 회전 목표 각도. 부모가 소유해서 웹캠 데모 같은 외부 입력도 같은 값을 쓴다.
+     * ref로 두는 이유: 매 프레임 바뀌는 값을 state로 두면 리렌더가 프레임을 잡아먹는다.
+     */
+    orbit: React.RefObject<{ x: number; y: number }>;
 }
 
 /**
@@ -51,7 +56,11 @@ interface FrontierVisualizerProps {
  * 레이아웃(높이)은 3D 로드 여부와 무관하게 항상 같다 — 폴백이 떠도 페이지가
  * 밀리지 않아야 하고, 그래야 지연 로드가 LCP에 영향을 주지 않는다.
  */
-export function FrontierVisualizer({ shape, disabled }: FrontierVisualizerProps) {
+export function FrontierVisualizer({
+    shape,
+    disabled,
+    orbit: orbitRef,
+}: FrontierVisualizerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [mounted, setMounted] = useState(false);
     const [supported, setSupported] = useState<boolean | null>(null);
@@ -61,7 +70,6 @@ export function FrontierVisualizer({ shape, disabled }: FrontierVisualizerProps)
 
     // 매 프레임 바뀌는 값은 state로 두지 않는다 — 리렌더가 프레임을 잡아먹는다
     const scrollRef = useRef(0);
-    const orbitRef = useRef({ x: 0, y: 0 });
     const dragRef = useRef<{ x: number; y: number } | null>(null);
 
     const anchors: readonly ShapeAnchor[] = ANCHORS[shape];
