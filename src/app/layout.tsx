@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
-import { SITE } from "@/lib/constants";
+import { SITE, SITE_URL } from "@/lib/constants";
 import "./globals.css";
 
 // 기술적 크롬(파이프라인 노드 라벨, 도메인 칩)에만 쓰는 보조 서체.
@@ -11,8 +11,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// TODO: 실제 운영 도메인 확정 시 NEXT_PUBLIC_SITE_URL 환경변수로 주입
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = SITE_URL;
 
 const title = "AOP — 에이전트가 끝까지 일하는 구조를 설계합니다";
 const description =

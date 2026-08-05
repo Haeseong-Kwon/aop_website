@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { PARTNERS, PATENTS, PIPELINE, PRODUCTS } from "@/lib/constants";
+
+// 서버 렌더 중에는 useLayoutEffect가 경고를 내므로 useEffect로 떨어뜨린다.
+const useIsomorphicLayoutEffect =
+    typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /**
  * 숫자는 전부 데이터 길이에서 계산한다 — 콘텐츠가 바뀌어도 어긋나지 않고,
@@ -34,12 +38,19 @@ const STATS = [
 
 /**
  * 화면에 들어올 때 0에서 목표값까지 세어 올린다.
- * 모션 축소 환경에서는 애니메이션 없이 최종값을 바로 반환한다 —
- * 이펙트 안에서 setState로 처리하면 불필요한 연쇄 렌더가 생긴다.
+ *
+ * 초기값은 0이 아니라 목표값이다 — SSR HTML과 JS 비활성 환경에 `00`이 아닌 실제 수치가
+ * 남아야 크롤러와 no-JS 사용자가 지표를 읽을 수 있다. 클라이언트는 하이드레이션 이후에만
+ * 0으로 되감아 카운트업으로 덮어쓴다(하이드레이션 시점에는 서버와 같은 값이므로 불일치 없음).
  */
 function useCountUp(target: number, active: boolean) {
-    const [counted, setCounted] = useState(0);
+    const [counted, setCounted] = useState(target);
     const prefersReduced = useReducedMotion();
+
+    // 하이드레이션 직후 되감기. 커밋 단계에서 처리해 첫 페인트에 목표값이 스치지 않는다.
+    useIsomorphicLayoutEffect(() => {
+        if (!prefersReduced) setCounted(0);
+    }, [prefersReduced]);
 
     useEffect(() => {
         if (!active || prefersReduced) return;
