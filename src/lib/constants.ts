@@ -206,6 +206,44 @@ export interface PipelineNode {
     description: string;
 }
 
+/**
+ * 정방향 경로에서 벗어나는 되돌림 경로. 이게 AOP의 차별점이라 다이어그램에서
+ * 점선으로 반드시 드러나야 한다 — 대부분의 파이프라인 그림은 왼쪽에서 오른쪽으로만
+ * 흐르고, 실패했을 때 어디로 가는지는 그리지 않는다.
+ */
+export interface PipelineFallback {
+    /** 되돌림이 시작되는 노드 id */
+    from: string;
+    /** 되돌아가는 목적지 노드 id */
+    to: string;
+    label: string;
+    description: string;
+}
+
+export const PIPELINE_FALLBACKS: readonly PipelineFallback[] = [
+    {
+        from: "critic",
+        to: "executor",
+        label: "retry",
+        description:
+            "검증에 실패한 단계는 Executor로 되돌아가 다시 실행됩니다. 재시도 횟수와 사유는 트레이스에 남습니다.",
+    },
+    {
+        from: "critic",
+        to: "planner",
+        label: "replan",
+        description:
+            "재시도로 풀리지 않으면 계획 자체를 다시 세웁니다. 이미 실행된 툴 호출은 보상 트랜잭션으로 정리합니다.",
+    },
+    {
+        from: "checkpoint",
+        to: "executor",
+        label: "resume",
+        description:
+            "승인 대기나 중단으로 멈춘 실행은 저장된 체크포인트에서 그대로 이어집니다.",
+    },
+];
+
 export const PIPELINE: readonly PipelineNode[] = [
     {
         id: "input",
