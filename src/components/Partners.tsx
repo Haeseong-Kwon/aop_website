@@ -15,7 +15,7 @@ export function Partners() {
                     {PARTNERS.map((partner, index) => (
                         <Reveal key={partner.id} delay={index * STAGGER.base} y={18}>
                             {/* TODO: 로고 SVG 교체 — 현재는 워드마크 타이포그래피 */}
-                            <SpotlightCard className="flex h-full flex-col p-7">
+                            <SpotlightCard className="group flex h-full flex-col p-7">
                                 <span
                                     className={cn(
                                         "badge self-start",
@@ -27,7 +27,11 @@ export function Partners() {
                                     {partner.relation}
                                 </span>
 
-                                <p className="mt-10 font-mono text-xl tracking-[-0.02em]">
+                                {/*
+                                 * 로고 그리드의 관행대로 평소에는 물러나 있다가 hover에서만
+                                 * 또렷해진다. 워드마크라 grayscale 대신 불투명도로 같은 효과를 낸다.
+                                 */}
+                                <p className="mt-10 font-mono text-xl tracking-[-0.02em] text-bright opacity-55 transition-opacity duration-500 group-hover:opacity-100">
                                     {partner.nameEn}
                                 </p>
                                 <p className="mt-1.5 text-sm text-faint">{partner.name}</p>
