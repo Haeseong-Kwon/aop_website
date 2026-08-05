@@ -37,12 +37,17 @@ function FallbackNotes({ nodeId }: { nodeId: string }) {
 /**
  * 실행 파이프라인.
  *
- * 정밀 포인터가 있으면 핀 고정 + hover, 없으면 가로 스냅 스크롤 + 탭 선택으로 간다.
+ * 넓은 화면 + 정밀 포인터일 때만 핀 고정 + hover로 가고, 나머지는 전부
+ * 가로 스냅 스크롤 + 탭 선택으로 간다.
  *
- * 분기 기준이 뷰포트 폭이 아니라 포인터 종류인 이유: 태블릿은 md 브레이크포인트를
- * 넘기면서도 hover가 없어서, 폭으로 나누면 hover 전용 UI를 그대로 받아버린다.
- * 분기를 JS가 아니라 CSS(pointer-fine)로 하는 이유: JS로 하면 SSR이 항상 터치
- * 레이아웃을 뱉고, 하이드레이션 시점에 300vh가 튀어나와 스크롤 위치가 밀린다.
+ * 조건이 두 개인 이유:
+ * - 포인터: 태블릿은 md 브레이크포인트를 넘기면서도 hover가 없어서, 폭만 보면
+ *   hover 전용 UI를 그대로 받아버린다.
+ * - 폭: 마우스가 달린 좁은 창(분할 화면)에서는 1190unit 파이프라인 SVG가
+ *   찌그러져 라벨을 읽을 수 없다. 포인터만 보면 이 경우를 놓친다.
+ *
+ * 분기를 JS가 아니라 CSS로 하는 이유: JS로 하면 SSR이 항상 터치 레이아웃을 뱉고,
+ * 하이드레이션 시점에 300vh가 튀어나와 스크롤 위치가 밀린다.
  */
 export function Technology() {
     const pinRef = useRef<HTMLDivElement>(null);
@@ -103,8 +108,11 @@ export function Technology() {
 
     return (
         <section id="technology" className="relative">
-            {/* 정밀 포인터: 핀 고정 + hover */}
-            <div ref={pinRef} className="relative hidden h-[300vh] pointer-fine:block">
+            {/* 넓은 화면 + 정밀 포인터: 핀 고정 + hover */}
+            <div
+                ref={pinRef}
+                className="relative hidden h-[300vh] md:pointer-fine:block"
+            >
                 <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
                     <div className="container-x">
                         {heading}
@@ -139,10 +147,10 @@ export function Technology() {
             </div>
 
             {/*
-             * 터치: 핀을 걸지 않는다. 가로 스냅 스크롤로 단계를 넘기고,
-             * 선택한 단계의 설명은 트랙 아래 고정 영역에 나온다.
+             * 터치이거나 화면이 좁을 때: 핀을 걸지 않는다. 가로 스냅 스크롤로
+             * 단계를 넘기고, 선택한 단계의 설명은 트랙 아래 고정 영역에 나온다.
              */}
-            <div className="section-y pointer-fine:hidden">
+            <div className="section-y md:pointer-fine:hidden">
                 <div className="container-x">{heading}</div>
 
                 <div

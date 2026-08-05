@@ -17,7 +17,13 @@ import { DUR, EASE } from "@/lib/motion";
 const VW = 260;
 const VH = 96;
 
-/** hover 시 stroke가 그려지는 선. variants는 부모(.group)의 상태를 받는다. */
+/**
+ * hover 시 stroke가 그려지는 선.
+ *
+ * 흐린 고스트 경로를 항상 깔고, 그 위에 밝은 경로가 그려진다.
+ * pathLength만 0에서 시작시키면 hover 전에는 선이 아예 없어서, 마우스를 올리지 않는
+ * 방문자(그리고 모든 터치 사용자)에게는 다이어그램이 깨진 것처럼 보인다.
+ */
 function DrawLine({
     d,
     delay = 0,
@@ -30,25 +36,48 @@ function DrawLine({
     strong?: boolean;
 }) {
     const prefersReduced = useReducedMotion();
+    const dash = dashed ? "3 3" : undefined;
 
     return (
-        <motion.path
-            d={d}
-            fill="none"
-            stroke={strong ? "var(--color-beam)" : "var(--color-border-strong)"}
-            strokeWidth={1}
-            strokeLinecap="round"
-            strokeDasharray={dashed ? "3 3" : undefined}
-            variants={{
-                rest: { pathLength: prefersReduced ? 1 : 0, opacity: prefersReduced ? 1 : 0.35 },
-                active: { pathLength: 1, opacity: 1 },
-            }}
-            transition={
-                prefersReduced
-                    ? { duration: 0.01 }
-                    : { duration: 0.6, delay, ease: EASE.out }
-            }
-        />
+        <>
+            <path
+                d={d}
+                fill="none"
+                stroke="var(--color-border)"
+                strokeWidth={1}
+                strokeLinecap="round"
+                strokeDasharray={dash}
+            />
+            <motion.path
+                d={d}
+                fill="none"
+                stroke={strong ? "var(--color-beam)" : "var(--color-border-strong)"}
+                strokeWidth={1}
+                strokeLinecap="round"
+                strokeDasharray={dash}
+                /*
+                 * 점선은 pathLength를 건드리지 않는다 — framer는 pathLength를
+                 * strokeDasharray로 구현해서, 둘을 같이 쓰면 점선 패턴이 덮어써진다.
+                 * 점선 구간은 불투명도만 올린다.
+                 */
+                variants={
+                    dashed
+                        ? { rest: { opacity: 0 }, active: { opacity: 1 } }
+                        : {
+                              rest: {
+                                  pathLength: prefersReduced ? 1 : 0,
+                                  opacity: prefersReduced ? 1 : 0,
+                              },
+                              active: { pathLength: 1, opacity: 1 },
+                          }
+                }
+                transition={
+                    prefersReduced
+                        ? { duration: 0.01 }
+                        : { duration: 0.6, delay, ease: EASE.out }
+                }
+            />
+        </>
     );
 }
 

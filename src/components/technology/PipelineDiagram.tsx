@@ -247,6 +247,11 @@ export function PipelineDiagram({
 
                 return (
                     <g key={`${fallback.from}-${fallback.to}`}>
+                        {/*
+                         * 점선 자체는 정적으로 두고 등장만 진행도에 맡긴다.
+                         * framer의 pathLength는 strokeDasharray로 구현돼 있어서
+                         * 둘을 같이 걸면 점선 패턴이 통째로 덮어써진다.
+                         */}
                         <motion.path
                             d={d}
                             fill="none"
@@ -255,7 +260,7 @@ export function PipelineDiagram({
                             }
                             strokeWidth={1}
                             strokeDasharray="4 4"
-                            style={{ pathLength: progress }}
+                            style={{ opacity: progress }}
                             className="transition-[stroke] duration-300"
                         />
                         <motion.text
