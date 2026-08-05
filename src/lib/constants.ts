@@ -24,10 +24,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
 /** `*강조*` 로 감싼 구간은 세리프 이탤릭으로 렌더된다. */
 export const HERO = {
     eyebrow: "AI AGENT TECHNOLOGY",
-    headline: "에이전트가 일하는 방식을 *설계*합니다",
-    sub: "AOP는 네 개의 AI 에이전트 제품을 직접 운영합니다. 마케팅, 수출, 교육, 건설 — 서로 다른 산업이 같은 실행 엔진 위에서 돌아갑니다.",
+    headline: "에이전트가 끝까지 일하는 구조를 설계합니다",
+    sub: "AOP는 마케팅, 수출, 교육, 건설 분야의 AI 에이전트 제품을 직접 만들고 운영합니다. 서로 다른 현장의 일을 하나의 실행 구조로 풀어냅니다.",
     subSecondary:
-        "그 제품을 굴리며 나온 문제가 우리의 연구 주제가 됩니다. 아래 지표는 지금까지 만들어 온 것들입니다.",
+        "제품을 운영하며 마주친 문제가 곧 연구 주제가 됩니다. 아래 지표는 지금까지 만든 실행 기반입니다.",
     primaryCta: { label: "제품 보기", href: "#products" },
     secondaryCta: { label: "기술 살펴보기", href: "#technology" },
 } as const;
@@ -36,7 +36,7 @@ export const HERO = {
 export const EQUATION = {
     terms: [{ en: "Agent" }, { en: "Product" }, { en: "Research" }],
     caption:
-        "에이전트를 제품으로 만들고, 제품을 굴리며 나온 문제를 연구로 되돌립니다. 세 가지는 순서가 아니라 하나의 순환입니다.",
+        "에이전트를 제품으로 만들고, 제품에서 발견한 문제를 다시 연구합니다. 세 가지는 따로 움직이지 않고 하나의 순환을 이룹니다.",
 } as const;
 
 export interface Capability {
@@ -52,28 +52,28 @@ export const CAPABILITIES: readonly Capability[] = [
         title: "Agent Orchestration",
         subtitle: "실행 제어",
         description:
-            "계획·실행·검증 루프와 서브에이전트 위임을 하나의 제어 구조로 묶습니다. 실패한 툴 호출은 보상 트랜잭션으로 되돌립니다.",
+            "계획, 실행, 검증과 서브에이전트 위임을 하나의 흐름으로 제어합니다. 실패한 툴 호출은 보상 트랜잭션으로 정리합니다.",
     },
     {
         id: "durable-execution",
         title: "Durable Execution",
         subtitle: "중단과 재개",
         description:
-            "그래프 기반 체크포인팅으로 중단된 작업을 이어서 실행하고, 사람의 승인이 필요한 지점에서는 안전하게 멈춥니다.",
+            "그래프 기반 체크포인트로 중단된 작업을 이어갑니다. 사람의 승인이 필요한 지점에서는 실행을 멈추고 상태를 보존합니다.",
     },
     {
         id: "context-engineering",
         title: "Context Engineering",
         subtitle: "비용 설계",
         description:
-            "프롬프트 캐싱과 토큰 예산 배분으로 같은 품질에 더 낮은 비용으로 도달합니다. 컨텍스트는 무한하지 않은 자원입니다.",
+            "프롬프트 캐싱과 토큰 예산 배분으로 필요한 품질에 더 낮은 비용으로 도달합니다. 컨텍스트를 비용 자원으로 다룹니다.",
     },
     {
         id: "evaluation",
         title: "Evaluation & Observability",
         subtitle: "품질 측정",
         description:
-            "트레이스 단위로 비용·지연·실패 유형을 추적하고, 회귀 스위트로 품질 저하를 배포 전에 잡아냅니다.",
+            "트레이스 단위로 비용, 지연, 실패 유형을 추적합니다. 회귀 스위트로 품질 저하를 배포 전에 확인합니다.",
     },
 ];
 
@@ -101,9 +101,9 @@ export const PRODUCTS: readonly Product[] = [
         id: "autopilot",
         name: "Autopilot",
         domain: "autopilot.it.kr",
-        tagline: "마케팅, 자동 운항 시작",
+        tagline: "마케팅 업무를 자동 실행 흐름으로 연결합니다",
         description:
-            "제품 하나만 넣으면 시장 판단, 추적 세팅, 상세페이지 진단, 퍼포먼스 리포트가 한 흐름으로 이어집니다. 담당자가 도구 사이를 오갈 필요가 없습니다.",
+            "제품 정보만 입력하면 시장 판단, 추적 세팅, 상세페이지 진단, 퍼포먼스 리포트까지 한 번에 이어집니다. 담당자는 여러 도구를 오가지 않고 결과를 확인합니다.",
         highlights: ["시장 판단", "추적 세팅", "상세페이지 진단", "퍼포먼스 리포트"],
         link: "https://www.autopilot.it.kr/",
         status: "live",
@@ -115,9 +115,9 @@ export const PRODUCTS: readonly Product[] = [
         name: "INSPEC",
         nameKo: "인스펙",
         domain: "inspec.it.kr",
-        tagline: "시공의 모든 순간을 기록으로 지킵니다",
+        tagline: "시공 과정을 사진과 체크리스트로 남깁니다",
         description:
-            "중립적인 감리자가 철거부터 마감까지 현장에 동행합니다. 인테리어 시공에서 가장 불투명한 구간을 사진과 체크리스트로 남겨, 시공 품질을 말이 아니라 기록으로 증명합니다.",
+            "중립 감리자가 철거부터 마감까지 현장을 확인합니다. 말로만 지나가기 쉬운 시공 과정을 사진, 체크리스트, 위치 정보로 남겨 품질 분쟁을 줄입니다.",
         highlights: ["중립 감리", "단계별 분리 결제", "GPS·촬영시간 증거", "결과 공유"],
         link: "https://inspec.it.kr/",
         status: "live",
@@ -129,9 +129,9 @@ export const PRODUCTS: readonly Product[] = [
         name: "TalkPic Plus",
         nameKo: "톡픽플러스",
         domain: "talkpic-plus.vercel.app",
-        tagline: "학습 데이터가 쌓이는 영어교육 플랫폼",
+        tagline: "학습 이력으로 수업을 조정하는 영어교육 플랫폼",
         description:
-            "패턴 기반 교수법을 온라인 VOD 구조로 옮겼습니다. 학습 이력이 그대로 진단과 추천으로 되돌아와, 강의가 반복될수록 정확해집니다.",
+            "패턴 기반 교수법을 온라인 VOD 구조로 옮겼습니다. 학습 이력은 진단과 추천에 반영되고, 수업이 반복될수록 개인별 흐름이 더 선명해집니다.",
         highlights: ["패턴 교수법", "VOD 구조", "학습 이력 진단", "추천"],
         link: "https://talkpic-plus.vercel.app/",
         status: "live",
@@ -143,9 +143,9 @@ export const PRODUCTS: readonly Product[] = [
         name: "BuyerPilot",
         nameKo: "바이어에이전트",
         domain: "출시 예정",
-        tagline: "수출의 첫 고객을 찾아내는 에이전트",
+        tagline: "첫 해외 고객을 찾는 수출 에이전트",
         description:
-            "HS코드와 품목만으로 해외 시장을 진단하고, 진입 가능한 국가와 실제 바이어 후보를 리포트로 만들어냅니다. 데이터 반출이 어려운 곳을 위해 온프레미스 배포를 지원합니다.",
+            "HS코드와 품목을 바탕으로 해외 시장을 진단하고, 진입 가능한 국가와 바이어 후보를 리포트로 정리합니다. 데이터 반출이 어려운 기관을 위해 온프레미스 배포도 지원합니다.",
         highlights: ["HS코드 분석", "국가별 진입성", "바이어 후보", "온프레미스"],
         link: null,
         status: "coming-soon",
@@ -160,9 +160,9 @@ export const MANIFESTO = {
     eyebrow: "What we build",
     lines: [
         "우리는 모델을 만들지 않습니다.",
-        "모델 위에서 일이 실제로 끝나게 만드는 층을 만듭니다.",
-        "계획하고, 멈추고, 되돌리고, 측정하는 것 —",
-        "그 층이 제품과 연구를 잇습니다.",
+        "모델이 실제 업무를 끝내도록 실행 계층을 만듭니다.",
+        "계획하고, 멈추고, 되돌리고, 측정하는 구조.",
+        "그 구조가 제품과 연구를 연결합니다.",
     ],
 } as const;
 
@@ -175,21 +175,21 @@ export interface ApproachStep {
 export const APPROACH: readonly ApproachStep[] = [
     {
         id: "observe",
-        title: "운영에서 문제를 만난다",
+        title: "운영에서 문제를 찾습니다",
         description:
-            "네 개의 제품이 실사용 트래픽 위에서 돌아갑니다. 무엇이 실패했는지는 추정이 아니라 트레이스로 남고, 비용과 지연이 함께 기록됩니다.",
+            "네 개의 제품이 실제 사용자 흐름 안에서 돌아갑니다. 실패 지점은 추정하지 않습니다. 트레이스, 비용, 지연 시간을 함께 기록합니다.",
     },
     {
         id: "solve",
-        title: "원천기술로 푼다",
+        title: "원천기술로 해결합니다",
         description:
-            "반복되는 실패 유형만 골라 제어 계층의 문제로 다시 정의합니다. 고치기 전에 회귀 스위트를 먼저 만들어, 같은 실패가 다시 나면 배포 전에 걸리게 합니다.",
+            "반복되는 실패를 제어 계층의 문제로 다시 정의합니다. 먼저 회귀 스위트를 만들고, 같은 실패가 다시 나오면 배포 전에 잡아냅니다.",
     },
     {
         id: "return",
-        title: "제품으로 되돌린다",
+        title: "제품으로 다시 검증합니다",
         description:
-            "검증된 해법은 자사 제품에 가장 먼저 배포됩니다. 거기서 한 번 더 버티면 계열사와 파트너사의 현장으로 나갑니다.",
+            "검증한 해법은 자사 제품에 먼저 배포합니다. 실제 운영에서 버틴 뒤 계열사와 파트너사의 현장으로 확장합니다.",
     },
 ];
 
@@ -203,37 +203,37 @@ export const PIPELINE: readonly PipelineNode[] = [
     {
         id: "input",
         label: "Input",
-        description: "사용자 요청과 작업 컨텍스트가 구조화된 입력으로 들어옵니다.",
+        description: "사용자 요청과 작업 맥락을 구조화된 입력으로 받습니다.",
     },
     {
         id: "planner",
         label: "Planner",
-        description: "목표를 실행 가능한 단계로 쪼개고, 각 단계에 필요한 도구를 미리 고릅니다.",
+        description: "목표를 실행 가능한 단계로 나누고, 단계별 도구를 선택합니다.",
     },
     {
         id: "tools",
         label: "Tool Layer",
-        description: "MCP 규격으로 사내외 도구와 데이터 소스를 하나의 인터페이스에 연결합니다.",
+        description: "MCP 규격으로 사내외 도구와 데이터 소스를 연결합니다.",
     },
     {
         id: "executor",
         label: "Executor",
-        description: "계획된 단계를 실제 툴 호출로 수행하고, 중간 상태를 빠짐없이 기록합니다.",
+        description: "계획된 단계를 툴 호출로 실행하고 중간 상태를 기록합니다.",
     },
     {
         id: "critic",
         label: "Critic",
-        description: "결과를 기준에 대조해 검증하고, 실패하면 재시도할지 되돌릴지를 결정합니다.",
+        description: "결과를 기준과 대조하고, 실패 시 재시도 또는 롤백을 결정합니다.",
     },
     {
         id: "checkpoint",
         label: "Checkpoint",
-        description: "실행 그래프를 저장해 재개를 보장하고, 승인이 필요한 지점에서 사람에게 넘깁니다.",
+        description: "실행 그래프를 저장해 작업을 재개하고, 승인 지점에서는 사람에게 넘깁니다.",
     },
     {
         id: "output",
         label: "Output",
-        description: "검증된 결과물을 비용·지연·툴 호출 트레이스와 함께 돌려줍니다.",
+        description: "검증된 결과물과 비용, 지연, 툴 호출 트레이스를 함께 제공합니다.",
     },
 ];
 
@@ -250,28 +250,28 @@ export const RESEARCH: readonly ResearchTrack[] = [
         category: "Generative Design",
         tech: ["Python", "PyTorch", "Next.js"],
         description:
-            "생성 알고리즘으로 광학 메타표면 구조를 탐색합니다. 설계안과 시뮬레이션 결과를 나란히 놓고 비교할 수 있게 만듭니다.",
+            "생성 알고리즘으로 광학 메타표면 구조를 탐색합니다. 설계안과 시뮬레이션 결과를 한 화면에서 비교합니다.",
     },
     {
         title: "Medical GenAI Augmentor",
         category: "Medical AI",
         tech: ["PyTorch", "Diffusion", "FastAPI"],
         description:
-            "부족한 의료 영상 데이터셋을 생성 모델로 늘리고, 증강된 데이터가 실제 진단 성능에 얼마나 기여하는지를 측정합니다.",
+            "생성 모델로 의료 영상 데이터셋을 보강하고, 증강 데이터가 진단 성능에 미치는 영향을 측정합니다.",
     },
     {
         title: "CMOS Sensor Dashboard",
         category: "Observability",
         tech: ["TypeScript", "D3.js", "Next.js"],
         description:
-            "CMOS 이미징 센서의 상태 지표를 실시간으로 모으고, 이상이 생긴 구간을 시간축 위에서 되짚을 수 있게 합니다.",
+            "CMOS 이미징 센서의 상태 지표를 실시간으로 모으고, 이상 구간을 시간축에서 추적합니다.",
     },
     {
         title: "PINN WaveLab",
         category: "Scientific ML",
         tech: ["JAX", "PINN", "Python"],
         description:
-            "물리 정보 신경망으로 파동 방정식의 해를 근사하고, 기존 수치 해석 결과와의 오차를 정량으로 비교합니다.",
+            "물리 정보 신경망으로 파동 방정식의 해를 근사하고, 기존 수치 해석 결과와 오차를 비교합니다.",
     },
 ];
 
@@ -309,7 +309,7 @@ export const PARTNERS: readonly Partner[] = [
         name: "주식회사 온엑스",
         nameEn: "ON-AX",
         relation: "계열",
-        description: "수출 분야 글로벌 에이전트 기술",
+        description: "수출 에이전트 기술",
     },
     {
         id: "growingup",
@@ -339,44 +339,44 @@ export const INQUIRY_TYPES = [
 export const SECTIONS = {
     capability: {
         eyebrow: "CAPABILITY",
-        title: "모델 위에 필요한 *네 겹*의 기술",
+        title: "모델 위에 필요한 네 겹의 기술",
         description:
-            "좋은 모델을 붙이는 것만으로 에이전트는 제품이 되지 않습니다. 계획하고, 멈추고, 되돌리고, 측정하는 층이 그 위에 있어야 합니다.",
+            "좋은 모델만으로는 에이전트 제품을 만들 수 없습니다. 계획, 실행 중단, 복구, 품질 측정까지 담당하는 계층이 필요합니다.",
     },
     products: {
         eyebrow: "PRODUCTS",
-        title: "이미 쓰이고 있는 *제품*들",
+        title: "현장에서 쓰이고 있는 제품들",
         description:
-            "연구한 것은 자사 제품에서 먼저 검증합니다. 마케팅, 수출, 교육, 건설 — 네 개의 산업이 같은 실행 엔진을 서로 다른 방식으로 시험하고 있습니다.",
+            "연구한 기술은 자사 제품에서 먼저 검증합니다. 마케팅, 수출, 교육, 건설 분야의 제품이 같은 실행 엔진을 각자의 방식으로 사용하거나 준비 중입니다.",
     },
     technology: {
         eyebrow: "TECHNOLOGY",
-        title: "요청 하나가 지나는 *경로*",
+        title: "요청 하나가 결과가 되는 경로",
         description:
-            "각 단계는 따로 교체하고 따로 재시도합니다. 실행 상태는 체크포인트로 남아, 멈춘 자리에서 다시 이어집니다.",
+            "각 단계는 독립적으로 교체하고 재시도할 수 있습니다. 실행 상태는 체크포인트로 남기 때문에 멈춘 자리에서 이어갈 수 있습니다.",
     },
     research: {
         eyebrow: "RESEARCH & IP",
-        title: "제품이 되기 *이전*의 문제들",
+        title: "제품이 되기 전의 문제들",
         description:
-            "당장 제품에 들어가지 않는 주제도 다룹니다. 생성 설계, 과학 계산, 관측 가능성 — 각 트랙은 다음 기능이 되거나 특허로 남습니다.",
+            "당장 제품에 들어가지 않는 주제도 연구합니다. 생성 설계, 과학 계산, 관측 가능성 트랙은 다음 기능이나 특허로 이어집니다.",
     },
     approach: {
         eyebrow: "APPROACH",
-        title: "문제는 운영에서 오고, *해법*은 제품으로 돌아갑니다",
+        title: "문제는 운영에서 찾고, 해법은 제품에서 검증합니다",
         description:
-            "연구실에서 시작해 제품으로 내려오는 순서가 아닙니다. 반대로 갑니다. 실제로 돌아가는 제품에서 문제를 만나고, 그것만 기술로 풉니다.",
+            "연구실에서 출발해 제품으로 내려오는 방식이 아닙니다. 실제로 운영되는 제품에서 문제를 찾고, 반복되는 것만 기술로 풉니다.",
     },
     partners: {
         eyebrow: "PARTNERS",
-        title: "기술이 닿는 *현장*",
+        title: "기술이 적용되는 현장",
         description:
-            "계열사와 파트너사가 각자의 산업에서 에이전트를 실무에 붙입니다. 거기서 나온 요구가 다시 원천기술의 다음 과제가 됩니다.",
+            "계열사와 파트너사는 각자의 산업에서 에이전트를 실무에 적용합니다. 현장에서 나온 요구는 다음 기술 과제로 돌아옵니다.",
     },
     contact: {
         eyebrow: "CONTACT",
-        title: "무엇을 만들고 *계신가요*",
+        title: "어떤 문제를 풀고 계신가요",
         description:
-            "제품 도입이든 공동 연구든, 지금 막혀 있는 지점을 적어주시면 담당자가 직접 회신합니다.",
+            "제품 도입, 공동 연구, 제휴 논의가 필요하다면 현재 막혀 있는 지점을 남겨 주세요. 담당자가 직접 회신합니다.",
     },
 } as const;

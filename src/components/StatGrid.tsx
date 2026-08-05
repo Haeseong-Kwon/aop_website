@@ -13,12 +13,12 @@ const STATS = [
     {
         value: PRODUCTS.length,
         label: "Products",
-        caption: "마케팅·건설·교육·수출에서 운영·개발 중인 에이전트 제품",
+        caption: "마케팅, 건설, 교육, 수출 분야에서 운영 및 준비 중인 에이전트 제품",
     },
     {
         value: PIPELINE.length,
         label: "Pipeline stages",
-        caption: "요청 하나가 결과가 되기까지 거치는 실행 단계",
+        caption: "요청을 결과로 만들기 위해 거치는 실행 단계",
     },
     {
         value: PATENTS.length,
@@ -28,7 +28,7 @@ const STATS = [
     {
         value: PARTNERS.length,
         label: "Network",
-        caption: "각자의 산업에서 기술을 검증하는 계열사와 파트너사",
+        caption: "산업 현장에서 기술을 함께 검증하는 계열사와 파트너사",
     },
 ];
 

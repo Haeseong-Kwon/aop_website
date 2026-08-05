@@ -12,7 +12,7 @@ export function Footer() {
                         <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted">
                             {SITE.legalName} · {SITE.fullName}
                             <br />
-                            에이전트 제품을 운영하고, 그 위의 원천기술을 연구합니다.
+                            에이전트 제품을 운영하며 실행 기술을 연구합니다.
                         </p>
                         <a
                             href={`mailto:${SITE.email}`}

@@ -55,7 +55,7 @@ export function Contact() {
         } catch (error) {
             console.error("Contact form submission failed:", error);
             setSubmitError(
-                `메일 앱을 열지 못했습니다. ${SITE.email} 으로 직접 보내주세요.`
+                `메일 앱을 열지 못했습니다. ${SITE.email}으로 직접 보내주세요.`
             );
         }
     };
@@ -150,7 +150,7 @@ export function Contact() {
                                 <textarea
                                     id="message"
                                     rows={5}
-                                    placeholder="어떤 문제를 풀고 계신지 알려주세요."
+                                    placeholder="현재 막혀 있는 문제나 논의하고 싶은 내용을 적어 주세요."
                                     aria-invalid={Boolean(errors.message)}
                                     className={cn(fieldClass, "mt-2.5 resize-none")}
                                     {...register("message")}
@@ -177,7 +177,7 @@ export function Contact() {
                                         className="inline-flex items-center gap-1.5 text-sm text-signal"
                                     >
                                         <Check size={15} />
-                                        메일 앱이 열렸습니다
+                                        메일 앱을 열었습니다
                                     </span>
                                 ) : null}
                             </div>

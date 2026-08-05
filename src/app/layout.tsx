@@ -14,9 +14,9 @@ const jetbrainsMono = JetBrains_Mono({
 // TODO: 실제 운영 도메인 확정 시 NEXT_PUBLIC_SITE_URL 환경변수로 주입
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-const title = "AOP — 에이전트가 일하는 방식을 설계합니다";
+const title = "AOP — 에이전트가 끝까지 일하는 구조를 설계합니다";
 const description =
-  "AOP는 네 개의 AI 에이전트 제품을 직접 운영하며, 에이전트를 더 정확하고 더 싸게 만드는 원천기술을 연구합니다.";
+  "AOP는 AI 에이전트 제품을 직접 만들고 운영하며, 에이전트가 실제 업무를 끝내도록 만드는 실행 기술을 연구합니다.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
