@@ -296,7 +296,7 @@ function TrackTicker({ active }: { active: number }) {
 /** 트랙 설명 카드. 무대 위에서는 유리판으로, 폴백에서는 그냥 카드로 쓴다. */
 function TrackCard({ track }: { track: FrontierTrack }) {
     return (
-        <div className="pointer-events-auto rounded-xl border border-border bg-bg/72 p-5 backdrop-blur-md sm:p-6">
+        <div className="pointer-events-auto rounded-2xl border border-border bg-bg/72 p-5 backdrop-blur-md sm:p-6">
             <p className="flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-faint">
                 <span className="text-glow">{track.index}</span>
                 <span className="h-2.5 w-px bg-border" />

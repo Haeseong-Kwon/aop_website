@@ -8,6 +8,8 @@
 @theme {
   --color-bg: #000000;
   --color-surface: rgb(255 255 255 / 0.035);
+  /* 카드 면 — 0.035는 검정 위에서 사실상 보이지 않아 카드가 선만 남는다 */
+  --color-surface-raised: rgb(255 255 255 / 0.05);
   --color-surface-2: rgb(255 255 255 / 0.07);
   /*
    * 가독성 기준: 본문 0.92, 보조 0.72, 최약 0.5.
@@ -157,10 +159,15 @@
   }
 
   /* ---- 표면: 보더 한 겹과 아주 옅은 채움만 ---- */
+  /*
+   * 모서리를 16px에서 22px로 키우고 채움을 한 단계 올렸다. 각진 카드는 '기술적'이
+   * 아니라 '덜 만들어진' 쪽으로 읽힌다 — 큰 라운드와 옅은 유리면이 이 계열 사이트의
+   * 기본 문법이고, 그 위에서만 헤어라인 보더가 정밀해 보인다.
+   */
   .surface-card {
-    background: var(--color-surface);
+    background: var(--color-surface-raised);
     border: 1px solid var(--color-border);
-    border-radius: 16px;
+    border-radius: 22px;
     transition: border-color 0.5s var(--ease-out-expo),
       background-color 0.5s var(--ease-out-expo),
       transform 0.5s var(--ease-out-expo);
@@ -279,7 +286,7 @@
     position: relative;
     overflow: hidden;
     border: 1px solid var(--color-border);
-    border-radius: 24px;
+    border-radius: 30px;
     background:
       radial-gradient(
         95% 80% at 100% 0%,

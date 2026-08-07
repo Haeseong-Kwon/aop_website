@@ -8,7 +8,7 @@ import { MagneticButton } from "@/components/motion/MagneticButton";
 import { PrismLight } from "@/components/visual/PrismLight";
 import { NoiseField } from "@/components/visual/NoiseField";
 import { DetectionOverlay } from "@/components/visual/DetectionOverlay";
-import { ScrollCube } from "@/components/visual/ScrollCube";
+import { LatticeCube } from "@/components/visual/LatticeCube";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useTransition } from "@/hooks/useEnter";
 import { DUR, EASE, STAGGER } from "@/lib/motion";
@@ -130,16 +130,15 @@ export function Hero() {
              * 프리즘과 함께 확대·이동해서 스크롤이 만드는 회전이 흔들림으로 읽힌다.
              * 헤드라인 아래 비어 있는 좌하단에만 놓고, 자리가 없는 좁은 화면에서는 뺀다.
              */}
-            <motion.div
+            <div
                 aria-hidden
-                style={{ opacity: contentOpacity }}
                 className="pointer-events-none absolute inset-0 -z-10 hidden lg:block"
             >
-                <ScrollCube
+                <LatticeCube
                     progress={scrollYProgress}
-                    className="absolute left-[5%] top-[55%]"
+                    className="absolute left-[2%] top-[40%] h-[clamp(20rem,34vw,32rem)] w-[clamp(20rem,34vw,32rem)]"
                 />
-            </motion.div>
+            </div>
 
             <motion.div
                 style={{ opacity: contentOpacity }}

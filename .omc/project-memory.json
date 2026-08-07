@@ -163,8 +163,8 @@
     },
     {
       "path": "src/components/Hero.tsx",
-      "accessCount": 9,
-      "lastAccessed": 1786090634496,
+      "accessCount": 11,
+      "lastAccessed": 1786092877306,
       "type": "file"
     },
     {
@@ -195,6 +195,12 @@
       "path": "src/components/frontier/CvOverlay.tsx",
       "accessCount": 6,
       "lastAccessed": 1786090711817,
+      "type": "file"
+    },
+    {
+      "path": "src/app/globals.css",
+      "accessCount": 6,
+      "lastAccessed": 1786093170597,
       "type": "file"
     },
     {
@@ -267,12 +273,6 @@
       "path": "src/components/visual/CapabilityDiagram.tsx",
       "accessCount": 3,
       "lastAccessed": 1785911166856,
-      "type": "file"
-    },
-    {
-      "path": "src/app/globals.css",
-      "accessCount": 3,
-      "lastAccessed": 1786089500895,
       "type": "file"
     },
     {
