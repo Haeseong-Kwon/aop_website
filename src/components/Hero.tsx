@@ -8,6 +8,7 @@ import { MagneticButton } from "@/components/motion/MagneticButton";
 import { PrismLight } from "@/components/visual/PrismLight";
 import { NoiseField } from "@/components/visual/NoiseField";
 import { DetectionOverlay } from "@/components/visual/DetectionOverlay";
+import { ScrollCube } from "@/components/visual/ScrollCube";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useTransition } from "@/hooks/useEnter";
 import { DUR, EASE, STAGGER } from "@/lib/motion";
@@ -122,6 +123,22 @@ export function Hero() {
                 <div className="absolute inset-0 bg-[linear-gradient(100deg,#000_6%,rgba(0,0,0,0.72)_30%,transparent_58%)]" />
                 {/* 좁은 화면에서는 본문이 빔 위로 겹치므로 전면 베일을 한 겹 더 얹는다 */}
                 <div className="absolute inset-0 bg-black/45 lg:hidden" />
+            </motion.div>
+
+            {/*
+             * 스크롤 회전 정육면체. 배경 패럴랙스 레이어 밖에 둔다 — 안에 넣으면
+             * 프리즘과 함께 확대·이동해서 스크롤이 만드는 회전이 흔들림으로 읽힌다.
+             * 헤드라인 아래 비어 있는 좌하단에만 놓고, 자리가 없는 좁은 화면에서는 뺀다.
+             */}
+            <motion.div
+                aria-hidden
+                style={{ opacity: contentOpacity }}
+                className="pointer-events-none absolute inset-0 -z-10 hidden lg:block"
+            >
+                <ScrollCube
+                    progress={scrollYProgress}
+                    className="absolute left-[5%] top-[55%]"
+                />
             </motion.div>
 
             <motion.div

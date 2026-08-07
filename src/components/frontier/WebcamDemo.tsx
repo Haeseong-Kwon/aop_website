@@ -121,7 +121,8 @@ export function WebcamDemo({ onControl }: WebcamDemoProps) {
     };
 
     return (
-        <div className="mt-6 rounded-xl border border-border p-4">
+        /* 바깥 여백은 호출부가 정한다 — 무대 위에 얹힐 때와 아래에 놓일 때가 다르다 */
+        <div className="rounded-xl border border-border p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-bright">

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1785908138217,
+  "lastScanned": 1786089210113,
   "projectRoot": "/Users/haeseong/Desktop/Developing/aop_website",
   "techStack": {
     "languages": [
@@ -74,7 +74,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 5,
-      "lastAccessed": 1785908138171,
+      "lastAccessed": 1786089210086,
       "keyFiles": [
         "file.svg",
         "globe.svg",
@@ -87,14 +87,14 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1785908138173,
+      "lastAccessed": 1786089210087,
       "keyFiles": []
     },
     "src/app": {
       "path": "src/app",
       "purpose": "Application code",
       "fileCount": 4,
-      "lastAccessed": 1785908138178,
+      "lastAccessed": 1786089210091,
       "keyFiles": [
         "favicon.ico",
         "globals.css",
@@ -104,27 +104,33 @@
     "src/components": {
       "path": "src/components",
       "purpose": "UI components",
-      "fileCount": 17,
-      "lastAccessed": 1785908138178,
+      "fileCount": 20,
+      "lastAccessed": 1786089210091,
       "keyFiles": [
         "Approach.tsx",
         "Capability.tsx",
-        "Contact.tsx"
+        "CapabilityCard.tsx"
       ]
     },
     "src/lib": {
       "path": "src/lib",
       "purpose": "Library code",
-      "fileCount": 3,
-      "lastAccessed": 1785908138179,
+      "fileCount": 4,
+      "lastAccessed": 1786089210091,
       "keyFiles": [
         "constants.ts",
         "emphasis.ts",
-        "utils.ts"
+        "motion.ts"
       ]
     }
   },
   "hotPaths": [
+    {
+      "path": "src/components/frontier/FrontierVisualizer.tsx",
+      "accessCount": 20,
+      "lastAccessed": 1786089991324,
+      "type": "file"
+    },
     {
       "path": "src/components/Technology.tsx",
       "accessCount": 16,
@@ -132,9 +138,33 @@
       "type": "file"
     },
     {
+      "path": "src/components/Frontier.tsx",
+      "accessCount": 12,
+      "lastAccessed": 1786090651487,
+      "type": "file"
+    },
+    {
       "path": "src/components/Products.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1786089479810,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/constants.ts",
+      "accessCount": 11,
+      "lastAccessed": 1786089500713,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/PerceptionScene.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1786089575751,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Hero.tsx",
       "accessCount": 9,
-      "lastAccessed": 1785909545108,
+      "lastAccessed": 1786090634496,
       "type": "file"
     },
     {
@@ -150,9 +180,21 @@
       "type": "file"
     },
     {
-      "path": "src/components/Frontier.tsx",
+      "path": "src/components/motion/RotaryStage.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1786089487521,
+      "type": "file"
+    },
+    {
+      "path": "src/components/visual/DetectionOverlay.tsx",
       "accessCount": 6,
-      "lastAccessed": 1785910572401,
+      "lastAccessed": 1786089755806,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/CvOverlay.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1786090711817,
       "type": "file"
     },
     {
@@ -165,24 +207,6 @@
       "path": "src/components/Research.tsx",
       "accessCount": 5,
       "lastAccessed": 1785910018121,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/constants.ts",
-      "accessCount": 5,
-      "lastAccessed": 1785910080138,
-      "type": "file"
-    },
-    {
-      "path": "src/components/frontier/PerceptionScene.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1785910366142,
-      "type": "file"
-    },
-    {
-      "path": "src/components/frontier/FrontierVisualizer.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1785910539283,
       "type": "file"
     },
     {
@@ -210,27 +234,27 @@
       "type": "file"
     },
     {
+      "path": "src/components/Approach.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1785914305142,
+      "type": "file"
+    },
+    {
+      "path": "src/components/frontier/WebcamDemo.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1786089878809,
+      "type": "file"
+    },
+    {
       "path": "src/components/WordEquation.tsx",
       "accessCount": 3,
       "lastAccessed": 1785909348407,
       "type": "file"
     },
     {
-      "path": "src/components/Approach.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1785909973223,
-      "type": "file"
-    },
-    {
       "path": "src/components/CopyableCode.tsx",
       "accessCount": 3,
       "lastAccessed": 1785910001500,
-      "type": "file"
-    },
-    {
-      "path": "src/components/frontier/CvOverlay.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1785910236029,
       "type": "file"
     },
     {
@@ -246,15 +270,21 @@
       "type": "file"
     },
     {
-      "path": "src/components/motion/Reveal.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1785909040772,
+      "path": "src/app/globals.css",
+      "accessCount": 3,
+      "lastAccessed": 1786089500895,
       "type": "file"
     },
     {
       "path": "src/components/Providers.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1786090416055,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/Reveal.tsx",
       "accessCount": 2,
-      "lastAccessed": 1785909106891,
+      "lastAccessed": 1785909040772,
       "type": "file"
     },
     {
@@ -264,33 +294,21 @@
       "type": "file"
     },
     {
-      "path": "src/components/Hero.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1785909294025,
-      "type": "file"
-    },
-    {
-      "path": "src/app/globals.css",
-      "accessCount": 2,
-      "lastAccessed": 1785909518491,
-      "type": "file"
-    },
-    {
-      "path": "src/components/frontier/WebcamDemo.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1785910669306,
-      "type": "file"
-    },
-    {
       "path": "src/components/technology/PipelineDiagram.tsx",
       "accessCount": 2,
       "lastAccessed": 1785911177883,
       "type": "file"
     },
     {
+      "path": "src/components/motion/FlipPanel.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1786089505761,
+      "type": "file"
+    },
+    {
       "path": "src/hooks/useReducedMotion.ts",
-      "accessCount": 1,
-      "lastAccessed": 1785908743622,
+      "accessCount": 2,
+      "lastAccessed": 1786090416432,
       "type": "file"
     },
     {
@@ -381,6 +399,30 @@
       "path": "src/components/frontier/shapes.ts",
       "accessCount": 1,
       "lastAccessed": 1785910128634,
+      "type": "file"
+    },
+    {
+      "path": "public/products/autopilot.jpg",
+      "accessCount": 1,
+      "lastAccessed": 1785913931561,
+      "type": "file"
+    },
+    {
+      "path": "public/products/inspec.jpg",
+      "accessCount": 1,
+      "lastAccessed": 1785913936223,
+      "type": "file"
+    },
+    {
+      "path": "public/products/talkpicplus.jpg",
+      "accessCount": 1,
+      "lastAccessed": 1785913941015,
+      "type": "file"
+    },
+    {
+      "path": "src/components/visual/ScrollCube.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1786089772892,
       "type": "file"
     }
   ],

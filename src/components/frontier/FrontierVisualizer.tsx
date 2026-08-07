@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import type { MotionValue } from "framer-motion";
 import {
     ANCHORS,
     type ShapeId,
     type ShapeAnchor,
 } from "@/components/frontier/shapes";
 import { CvOverlay } from "@/components/frontier/CvOverlay";
+import { cn } from "@/lib/utils";
 import type { Projected } from "@/components/frontier/PerceptionScene";
 
 /*
@@ -48,6 +50,17 @@ interface FrontierVisualizerProps {
      * ref로 두는 이유: 매 프레임 바뀌는 값을 state로 두면 리렌더가 프레임을 잡아먹는다.
      */
     orbit: React.RefObject<{ x: number; y: number }>;
+    /**
+     * 카메라 거리와 스캔 위치를 부모가 직접 몰 때 쓴다.
+     *
+     * 무대가 sticky로 고정되면 이 요소의 뷰포트 좌표가 멈춰서, 자체 스크롤 계산은
+     * 상수가 된다 — 핀 구간 내내 카메라도 스캔도 얼어붙는다. 핀을 쓰는 호출부는
+     * 무대 진행도를 직접 넘긴다.
+     */
+    camera?: MotionValue<number>;
+    scan?: MotionValue<number>;
+    /** 무대 높이는 호출부가 정한다 — 핀 구간에서는 뷰포트 높이에 맞춰야 한다. */
+    className?: string;
 }
 
 /**
@@ -60,12 +73,16 @@ export function FrontierVisualizer({
     shape,
     disabled,
     orbit: orbitRef,
+    camera,
+    scan: scanValue,
+    className,
 }: FrontierVisualizerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [mounted, setMounted] = useState(false);
     const [supported, setSupported] = useState<boolean | null>(null);
     const [projected, setProjected] = useState<Projected[]>([]);
-    const [scan, setScan] = useState(0);
+    // 초기값은 구독이 아니라 첫 렌더에서 읽는다 — 이펙트에서 setState하면 렌더가 한 번 더 돈다
+    const [scan, setScan] = useState(() => scanValue?.get() ?? 0);
     const [height, setHeight] = useState(1);
 
     // 매 프레임 바뀌는 값은 state로 두지 않는다 — 리렌더가 프레임을 잡아먹는다
@@ -115,15 +132,41 @@ export function FrontierVisualizer({
         return () => observer.disconnect();
     }, [disabled]);
 
-    // 섹션 스크롤 진행도와 스캔라인 위치
+    // 오버레이 좌표계는 캔버스 높이를 알아야 한다 — 스크롤 방식과 무관하게 항상 잰다
     useEffect(() => {
         const element = containerRef.current;
         if (!element) return;
 
+        const measure = () => setHeight(element.getBoundingClientRect().height);
+        measure();
+
+        const observer = new ResizeObserver(measure);
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, []);
+
+    // 무대 진행도를 외부에서 받는 경우 — 자체 스크롤 계산은 돌리지 않는다
+    useEffect(() => {
+        if (!camera) return;
+
+        scrollRef.current = camera.get();
+        return camera.on("change", (value) => {
+            scrollRef.current = value;
+        });
+    }, [camera]);
+
+    useEffect(() => {
+        if (!scanValue) return;
+        return scanValue.on("change", setScan);
+    }, [scanValue]);
+
+    // 외부 진행도가 없으면 이 요소의 뷰포트 위치에서 직접 계산한다
+    useEffect(() => {
+        const element = containerRef.current;
+        if (!element || camera || scanValue) return;
+
         const update = () => {
             const rect = element.getBoundingClientRect();
-            setHeight(rect.height);
-
             const total = window.innerHeight + rect.height;
             const progress = (window.innerHeight - rect.top) / total;
             scrollRef.current = Math.min(1, Math.max(0, progress));
@@ -139,7 +182,7 @@ export function FrontierVisualizer({
             window.removeEventListener("scroll", update);
             window.removeEventListener("resize", update);
         };
-    }, []);
+    }, [camera, scanValue]);
 
     // 드래그 orbit. 포인터 캡처로 캔버스 밖으로 나가도 끊기지 않게 한다.
     const handlePointerDown = (event: React.PointerEvent) => {
@@ -185,7 +228,10 @@ export function FrontierVisualizer({
              * 무대가 가로로 넓어졌다. 정사각형을 유지하면 데스크톱에서 한 화면을
              * 통째로 잡아먹어 아래 캡션까지 스크롤이 한참 필요해진다.
              */
-            className="relative h-[clamp(26rem,62vh,40rem)] w-full touch-pan-y select-none overflow-hidden rounded-2xl border border-border bg-[radial-gradient(70%_80%_at_62%_45%,rgba(74,140,255,0.1),transparent_70%)]"
+            className={cn(
+                "relative h-[clamp(26rem,62vh,40rem)] w-full touch-pan-y select-none overflow-hidden rounded-2xl border border-border bg-[radial-gradient(70%_80%_at_62%_45%,rgba(74,140,255,0.1),transparent_70%)]",
+                className
+            )}
         >
             {showScene ? (
                 <>

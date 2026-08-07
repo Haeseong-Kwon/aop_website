@@ -30,11 +30,18 @@ export function CvOverlay({
 }) {
     return (
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-            {/* 스캔라인 — 이 선이 지나가야 박스가 붙는다 */}
+            {/*
+             * 스캔 스윕 — 이 선이 지나가야 박스가 붙는다.
+             * 선 한 줄이 아니라 위로 끌리는 잔광을 함께 둔다. DetectionOverlay가 표면 위에
+             * 세우는 스캔 평면과 같은 언어라야 두 섹션의 인식 레이어가 한 장치로 읽힌다.
+             */}
             <div
-                className="absolute inset-x-0 h-px bg-[linear-gradient(90deg,transparent,var(--color-glow),transparent)]"
-                style={{ top: `${scan * 100}%`, opacity: 0.7 }}
-            />
+                className="absolute inset-x-0"
+                style={{ top: `${scan * 100}%`, opacity: 0.8 }}
+            >
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_top,rgba(188,216,255,0.14),transparent)]" />
+                <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--color-glow),transparent)]" />
+            </div>
 
             {anchors.map((anchor, index) => {
                 const point = projected[index];
@@ -84,8 +91,13 @@ export function CvOverlay({
                             />
                         </svg>
 
-                        <span className="absolute left-0 top-full mt-1 whitespace-nowrap rounded-[3px] bg-beam/85 px-1.5 py-0.5 font-mono text-[10px] leading-none tracking-[0.02em] text-white">
-                            {anchor.label} · {anchor.confidence.toFixed(2)}
+                        {/* 라벨은 DetectionOverlay와 같은 규격 — 검은 판에 글로우 테두리 */}
+                        <span className="absolute left-0 top-full mt-1.5 flex items-center gap-1.5 whitespace-nowrap border border-glow/35 bg-black/72 px-1.5 py-[3px] font-mono text-[10px] leading-none tracking-[0.04em] text-glow backdrop-blur-[2px]">
+                            {anchor.label}
+                            <span className="h-2.5 w-px bg-glow/30" />
+                            <span className="text-glow/65">
+                                {anchor.confidence.toFixed(2)}
+                            </span>
                         </span>
                     </div>
                 );
