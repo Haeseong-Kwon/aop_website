@@ -3,7 +3,7 @@
  * 미설정 시에도 절대 localhost가 메타데이터로 나가지 않도록 운영 도메인을 폴백으로 둔다.
  */
 export const SITE_URL =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://aop-website-five.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://aop.it.kr";
 
 export const SITE = {
     name: "AOP",

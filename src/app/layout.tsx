@@ -36,6 +36,12 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: SITE.legalName }],
   robots: { index: true, follow: true },
+  /*
+   * 정규 URL은 항상 운영 도메인을 가리킨다. Vercel의 배포 도메인(*.vercel.app)으로도
+   * 같은 화면이 그대로 열리기 때문에, 이걸 붙이지 않으면 검색엔진이 두 주소를
+   * 별개의 중복 페이지로 취급한다.
+   */
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "ko_KR",
