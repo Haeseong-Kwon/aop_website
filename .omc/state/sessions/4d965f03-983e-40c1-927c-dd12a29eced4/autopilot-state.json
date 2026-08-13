@@ -1,0 +1,10 @@
+{
+  "active": true,
+  "started_at": "2026-08-13T07:25:56.801Z",
+  "original_prompt": "웹사이트 링크를 카톡 등에 공유했을 때 썸네일이, aop의 제품인 오토파일럿 썸네일이 뜬다. 이 웹사이트는 aop 회사 웹사이트이기 때문에, 이 웹사이트 썸네일이 떠야 한다.",
+  "session_id": "4d965f03-983e-40c1-927c-dd12a29eced4",
+  "project_path": "/Users/haeseong/Desktop/Developing/aop_website",
+  "reinforcement_count": 0,
+  "awaiting_confirmation": true,
+  "last_checked_at": "2026-08-13T07:25:56.802Z"
+}

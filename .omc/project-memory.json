@@ -180,6 +180,12 @@
       "type": "file"
     },
     {
+      "path": "src/app/layout.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1786606027115,
+      "type": "file"
+    },
+    {
       "path": "src/components/motion/RotaryStage.tsx",
       "accessCount": 7,
       "lastAccessed": 1786089487521,
@@ -201,12 +207,6 @@
       "path": "src/app/globals.css",
       "accessCount": 6,
       "lastAccessed": 1786093170597,
-      "type": "file"
-    },
-    {
-      "path": "src/app/layout.tsx",
-      "accessCount": 6,
-      "lastAccessed": 1786344204783,
       "type": "file"
     },
     {

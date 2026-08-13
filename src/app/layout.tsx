@@ -49,7 +49,10 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     title,
     description,
-    // TODO: 실제 에셋 교체 — OG 이미지(1200x630) 제작 후 images 필드 추가
+    /*
+     * og:image는 여기서 지정하지 않는다. app/opengraph-image.tsx 파일 규칙이
+     * 절대 URL·크기·타입까지 자동으로 넣어준다 — 여기에 또 쓰면 둘이 겹친다.
+     */
   },
   twitter: { card: "summary_large_image", title, description },
 };
