@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1786089210113,
+  "lastScanned": 1786604207987,
   "projectRoot": "/Users/haeseong/Desktop/Developing/aop_website",
   "techStack": {
     "languages": [
@@ -74,7 +74,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 5,
-      "lastAccessed": 1786089210086,
+      "lastAccessed": 1786604207940,
       "keyFiles": [
         "file.svg",
         "globe.svg",
@@ -87,14 +87,14 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1786089210087,
+      "lastAccessed": 1786604207940,
       "keyFiles": []
     },
     "src/app": {
       "path": "src/app",
       "purpose": "Application code",
       "fileCount": 4,
-      "lastAccessed": 1786089210091,
+      "lastAccessed": 1786604207948,
       "keyFiles": [
         "favicon.ico",
         "globals.css",
@@ -105,7 +105,7 @@
       "path": "src/components",
       "purpose": "UI components",
       "fileCount": 20,
-      "lastAccessed": 1786089210091,
+      "lastAccessed": 1786604207949,
       "keyFiles": [
         "Approach.tsx",
         "Capability.tsx",
@@ -116,7 +116,7 @@
       "path": "src/lib",
       "purpose": "Library code",
       "fileCount": 4,
-      "lastAccessed": 1786089210091,
+      "lastAccessed": 1786604207949,
       "keyFiles": [
         "constants.ts",
         "emphasis.ts",
@@ -138,6 +138,12 @@
       "type": "file"
     },
     {
+      "path": "src/components/Hero.tsx",
+      "accessCount": 14,
+      "lastAccessed": 1786605455448,
+      "type": "file"
+    },
+    {
       "path": "src/components/Frontier.tsx",
       "accessCount": 12,
       "lastAccessed": 1786090651487,
@@ -150,21 +156,15 @@
       "type": "file"
     },
     {
+      "path": "src/components/frontier/PerceptionScene.tsx",
+      "accessCount": 12,
+      "lastAccessed": 1786605140335,
+      "type": "file"
+    },
+    {
       "path": "src/components/Products.tsx",
       "accessCount": 11,
       "lastAccessed": 1786089479810,
-      "type": "file"
-    },
-    {
-      "path": "src/components/frontier/PerceptionScene.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1786089575751,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Hero.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1786092877306,
       "type": "file"
     },
     {
@@ -318,6 +318,12 @@
       "type": "file"
     },
     {
+      "path": "src/components/visual/NodeField.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1786605190765,
+      "type": "file"
+    },
+    {
       "path": "src/components/Navbar.tsx",
       "accessCount": 1,
       "lastAccessed": 1785908754983,
@@ -339,12 +345,6 @@
       "path": "src/components/nav/SectionDots.tsx",
       "accessCount": 1,
       "lastAccessed": 1785908761582,
-      "type": "file"
-    },
-    {
-      "path": "src/components/visual/NodeField.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1785908767281,
       "type": "file"
     },
     {

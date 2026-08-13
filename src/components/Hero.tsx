@@ -136,7 +136,7 @@ export function Hero() {
             >
                 <LatticeCube
                     progress={scrollYProgress}
-                    className="absolute left-[2%] top-[40%] h-[clamp(20rem,34vw,32rem)] w-[clamp(20rem,34vw,32rem)]"
+                    className="absolute left-[1%] top-[47%] h-[clamp(19rem,33vw,31rem)] w-[clamp(19rem,33vw,31rem)]"
                 />
             </div>
 

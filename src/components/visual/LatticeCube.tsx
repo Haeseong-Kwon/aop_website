@@ -13,11 +13,15 @@ import { cn } from "@/lib/utils";
  * 점이 겹쳐 저절로 가장 밝아진다. 선을 한 줄도 긋지 않고 형태가 서는 이유가 이것이다.
  *
  * WebGL을 쓰지 않는다: 히어로는 첫 화면이라 여기서 컨텍스트를 하나 더 따면
- * three 청크가 LCP 앞으로 끌려온다. 점 2400개 투영은 캔버스 2D로 충분하다.
+ * three 청크가 LCP 앞으로 끌려온다. 점 4천 개 투영은 캔버스 2D로 충분하다.
+ *
+ * 화질을 결정하는 건 점의 개수가 아니라 점 하나의 생김새다. 사각 픽셀을 찍으면
+ * 아무리 많이 찍어도 먼지 더미로 보인다. 여기서는 깊이 단계마다 미리 구워둔
+ * 원형 스프라이트를 찍고(보케), 마지막에 화면 전체를 한 번 블룸으로 덮는다.
  */
 
 /** 한 변에 놓이는 점의 개수. 26을 넘기면 격자가 뭉개져 면이 판처럼 보인다. */
-const N = 24;
+const N = 26;
 
 /**
  * 카메라 거리(월드 단위).
@@ -27,12 +31,19 @@ const N = 24;
  */
 const CAMERA = 6.5;
 
-/** 밝기 계단 수. 점마다 색 문자열을 만들면 프레임마다 수천 개가 버려진다. */
-const SHADES = 14;
+/** 깊이 단계 수. 이 개수만큼 스프라이트를 미리 굽는다. */
+const LEVELS = 18;
 
-/** 정육면체 여섯 면 위의 점을 만든다. 모서리 점은 면끼리 겹치도록 둔다 — 그게 광원이 된다. */
+/** 블룸 버퍼 축소 배율. 줄였다 늘리는 것으로 블러를 대신한다. */
+const BLOOM_DOWN = 4;
+
+/**
+ * 정육면체 여섯 면 위의 점을 만든다. 모서리 점은 면끼리 겹치도록 둔다 — 그게 광원이 된다.
+ * 좌표 뒤에 파동 위상을 하나 더 붙여 4개씩 끊어 담는다: 프레임마다 sin을 한 번만 부르려면
+ * 위상은 미리 굳어 있어야 한다.
+ */
 function buildLattice() {
-    const points = new Float32Array(6 * N * N * 3);
+    const points = new Float32Array(6 * N * N * 4);
     const step = 2 / (N - 1);
     let at = 0;
 
@@ -43,9 +54,15 @@ function buildLattice() {
                     const u = -1 + i * step;
                     const v = -1 + j * step;
 
-                    points[at++] = axis === 0 ? side : u;
-                    points[at++] = axis === 1 ? side : axis === 0 ? u : v;
-                    points[at++] = axis === 2 ? side : v;
+                    const x = axis === 0 ? side : u;
+                    const y = axis === 1 ? side : axis === 0 ? u : v;
+                    const z = axis === 2 ? side : v;
+
+                    points[at++] = x;
+                    points[at++] = y;
+                    points[at++] = z;
+                    // 세 축을 서로 다른 주기로 섞어야 파동이 면을 가로질러 흐른다
+                    points[at++] = x * 2.6 + y * 1.9 + z * 2.2;
                 }
             }
         }
@@ -64,6 +81,64 @@ function readRgb(styles: CSSStyleDeclaration, token: string, fallback: [number, 
         parseInt(hex.slice(3, 5), 16),
         parseInt(hex.slice(5, 7), 16),
     ] as [number, number, number];
+}
+
+/**
+ * 깊이 단계별 점 스프라이트를 미리 굽는다.
+ *
+ * 앞쪽 점일수록 크고 가장자리가 무른 원반이 된다 — 초점면을 안쪽에 두면 카메라가
+ * 그렇게 찍는다. 가우시안으로 흐리지 않는 이유: 실제 보케는 중심이 평평하고
+ * 테두리에서 한 번에 떨어지는 원반이라, 가장자리를 세워야 점이 살아 있다.
+ */
+function buildSprites(
+    dpr: number,
+    far: [number, number, number],
+    near: [number, number, number]
+) {
+    return Array.from({ length: LEVELS }, (_, index) => {
+        const t = index / (LEVELS - 1);
+
+        const radius = (0.75 + Math.pow(t, 1.45) * 6.1) * dpr;
+        const size = Math.ceil(radius * 2) + 2;
+
+        const sprite = document.createElement("canvas");
+        sprite.width = size;
+        sprite.height = size;
+
+        const context = sprite.getContext("2d");
+        if (!context) return sprite;
+
+        /*
+         * 색은 알파보다 한참 늦게 밝아진다(t^2.4). 선형으로 섞으면 절반 넘는 점이
+         * 흰색에 가까워져 파랑이 통째로 빠지고 회색 먼지 덩어리가 된다.
+         */
+        const hue = Math.pow(t, 2.4);
+        const channel = (i: number) => Math.round(far[i] + (near[i] - far[i]) * hue);
+        const rgb = `${channel(0)},${channel(1)},${channel(2)}`;
+
+        const core = 0.08 + Math.pow(t, 1.15) * 0.92;
+        // 멀수록 원반이 작고 단단하다. 가까울수록 평평한 부분이 넓어진다.
+        const plateau = 0.3 + t * 0.28;
+
+        const middle = size / 2;
+        const gradient = context.createRadialGradient(
+            middle,
+            middle,
+            0,
+            middle,
+            middle,
+            radius
+        );
+        gradient.addColorStop(0, `rgba(${rgb},${core})`);
+        gradient.addColorStop(plateau, `rgba(${rgb},${(core * 0.88).toFixed(3)})`);
+        gradient.addColorStop(0.74, `rgba(${rgb},${(core * 0.34).toFixed(3)})`);
+        gradient.addColorStop(1, `rgba(${rgb},0)`);
+
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, size, size);
+
+        return sprite;
+    });
 }
 
 interface LatticeCubeProps {
@@ -91,47 +166,56 @@ export function LatticeCube({ progress, className }: LatticeCubeProps) {
         const far = readRgb(styles, "--color-beam", [74, 140, 255]);
         const near = readRgb(styles, "--color-glow", [188, 216, 255]);
 
-        /*
-         * 깊이별 색을 미리 굳혀 둔다. 점마다 rgba() 문자열을 만들면 초당 14만 개가
-         * 생겼다 버려지고, 그 쓰레기 수거가 그대로 프레임 끊김으로 나온다.
-         */
-        const shades = Array.from({ length: SHADES }, (_, index) => {
-            const t = index / (SHADES - 1);
-            /*
-             * 색은 알파보다 늦게 밝아진다(t^1.7). 선형으로 섞으면 절반 넘는 점이
-             * 흰색에 가까워져 파랑이 통째로 빠지고 회색 먼지 덩어리가 된다.
-             */
-            const hue = Math.pow(t, 1.7);
-            const channel = (i: number) =>
-                Math.round(far[i] * 0.8 + (near[i] - far[i] * 0.8) * hue);
-            return `rgba(${channel(0)},${channel(1)},${channel(2)},${(0.14 + t * 0.86).toFixed(3)})`;
-        });
+        // 줄였다 늘리는 것만으로 블러를 만든다. 점마다 그림자를 그리면 프레임이 무너진다.
+        const bloom = document.createElement("canvas");
+        const bloomContext = bloom.getContext("2d");
 
         let dpr = 1;
+        let sprites: HTMLCanvasElement[] = [];
+
         const resize = () => {
             dpr = Math.min(2, window.devicePixelRatio || 1);
             canvas.width = Math.round(canvas.clientWidth * dpr);
             canvas.height = Math.round(canvas.clientHeight * dpr);
+
+            bloom.width = Math.max(1, Math.round(canvas.width / BLOOM_DOWN));
+            bloom.height = Math.max(1, Math.round(canvas.height / BLOOM_DOWN));
+
+            // 스프라이트 크기는 dpr에 묶여 있으므로 화면이 바뀌면 다시 굽는다
+            sprites = buildSprites(dpr, far, near);
         };
         resize();
 
         const draw = (time: number) => {
             const value = Math.min(1, Math.max(0, progress.get()));
             const { width, height } = canvas;
+            // 좁은 화면에서는 부모가 display:none이라 캔버스가 0×0이다.
+            // 그대로 두면 아래 블룸이 0폭 이미지를 그리려다 예외를 던진다.
+            if (width === 0 || height === 0) return;
 
+            context.globalCompositeOperation = "source-over";
+            context.globalAlpha = 1;
             context.clearRect(0, 0, width, height);
+
             // 겹친 점이 더 밝아져야 모서리가 광원이 된다
             context.globalCompositeOperation = "lighter";
             // 스크롤이 끝나갈수록 물러나며 사라진다
-            context.globalAlpha = 1 - Math.min(1, Math.max(0, (value - 0.35) / 0.4)) * 0.92;
+            const fade = 1 - Math.min(1, Math.max(0, (value - 0.35) / 0.4)) * 0.92;
+            context.globalAlpha = fade;
 
             /*
              * 회전의 주인은 스크롤이다. 시간 항은 아주 느린 표류만 담당한다 —
              * 이게 없으면 스크롤을 멈춘 순간 물체가 그림으로 죽는다.
              */
-            // 모서리가 정면으로 오는 3/4 시점에서 출발한다 — 여섯 면 중 셋이 함께 보인다
-            const ry = 0.62 + value * 2.1 + time * 0.00006;
-            const rx = 0.5 + value * -0.42 + Math.sin(time * 0.00013) * 0.07;
+            /*
+             * 모서리가 정면으로 오는 3/4 시점에서 출발한다 — 여섯 면 중 셋이 함께 보인다.
+             *
+             * 요(yaw)를 크게 돌리지 않는다. 90°에 가까워지면 한 면이 화면과 나란해져
+             * 정육면체가 휘어진 판때기로 납작해진다. 퇴장까지 도는 각을 0.7rad으로 묶어
+             * 35°~75° 안에만 머물게 했다 — 많이 도는 것보다 형태가 우선이다.
+             */
+            const ry = 0.62 + value * 0.7 + time * 0.00006;
+            const rx = 0.5 + value * -0.24 + Math.sin(time * 0.00013) * 0.07;
 
             const cosX = Math.cos(rx);
             const sinX = Math.sin(rx);
@@ -145,11 +229,14 @@ export function LatticeCube({ progress, className }: LatticeCubeProps) {
              * 덮어 정육면체의 실루엣이 사라진다 — 커지는 것보다 형태가 우선이다.
              */
             const radius = Math.min(width, height) * 0.27 * (1 + value * 0.35);
+            // 격자 전체를 훑고 지나가는 숨. 면이 통째로 흔들리지 않도록 진폭은 점 간격 이하로 둔다.
+            const wave = time * 0.0009;
 
-            for (let i = 0; i < lattice.length; i += 3) {
-                const x0 = lattice[i];
-                const y0 = lattice[i + 1];
-                const z0 = lattice[i + 2];
+            for (let i = 0; i < lattice.length; i += 4) {
+                const breath = 1 + Math.sin(lattice[i + 3] + wave) * 0.02;
+                const x0 = lattice[i] * breath;
+                const y0 = lattice[i + 1] * breath;
+                const z0 = lattice[i + 2] * breath;
 
                 const x1 = x0 * cosY + z0 * sinY;
                 const z1 = z0 * cosY - x0 * sinY;
@@ -162,15 +249,29 @@ export function LatticeCube({ progress, className }: LatticeCubeProps) {
                 const k = CAMERA / depth;
                 const sx = cx + x1 * radius * k;
                 const sy = cy + y1 * radius * k;
-                if (sx < -8 || sy < -8 || sx > width + 8 || sy > height + 8) continue;
+                if (sx < -24 || sy < -24 || sx > width + 24 || sy > height + 24) continue;
 
-                // 앞쪽 점일수록 밝고 굵다. 이 두 가지가 이 물체의 유일한 깊이 단서다.
+                // 앞쪽 점일수록 밝고 굵고 무르다. 이 셋이 이 물체의 유일한 깊이 단서다.
                 const t = Math.min(1, Math.max(0, (z2 + 1.35) / 2.7));
-                context.fillStyle = shades[Math.min(SHADES - 1, (t * SHADES) | 0)];
+                const sprite = sprites[Math.min(LEVELS - 1, (t * LEVELS) | 0)];
+                const half = sprite.width / 2;
 
-                const size = dpr * (0.8 + t * t * 2.3);
-                context.fillRect(sx - size / 2, sy - size / 2, size, size);
+                context.drawImage(sprite, sx - half, sy - half);
             }
+
+            /*
+             * 블룸. 그린 결과를 1/4로 줄였다가 그대로 늘려 덮는다 — 축소가 곧 평균이고,
+             * 확대 보간이 곧 블러다. 검정 위 가산 합성이라 어두운 곳은 아무것도 더하지 않고
+             * 모서리처럼 점이 겹쳐 밝아진 자리만 번진다.
+             */
+            if (!bloomContext || fade <= 0.02) return;
+
+            bloomContext.globalCompositeOperation = "copy";
+            bloomContext.drawImage(canvas, 0, 0, bloom.width, bloom.height);
+
+            // 0.65까지 올리면 가장 가까운 면이 흰색으로 타서 파랑이 빠진다
+            context.globalAlpha = fade * 0.5;
+            context.drawImage(bloom, 0, 0, width, height);
         };
 
         if (prefersReduced) {
@@ -214,8 +315,16 @@ export function LatticeCube({ progress, className }: LatticeCubeProps) {
             ref={canvasRef}
             aria-hidden
             className={cn("pointer-events-none select-none", className)}
-            /* 점마다 그림자를 그리면 프레임이 무너진다. 블룸은 합성 단계에서 한 번에 건다. */
-            style={{ filter: "drop-shadow(0 0 14px rgba(74,140,255,0.6))" }}
+            /*
+             * 위쪽 모서리를 흐린다. 헤드라인이 이 위를 지나는데, 흰 글자 뒤에서
+             * 점이 그대로 밝으면 글자가 읽히지 않는다 — 물체를 치우는 대신 물체가 비킨다.
+             */
+            style={{
+                maskImage:
+                    "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.62) 10%, #000 22%)",
+                WebkitMaskImage:
+                    "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.62) 10%, #000 22%)",
+            }}
         />
     );
 }
