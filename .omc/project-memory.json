@@ -132,6 +132,12 @@
       "type": "file"
     },
     {
+      "path": "src/components/frontier/PerceptionScene.tsx",
+      "accessCount": 18,
+      "lastAccessed": 1786676701626,
+      "type": "file"
+    },
+    {
       "path": "src/components/Technology.tsx",
       "accessCount": 16,
       "lastAccessed": 1785910966117,
@@ -144,27 +150,27 @@
       "type": "file"
     },
     {
+      "path": "src/lib/constants.ts",
+      "accessCount": 13,
+      "lastAccessed": 1786676406502,
+      "type": "file"
+    },
+    {
       "path": "src/components/Frontier.tsx",
       "accessCount": 12,
       "lastAccessed": 1786090651487,
       "type": "file"
     },
     {
-      "path": "src/lib/constants.ts",
-      "accessCount": 12,
-      "lastAccessed": 1786344194860,
-      "type": "file"
-    },
-    {
-      "path": "src/components/frontier/PerceptionScene.tsx",
-      "accessCount": 12,
-      "lastAccessed": 1786605140335,
-      "type": "file"
-    },
-    {
       "path": "src/components/Products.tsx",
+      "accessCount": 12,
+      "lastAccessed": 1786676258838,
+      "type": "file"
+    },
+    {
+      "path": "src/components/motion/RotaryStage.tsx",
       "accessCount": 11,
-      "lastAccessed": 1786089479810,
+      "lastAccessed": 1786676498448,
       "type": "file"
     },
     {
@@ -186,9 +192,9 @@
       "type": "file"
     },
     {
-      "path": "src/components/motion/RotaryStage.tsx",
+      "path": "src/components/Research.tsx",
       "accessCount": 7,
-      "lastAccessed": 1786089487521,
+      "lastAccessed": 1786676421869,
       "type": "file"
     },
     {
@@ -210,15 +216,15 @@
       "type": "file"
     },
     {
-      "path": "src/components/Capability.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1785909901663,
+      "path": "src/components/Approach.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1786676365035,
       "type": "file"
     },
     {
-      "path": "src/components/Research.tsx",
+      "path": "src/components/Capability.tsx",
       "accessCount": 5,
-      "lastAccessed": 1785910018121,
+      "lastAccessed": 1785909901663,
       "type": "file"
     },
     {
@@ -237,12 +243,6 @@
       "path": "src/components/Partners.tsx",
       "accessCount": 4,
       "lastAccessed": 1785910029482,
-      "type": "file"
-    },
-    {
-      "path": "src/components/Approach.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1785914305142,
       "type": "file"
     },
     {

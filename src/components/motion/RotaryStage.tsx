@@ -33,9 +33,40 @@ interface RotaryStageProps {
 const PERSPECTIVE = 2200;
 
 /**
+ * 사인 ease-in-out. 회전이 서서히 붙었다 서서히 풀린다.
+ *
+ * 3차(cubic)를 쓰지 않는다: 3차는 최고 각속도가 평균의 2배까지 솟아서, 이징을 넣는
+ * 것만으로 "가장 빠른 순간"이 오히려 등속일 때보다 빨라진다. 사인은 그 배수가
+ * π/2(약 1.57)로 훨씬 얌전하다.
+ */
+function easeInOut(t: number) {
+    return 0.5 * (1 - Math.cos(Math.PI * t));
+}
+
+/** 사인 이징의 최고 각속도 / 평균 각속도. 아래 hold 기본값이 이 값에서 나왔다. */
+const PEAK_RATIO = Math.PI / 2;
+
+/** 넘어가는 구간을 몇 조각으로 쪼개 이징을 표본화할지. */
+const EASE_SAMPLES = 10;
+
+/**
+ * 면을 정면에 고정해 두는 비율.
+ *
+ * 이징을 넣으면 같은 구간 안에서 최고 각속도가 PEAK_RATIO배로 솟는다. 그래서 넘어가는
+ * 구간도 그만큼 넓혀 준다 — 그러면 최고 각속도가 이징 전의 등속과 같아지고, 빨라지는
+ * 것 없이 붙고 푸는 맛만 얻는다. 0.62는 이징이 없던 시절의 값이다.
+ */
+const DEFAULT_HOLD = 1 - (1 - 0.62) * PEAK_RATIO;
+
+/**
  * 진행도 → 회전각 구간표.
  *
  * hold 비율만큼은 각도를 고정하고, 나머지 구간에서만 다음 면으로 넘어간다.
+ *
+ * 넘어가는 구간은 등속이 아니다. useTransform은 구간 사이를 직선으로 잇기 때문에,
+ * 시작·끝 각도만 찍어두면 각속도가 0에서 최대로 튀었다가 다시 0으로 끊긴다 —
+ * 그게 "너무 빠르게 홱 돈다"는 인상의 정체다. 중간 점을 ease-in-out으로 표본화해
+ * 넣으면 같은 스크롤 거리를 쓰면서도 붙고 푸는 맛이 생긴다.
  */
 function buildSteps(count: number, hold: number) {
     const segment = 1 / count;
@@ -46,8 +77,20 @@ function buildSteps(count: number, hold: number) {
 
     for (let i = 0; i < count; i += 1) {
         const start = i * segment;
-        input.push(start, start + segment * hold);
+        const holdEnd = start + segment * hold;
+
+        input.push(start, holdEnd);
         output.push(-i * step, -i * step);
+
+        // 마지막 면 뒤에는 넘어갈 면이 없다
+        if (i === count - 1) break;
+
+        const span = segment * (1 - hold);
+        for (let k = 1; k < EASE_SAMPLES; k += 1) {
+            const t = k / EASE_SAMPLES;
+            input.push(holdEnd + span * t);
+            output.push(-i * step - step * easeInOut(t));
+        }
     }
 
     // 마지막 면은 끝까지 정면을 유지한다 — 섹션을 벗어나며 뒤통수를 보일 이유가 없다
@@ -72,7 +115,7 @@ export function RotaryStage({
     const count = faces.length;
     const step = 360 / count;
 
-    const { input, output } = buildSteps(count, 0.62);
+    const { input, output } = buildSteps(count, DEFAULT_HOLD);
     const rotateY = useTransform(progress, input, output);
     // 아주 얕은 상하 기울기. 정면 투영만 있으면 입체로 읽히지 않는다.
     const rotateX = useTransform(progress, [0, 0.5, 1], [5, -1, 5]);

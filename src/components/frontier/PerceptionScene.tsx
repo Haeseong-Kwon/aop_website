@@ -23,6 +23,7 @@ uniform float u_size;
 uniform float u_dpr;
 
 varying float v_depth;
+varying float v_seed;
 
 void main() {
   // smoothstep으로 섞어야 모프의 시작과 끝이 뭉개지지 않는다
@@ -39,10 +40,15 @@ void main() {
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   v_depth = -mv.z;
+  v_seed = a_seed;
 
   gl_Position = projectionMatrix * mv;
-  // 원근에 따라 크기가 줄어야 깊이가 읽힌다
-  gl_PointSize = u_size * u_dpr * (3.0 / max(v_depth, 0.1));
+  /*
+   * 크기를 점마다 흩는다. 전부 같은 크기면 8천 개가 한 장의 그물처럼 보이는데,
+   * 굵기가 섞이면 그제야 앞뒤가 있는 무리로 읽힌다.
+   */
+  float spread = 0.55 + a_seed * 1.1;
+  gl_PointSize = u_size * u_dpr * spread * (3.0 / max(v_depth, 0.1));
 }
 `;
 
@@ -51,21 +57,44 @@ precision mediump float;
 
 uniform vec3 u_core;
 uniform vec3 u_far;
+/*
+ * highp를 명시한다. 정점 셰이더에는 precision 선언이 없어 float 기본값이 highp인데,
+ * 여기 기본값은 위의 mediump다. 같은 이름의 uniform이 두 셰이더에서 정밀도가 다르면
+ * 링크 단계에서 프로그램이 통째로 무효가 된다 — 빌드는 통과하고 화면만 비어버린다.
+ */
+uniform highp float u_time;
 
 varying float v_depth;
+varying float v_seed;
 
 void main() {
   // 사각 점은 픽셀 아트처럼 보인다. 원형으로 잘라낸다.
-  vec2 uv = gl_PointCoord - 0.5;
-  float d = dot(uv, uv);
-  if (d > 0.25) discard;
+  float r = length(gl_PointCoord - 0.5) * 2.0;
+  if (r > 1.0) discard;
 
-  float edge = 1.0 - smoothstep(0.12, 0.25, d);
+  /*
+   * 점 하나를 심과 번짐 두 겹으로 그린다.
+   *
+   * 이전에는 smoothstep으로 자른 원반 하나였다. 그러면 8천 개가 전부 같은 밝기의
+   * 작은 동전이라 평면 그물처럼 읽힌다. 급격히 떨어지는 심(core)과 넓게 퍼지는
+   * 헤일로(halo)를 더하면, 가산 합성에서 점이 겹칠수록 저절로 밝아져 형태의 밀집
+   * 구간이 광원이 된다 — 후처리 블룸 없이 같은 인상을 만든다.
+   */
+  float core = exp(-r * r * 9.0);
+  float halo = exp(-r * r * 2.6) * 0.42;
+  float intensity = core + halo;
+
   // 멀수록 어두워져 앞뒤가 구분된다
-  float depthFade = 1.0 - smoothstep(3.0, 9.0, v_depth);
+  float depthFade = 1.0 - smoothstep(4.0, 9.5, v_depth);
 
   vec3 color = mix(u_far, u_core, depthFade);
-  gl_FragColor = vec4(color, edge * (0.35 + depthFade * 0.6));
+  // 가까운 점의 심만 흰빛으로 탄다. 전부 태우면 파랑이 빠지고 분필 자국이 된다.
+  color = mix(color, vec3(1.0), core * 0.28 * depthFade);
+
+  // 점마다 위상이 다른 아주 느린 명멸. 정지 화면에서도 살아 있게 만든다.
+  float shimmer = 0.88 + 0.12 * sin(u_time * 0.7 + v_seed * 6.2831);
+
+  gl_FragColor = vec4(color, intensity * (0.20 + depthFade * 0.42) * shimmer);
 }
 `;
 
@@ -130,10 +159,11 @@ function Particles({
         () => ({
             u_mix: { value: 1 },
             u_time: { value: 0 },
-            u_size: { value: 2.4 },
+            // 헤일로가 들어갈 자리가 필요하다. 2.4로는 번짐이 스프라이트 밖에서 잘린다.
+            u_size: { value: 4.4 },
             u_dpr: { value: 1 },
-            u_core: { value: new THREE.Color("#dbe8ff") },
-            u_far: { value: new THREE.Color("#2f6ad0") },
+            u_core: { value: new THREE.Color("#cfe4ff") },
+            u_far: { value: new THREE.Color("#1746a8") },
         }),
         []
     );

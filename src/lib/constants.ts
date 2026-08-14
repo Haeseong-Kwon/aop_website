@@ -360,6 +360,55 @@ export const RESEARCH: readonly ResearchTrack[] = [
         description:
             "물리 정보 신경망으로 파동 방정식의 해를 근사하고, 기존 수치 해석 결과와 오차를 비교합니다.",
     },
+    {
+        title: "Brain MRI Assist",
+        category: "Biomedical AI",
+        tech: ["Python", "PyTorch", "Next.js"],
+        description:
+            "MRI를 올리면 분할과 분류 결과를 원본 위에 겹쳐 보여주고, 판독 요약 리포트를 자동으로 만듭니다.",
+    },
+    {
+        title: "Metasurface Process Yield Predictor",
+        category: "Process Analytics",
+        tech: ["Python", "TypeScript", "Next.js"],
+        description:
+            "공정 파라미터와 측정 지표로 수율이 떨어진 원인을 예측하고, 다음에 바꿀 조건을 추천합니다.",
+    },
+    {
+        title: "Solar Cell Curve Intelligence",
+        category: "Energy Analytics",
+        tech: ["Python", "NumPy", "FastAPI"],
+        description:
+            "IV 곡선과 환경 변수로 태양전지 효율을 추정하고, 손실 구간의 원인과 개선 방향을 짚어냅니다.",
+    },
+    {
+        title: "Photonics Experiment Log Analyzer",
+        category: "Experiment Analytics",
+        tech: ["TypeScript", "Next.js", "D3.js"],
+        description:
+            "분광·스펙트럼 실험 로그에서 피크를 찾아 피팅하고, 이상치를 분류해 리포트로 정리합니다.",
+    },
+    {
+        title: "AR/VR Display Calibrator",
+        category: "Display Calibration",
+        tech: ["Python", "OpenCV", "TypeScript"],
+        description:
+            "캘리브레이션 패턴 촬영본에서 왜곡과 색수차를 추정해 보정 LUT와 파라미터를 생성합니다.",
+    },
+    {
+        title: "Optics Restoration Studio",
+        category: "Computational Imaging",
+        tech: ["Python", "PyTorch", "Next.js"],
+        description:
+            "광학 블러와 센서 노이즈 모델을 고르면 복원 모델을 적용하고, 정량 지표로 전후를 비교합니다.",
+    },
+    {
+        title: "Meta-Atom Dataset Factory",
+        category: "Data Infrastructure",
+        tech: ["Python", "PostgreSQL", "TypeScript"],
+        description:
+            "메타-아톰 파라미터를 스윕해 결과를 모으고 검증까지 거쳐, 학습용 데이터셋을 제품처럼 찍어냅니다.",
+    },
 ];
 
 /**

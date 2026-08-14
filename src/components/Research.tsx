@@ -73,7 +73,8 @@ export function Research() {
             <div className="container-x">
                 <SectionHeading {...SECTIONS.research} />
 
-                <div className="mt-14 grid gap-4 md:grid-cols-2">
+                {/* 11장을 2열로 두면 6줄이 되어 섹션이 늘어진다 */}
+                <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {RESEARCH.map((track, index) => (
                         <Reveal
                             key={track.title}

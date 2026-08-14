@@ -209,7 +209,12 @@ export function Products() {
                     <div className="container-x">
                         {heading}
 
-                        <div className="mt-10 flex items-start gap-10">
+                        {/*
+                         * 여백을 넉넉히 둔다. 무대는 rotateX로 앞으로 기울어 있어서
+                         * 카드 윗변이 실제 상자 높이보다 위로 올라온다 — mt-10에서는
+                         * 그 윗변이 헤딩 설명문 마지막 줄을 덮었다.
+                         */}
+                        <div className="mt-16 flex items-start gap-10">
                             <ProductRail active={active} />
 
                             <RotaryStage

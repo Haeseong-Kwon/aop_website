@@ -73,7 +73,11 @@ export function Approach() {
             {/* 넓은 화면: 스크롤이 기둥을 돌린다 */}
             <div
                 ref={pinRef}
-                className="relative hidden h-[300vh] md:motion-safe:block"
+                /*
+                 * 300vh에서는 세 면이 한 화면 스크롤 안에 다 지나가 회전이 홱 돈다.
+                 * 같은 회전각을 더 긴 스크롤에 펴서 면당 이동 거리를 늘린다.
+                 */
+                className="relative hidden h-[460vh] md:motion-safe:block"
             >
                 <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
                     <div className="container-x">
