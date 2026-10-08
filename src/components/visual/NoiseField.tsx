@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 /*
  * 히어로 배경의 셰이더 노이즈 필드.
  *
- * PrismLight(기하 그래픽) 뒤에 깔리는 한 겹으로, 검은 배경이 죽어 있지 않고
+ * 유리 오브젝트(HeroScene) 뒤에 깔리는 한 겹으로, 검은 배경이 죽어 있지 않고
  * 아주 느리게 숨 쉬는 것처럼 보이게 하는 것이 전부다. 정면에 나서면 안 된다.
  *
  * 색은 --beam / --beam-deep 두 개만 쓴다. 무지개·네온은 팔레트 규칙 위반이다.
@@ -127,7 +127,7 @@ export function NoiseField({ className }: { className?: string }) {
             // 매 프레임 다시 그리므로 백버퍼를 보존할 이유가 없다
             preserveDrawingBuffer: false,
         });
-        // WebGL이 없으면 캔버스는 투명하게 남고 PrismLight만 보인다
+        // WebGL이 없으면 캔버스는 투명하게 남는다
         if (!gl) return;
 
         const vertex = compile(gl, gl.VERTEX_SHADER, VERTEX_SRC);

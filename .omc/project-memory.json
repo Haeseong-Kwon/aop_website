@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1786604207987,
-  "projectRoot": "/Users/haeseong/Desktop/Developing/aop_website",
+  "lastScanned": 1791423314463,
+  "projectRoot": "/Users/haeseong/Desktop/Products/aop_website",
   "techStack": {
     "languages": [
       {
@@ -64,9 +64,13 @@
     "workspaces": [],
     "mainDirectories": [
       "public",
+      "scripts",
       "src"
     ],
-    "gitBranches": null
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
   },
   "customNotes": [],
   "directoryMap": {
@@ -74,7 +78,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 5,
-      "lastAccessed": 1786604207940,
+      "lastAccessed": 1791423314454,
       "keyFiles": [
         "file.svg",
         "globe.svg",
@@ -83,18 +87,27 @@
         "window.svg"
       ]
     },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 1,
+      "lastAccessed": 1791423314455,
+      "keyFiles": [
+        "check-rotary-steps.mjs"
+      ]
+    },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1786604207940,
+      "lastAccessed": 1791423314458,
       "keyFiles": []
     },
     "src/app": {
       "path": "src/app",
       "purpose": "Application code",
-      "fileCount": 4,
-      "lastAccessed": 1786604207948,
+      "fileCount": 5,
+      "lastAccessed": 1791423314460,
       "keyFiles": [
         "favicon.ico",
         "globals.css",
@@ -105,7 +118,7 @@
       "path": "src/components",
       "purpose": "UI components",
       "fileCount": 20,
-      "lastAccessed": 1786604207949,
+      "lastAccessed": 1791423314460,
       "keyFiles": [
         "Approach.tsx",
         "Capability.tsx",
@@ -116,7 +129,7 @@
       "path": "src/lib",
       "purpose": "Library code",
       "fileCount": 4,
-      "lastAccessed": 1786604207949,
+      "lastAccessed": 1791423314460,
       "keyFiles": [
         "constants.ts",
         "emphasis.ts",

@@ -4,6 +4,15 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import { useReducedMotion } from "framer-motion";
 
+/** 활성 인스턴스. 코드에서 스크롤을 옮길 때 네이티브 scrollTo를 쓰면 Lenis가 되돌린다. */
+let activeLenis: Lenis | null = null;
+
+/** Lenis가 붙어 있으면 그 경로로, 아니면(모션 축소) 네이티브로 이동한다. */
+export function scrollToY(top: number) {
+    if (activeLenis) activeLenis.scrollTo(top);
+    else window.scrollTo({ top });
+}
+
 /**
  * 관성 스크롤. prefers-reduced-motion에서는 아예 붙이지 않아 네이티브 스크롤을 유지한다.
  */
@@ -23,6 +32,7 @@ export function useLenis() {
             wheelMultiplier: 1,
             smoothWheel: true,
         });
+        activeLenis = lenis;
 
         let frame = 0;
         const raf = (time: number) => {
@@ -54,6 +64,7 @@ export function useLenis() {
             document.removeEventListener("click", handleAnchorClick);
             cancelAnimationFrame(frame);
             lenis.destroy();
+            activeLenis = null;
         };
     }, [prefersReduced]);
 }

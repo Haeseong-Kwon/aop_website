@@ -1,59 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import dynamic from "next/dynamic";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { MaskedText } from "@/components/motion/MaskedText";
 import { MagneticButton } from "@/components/motion/MagneticButton";
-import { PrismLight } from "@/components/visual/PrismLight";
 import { NoiseField } from "@/components/visual/NoiseField";
-import { DetectionOverlay } from "@/components/visual/DetectionOverlay";
-import { LatticeCube } from "@/components/visual/LatticeCube";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useTransition } from "@/hooks/useEnter";
 import { DUR, EASE, STAGGER } from "@/lib/motion";
 import { HERO } from "@/lib/constants";
 
 /*
- * 히어로 그래픽 위 검출 박스의 좌표(퍼센트).
- * PrismLight의 꼭짓점(700,585 / viewBox 1440x900)과 두 발광 경계면 위에 놓았다 —
- * 실제 그래픽 위의 특징점이라야 인식으로 읽히고, 아무 데나 놓으면 무늬가 된다.
+ * 유리 정육면체 씬. three/drei는 첫 페인트 뒤에 받는다 — 헤드라인이 LCP이고,
+ * 3D는 그 뒤에 페이드로 들어와도 첫인상을 해치지 않는다.
  */
-const HERO_BOXES = [
-    { x: 44.5, y: 59, w: 8, h: 12, label: "vertex", confidence: 0.99 },
-    { x: 60, y: 22, w: 22, h: 16, label: "edge", confidence: 0.94 },
-    { x: 14, y: 30, w: 16, h: 14, label: "edge", confidence: 0.91 },
-] as const;
-
-/**
- * 로드 후 한 차례만 도는 인식 패스.
- * PrismLight 위에 겹치고, 다 끝나면 스스로 사라진다.
- */
-function HeroPerception() {
-    const prefersReduced = useReducedMotion();
-    const [done, setDone] = useState(false);
-
-    useEffect(() => {
-        if (prefersReduced) return;
-        const timer = setTimeout(() => setDone(true), 4200);
-        return () => clearTimeout(timer);
-    }, [prefersReduced]);
-
-    // 모션 축소 환경에서는 스캔 자체가 의미 없는 장식이 되므로 아예 그리지 않는다
-    if (prefersReduced || done) return null;
-
-    return (
-        <motion.div
-            aria-hidden
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 4.2, times: [0, 0.18, 0.78, 1], delay: 1.1 }}
-        >
-            <DetectionOverlay boxes={HERO_BOXES} active className="opacity-80" />
-        </motion.div>
-    );
-}
+const HeroScene = dynamic(() => import("@/components/visual/HeroScene"), {
+    ssr: false,
+});
 
 /** 로드 직후 순차로 들어오는 블록. 스크롤 등장이 아니라 시간축 등장이다. */
 function LoadIn({
@@ -83,14 +48,19 @@ function LoadIn({
 
 export function Hero() {
     const ref = useRef<HTMLElement>(null);
+    const prefersReduced = useReducedMotion();
+    /*
+     * 히어로를 벗어나면 씬을 통째로 내린다. 투과 재질의 렌더 타깃은 화면 밖에서도
+     * GPU 메모리를 쥐고 있어서, 아래 섹션의 캔버스들과 겹치면 컨텍스트가 소실된다.
+     */
+    const isHeroVisible = useInView(ref);
     const { scrollYProgress } = useScroll({
         target: ref,
         offset: ["start start", "end start"],
     });
 
-    // 배경 그래픽만 느리게 밀어 깊이감을 만든다
-    const prismScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-    const prismY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
+    // 배경 레이어만 느리게 밀어 깊이감을 만든다. 회전·확대는 씬이 직접 진행도를 읽는다.
+    const sceneY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
     const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
     return (
@@ -101,52 +71,47 @@ export function Hero() {
         >
             <motion.div
                 aria-hidden
-                style={{ scale: prismScale, y: prismY }}
+                style={{ y: sceneY }}
                 className="absolute inset-0 -z-10"
             >
                 {/*
-                 * 노이즈 필드가 가장 아래, 기하 그래픽이 그 위.
-                 * 순서가 바뀌면 발광 경계선이 노이즈에 씻겨 흐려진다.
+                 * 노이즈 필드가 가장 아래, 유리 오브젝트가 그 위.
+                 * 캔버스는 투명 배경이라 노이즈가 유리 가장자리 너머로 비친다.
                  */}
                 <div className="absolute inset-0">
                     <NoiseField />
                 </div>
-                <PrismLight className="absolute inset-0" />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.94 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 2.2, delay: 0.3, ease: EASE.out }}
+                    className="absolute inset-0"
+                >
+                    {isHeroVisible ? (
+                        <HeroScene
+                            progress={scrollYProgress}
+                            animate={!prefersReduced}
+                            className="absolute inset-0"
+                        />
+                    ) : null}
+                </motion.div>
 
-                {/*
-                 * 인식 레이어. 히어로 그래픽의 꼭짓점과 두 경계면을 한 번 훑고 사라진다.
-                 * 남겨두지 않는 이유: 계속 붙어 있으면 헤드라인과 경쟁하고, 무엇보다
-                 * "지금 읽었다"는 신호가 "항상 읽는 중"이라는 소음으로 바뀐다.
-                 */}
-                <HeroPerception />
                 {/* 좌측 스크림 — 발광면 위에서도 헤드라인 대비를 유지한다 */}
-                <div className="absolute inset-0 bg-[linear-gradient(100deg,#000_6%,rgba(0,0,0,0.72)_30%,transparent_58%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(100deg,#000_8%,rgba(0,0,0,0.6)_34%,transparent_52%)]" />
                 {/* 좁은 화면에서는 본문이 빔 위로 겹치므로 전면 베일을 한 겹 더 얹는다 */}
                 <div className="absolute inset-0 bg-black/45 lg:hidden" />
             </motion.div>
-
-            {/*
-             * 스크롤 회전 정육면체. 배경 패럴랙스 레이어 밖에 둔다 — 안에 넣으면
-             * 프리즘과 함께 확대·이동해서 스크롤이 만드는 회전이 흔들림으로 읽힌다.
-             * 헤드라인 아래 비어 있는 좌하단에만 놓고, 자리가 없는 좁은 화면에서는 뺀다.
-             */}
-            <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 hidden lg:block"
-            >
-                <LatticeCube
-                    progress={scrollYProgress}
-                    className="absolute left-[1%] top-[47%] h-[clamp(19rem,33vw,31rem)] w-[clamp(19rem,33vw,31rem)]"
-                />
-            </div>
 
             <motion.div
                 style={{ opacity: contentOpacity }}
                 className="container-x flex flex-1 flex-col"
             >
-                <div className="grid flex-1 items-start gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-12">
-                    {/* 좌상단 대형 디스플레이 */}
-                    <div>
+                {/*
+                 * 왼쪽 열에 메시지를 모두 모으고 오른쪽 열은 비운다 — 유리 오브젝트의 자리다.
+                 * 본문이 물체 위에 겹치면 굴절 무늬가 글자 뒤에서 일렁여 읽히지 않는다.
+                 */}
+                <div className="grid flex-1 items-center lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+                    <div className="max-w-[40rem]">
                         <LoadIn delay={0} y={8}>
                             <p className="type-eyebrow">{HERO.eyebrow}</p>
                         </LoadIn>
@@ -156,20 +121,17 @@ export function Hero() {
                             text={HERO.headline}
                             delay={0.18}
                             stagger={STAGGER.tight}
-                            className="type-display mt-7 max-w-[20ch]"
+                            className="type-display mt-7"
                         />
-                    </div>
 
-                    {/* 우측 본문 블록 — 레퍼런스처럼 아래 문단을 한 단계 흐리게 */}
-                    <div className="lg:pt-[38vh]">
-                        <LoadIn delay={0.6} y={16}>
-                            <p className="text-[clamp(1.0625rem,1.55vw,1.4rem)] leading-[1.65] tracking-[-0.015em] text-bright">
+                        <LoadIn delay={0.6} y={16} className="mt-9">
+                            <p className="max-w-[34rem] text-[clamp(1.0625rem,1.3vw,1.25rem)] leading-[1.65] tracking-[-0.015em] text-bright">
                                 {HERO.sub}
                             </p>
                         </LoadIn>
 
-                        <LoadIn delay={0.72} y={16} className="mt-7">
-                            <p className="text-[clamp(1.0625rem,1.55vw,1.4rem)] leading-[1.65] tracking-[-0.015em] text-muted">
+                        <LoadIn delay={0.72} y={16} className="mt-4">
+                            <p className="max-w-[34rem] text-[clamp(1rem,1.15vw,1.0625rem)] leading-[1.7] tracking-[-0.01em] text-muted">
                                 {HERO.subSecondary}
                             </p>
                         </LoadIn>
