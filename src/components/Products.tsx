@@ -216,7 +216,35 @@ function ProductStage() {
     const [active, setActive] = useState(0);
     const [hovered, setHovered] = useState<number | null>(null);
     const [view, setView] = useState<View>("gallery");
-    const isNear = useInView(pinRef, { margin: "50% 0px 50% 0px" });
+    // 렌더 루프는 무대 근처에서만 돈다
+    const isNear = useInView(pinRef, { margin: "100% 0px 100% 0px" });
+    /*
+     * 캔버스는 두 화면 앞에서 한 번 만들고 다시 부수지 않는다. 지나갈 때마다 내렸다
+     * 올리면 컨텍스트·셰이더·텍스처 업로드를 매번 처음부터 해서 돌아올 때마다 늦다.
+     */
+    const shouldMount = useInView(pinRef, { margin: "200% 0px 200% 0px", once: true });
+    const [isReady, setIsReady] = useState(false);
+    const handleReady = useCallback(() => setIsReady(true), []);
+
+    // 페이지가 한가해지면 three 청크와 캡처 이미지를 미리 받아 둔다 — 섹션에 닿았을 때는 이미 캐시에 있다
+    useEffect(() => {
+        const query = "(min-width: 1024px) and (prefers-reduced-motion: no-preference)";
+        if (!window.matchMedia(query).matches) return;
+
+        const warm = () => {
+            import("@/components/products/ProductCarousel")
+                .then((mod) => mod.preloadProductTextures(PRODUCTS))
+                .catch(() => {
+                    // 미리 받기는 최적화일 뿐이다 — 실패하면 마운트 시점에 평소대로 받는다
+                });
+        };
+        if ("requestIdleCallback" in window) {
+            const handle = window.requestIdleCallback(warm, { timeout: 4000 });
+            return () => window.cancelIdleCallback(handle);
+        }
+        const timer = setTimeout(warm, 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const { scrollYProgress } = useScroll({
         target: pinRef,
@@ -274,7 +302,7 @@ function ProductStage() {
                     animate={{ opacity: isGallery ? 1 : 0, scale: isGallery ? 1 : 1.04 }}
                     transition={{ duration: DUR.slow, ease: EASE.out }}
                 >
-                    {isNear ? (
+                    {shouldMount ? (
                         <ProductCarousel
                             products={PRODUCTS}
                             progress={stageProgress}
@@ -283,8 +311,12 @@ function ProductStage() {
                             onActive={setActive}
                             onHover={setHovered}
                             onSelect={handleSelect}
+                            onReady={handleReady}
                             animate
-                            className="absolute inset-0"
+                            className={cn(
+                                "absolute inset-0 transition-opacity duration-1000 ease-out",
+                                isReady ? "opacity-100" : "opacity-0"
+                            )}
                         />
                     ) : null}
                     {/* 위아래 가장자리를 눌러 코너 UI가 카드 위에서도 읽히게 한다 */}

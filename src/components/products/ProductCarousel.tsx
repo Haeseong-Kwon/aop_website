@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame, useLoader, type ThreeEvent } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import type { MotionValue } from "framer-motion";
 import type { Product } from "@/lib/constants";
@@ -24,6 +24,24 @@ const GAP = 0.32;
 /** 카드 하나가 차지하는 각도. */
 const STEP = (CARD_W + GAP) / RADIUS;
 const FLOOR_Y = -CARD_H / 2 - 1.1;
+/**
+ * 원통에 놓는 최소 칸 수. 제품이 4개뿐이면 감아 넘기는 지점(±2칸)이 화면 가장자리라
+ * 카드가 한쪽에서 사라지고 반대쪽에서 툭 튀어나온다. 사본을 채워 넘김 지점을 등 뒤로 보낸다.
+ */
+const MIN_SLOTS = 8;
+/**
+ * 카드 하나 구간에서 정면에 머무는 비율(앞뒤 각각). 이 구간에서는 스크롤해도 카드가
+ * 정면에 고정되고, 가운데 구간에서만 다음 카드로 넘어간다 — 어중간한 각도에 멈추지 않는다.
+ */
+const DWELL = 0.3;
+
+/** 연속 진행도를 카드 정면에서 머물다 넘어가는 계단형 곡선으로 바꾼다. */
+function snapToCards(raw: number) {
+    const base = Math.floor(raw);
+    const t = raw - base;
+    const s = Math.min(1, Math.max(0, (t - DWELL) / (1 - DWELL * 2)));
+    return base + s * s * (3 - 2 * s);
+}
 
 const CARD_VERTEX = /* glsl */ `
 uniform float uAngle;
@@ -45,9 +63,10 @@ void main() {
   /*
    * 속도 변형 두 가지.
    * 1) 기울기: 회전 방향 쪽 카드가 내려가고 반대쪽이 올라간다 — 원통이 관성으로 비틀린다.
+   *    각도를 그대로 곱하면 링 반대편 카드가 크게 튀어 '어긋나' 보인다. sin으로 묶어 상한을 둔다.
    * 2) 배부름: 카드 가운데가 바깥으로 밀려 천처럼 부푼다. 가장자리는 고정이라 휨이 생긴다.
    */
-  world.y += uVelocity * a * 1.6;
+  world.y += uVelocity * sin(a) * 0.9;
   float belly = sin(uv.x * 3.14159265);
   float push = abs(uVelocity) * belly * 0.9;
   world.x += sin(a) * push;
@@ -191,8 +210,11 @@ interface Motion {
 }
 
 interface CardProps {
+    /** 제품 번호. 호버·클릭은 사본이어도 같은 제품을 가리킨다. */
     index: number;
-    total: number;
+    /** 원통 위 칸 번호와 전체 칸 수. */
+    slot: number;
+    slots: number;
     texture: THREE.Texture;
     motionRef: React.RefObject<Motion>;
     hoveredRef: React.RefObject<number>;
@@ -200,8 +222,9 @@ interface CardProps {
     onSelect: (index: number) => void;
 }
 
-function Card({ index, total, texture, motionRef, hoveredRef, onHover, onSelect }: CardProps) {
+function Card({ index, slot, slots, texture, motionRef, hoveredRef, onHover, onSelect }: CardProps) {
     const hit = useRef<THREE.Mesh>(null);
+    const card = useRef<THREE.Mesh>(null);
     const material = useRef<THREE.ShaderMaterial>(null);
     const uniforms = useMemo(
         () => ({
@@ -218,8 +241,8 @@ function Card({ index, total, texture, motionRef, hoveredRef, onHover, onSelect 
 
     useFrame((_, delta) => {
         const { offset, velocity } = motionRef.current;
-        // 원형 목록: 상대 위치를 [-n/2, n/2)로 감아 끝없이 이어지게 한다
-        const rel = ((((index - offset) % total) + total * 1.5) % total) - total / 2;
+        // 원형 목록: 상대 위치를 [-칸/2, 칸/2)로 감아 끝없이 이어지게 한다
+        const rel = ((((slot - offset) % slots) + slots * 1.5) % slots) - slots / 2;
         const ease = 1 - Math.exp(-delta * 8);
 
         const live = material.current?.uniforms;
@@ -227,7 +250,8 @@ function Card({ index, total, texture, motionRef, hoveredRef, onHover, onSelect 
             live.uAngle.value = rel * STEP;
             live.uVelocity.value = velocity;
             live.uFocus.value = Math.max(0, 1 - Math.abs(rel) * 1.15);
-            live.uHover.value += ((hoveredRef.current === index ? 1 : 0) - live.uHover.value) * ease;
+            const isHovered = hoveredRef.current === index && Math.abs(rel) < 1.5;
+            live.uHover.value += ((isHovered ? 1 : 0) - live.uHover.value) * ease;
         }
 
         /*
@@ -241,12 +265,14 @@ function Card({ index, total, texture, motionRef, hoveredRef, onHover, onSelect 
             plane.rotation.y = -angle;
             // 뒤로 감겨 넘어간 카드는 클릭을 받지 않는다
             plane.visible = Math.abs(rel) < 1.5;
+            const mesh = card.current;
+            if (mesh) mesh.visible = Math.abs(rel) < 2.6;
         }
     });
 
     return (
         <group>
-            <mesh frustumCulled={false} renderOrder={1}>
+            <mesh ref={card} frustumCulled={false} renderOrder={1}>
                 <planeGeometry args={[CARD_W, CARD_H, 48, 12]} />
                 <shaderMaterial
                     ref={material}
@@ -320,10 +346,11 @@ function Driver({ target, motionRef, count, onActive, animate }: DriverProps) {
 
     useFrame((_, rawDelta) => {
         const delta = Math.min(rawDelta, 1 / 20);
-        const goal = target.get() * (count - 1);
+        const goal = snapToCards(Math.min(1, Math.max(0, target.get())) * (count - 1));
         const previous = motionRef.current.offset;
+        // Lenis가 이미 스크롤을 한 번 부드럽게 한다 — 여기 감쇠까지 느리면 카드가 스크롤에 끌려오듯 늦는다
         const offset = animate
-            ? previous + (goal - previous) * (1 - Math.exp(-delta * 5.5))
+            ? previous + (goal - previous) * (1 - Math.exp(-delta * 8))
             : goal;
 
         const instant = delta > 0 ? (offset - previous) / delta : 0;
@@ -347,6 +374,8 @@ function Driver({ target, motionRef, count, onActive, animate }: DriverProps) {
 
 interface SceneProps {
     products: readonly Product[];
+    /** 텍스처가 올라가 첫 프레임을 그릴 준비가 됐을 때 한 번 부른다. */
+    onReady?: () => void;
     progress: MotionValue<number>;
     hoveredRef: React.RefObject<number>;
     onActive: (index: number) => void;
@@ -355,8 +384,9 @@ interface SceneProps {
     animate: boolean;
 }
 
-function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, animate }: SceneProps) {
+function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, onReady, animate }: SceneProps) {
     const motionRef = useRef<Motion>({ offset: 0, velocity: 0 });
+    const gl = useThree((state) => state.gl);
     const urls = useMemo(
         () => products.map((product) => product.image).filter((url): url is string => url !== null),
         [products]
@@ -374,6 +404,15 @@ function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, an
         });
     }, [products, loaded]);
 
+    // 첫 프레임 전에 텍스처를 GPU로 올린다. 안 그러면 처음 보이는 순간 업로드로 프레임이 끊긴다.
+    useEffect(() => {
+        textures.forEach((texture) => gl.initTexture(texture));
+        onReady?.();
+    }, [textures, gl, onReady]);
+
+    const copies = Math.ceil(MIN_SLOTS / products.length);
+    const slots = products.length * copies;
+
     return (
         <>
             <Driver
@@ -384,12 +423,13 @@ function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, an
                 animate={animate}
             />
             <Floor motionRef={motionRef} />
-            {products.map((product, index) => (
+            {Array.from({ length: slots }, (_, slot) => (
                 <Card
-                    key={product.id}
-                    index={index}
-                    total={products.length}
-                    texture={textures[index]}
+                    key={slot}
+                    index={slot % products.length}
+                    slot={slot}
+                    slots={slots}
+                    texture={textures[slot % products.length]}
                     motionRef={motionRef}
                     hoveredRef={hoveredRef}
                     onHover={onHover}
@@ -405,6 +445,12 @@ interface ProductCarouselProps extends Omit<SceneProps, "hoveredRef"> {
     running: boolean;
     hoveredIndex: number | null;
     className?: string;
+}
+
+/** 섹션에 닿기 전에 텍스처를 캐시에 받아 둔다. 같은 URL이라 마운트 때 다시 받지 않는다. */
+export function preloadProductTextures(products: readonly Product[]) {
+    const urls = products.map((product) => product.image).filter((url): url is string => url !== null);
+    useLoader.preload(THREE.TextureLoader, urls);
 }
 
 export default function ProductCarousel({

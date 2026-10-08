@@ -25,7 +25,7 @@ const PerceptionScene = dynamic(
     { ssr: false }
 );
 
-const DESKTOP_PARTICLES = 8000;
+const DESKTOP_PARTICLES = 14000;
 /** 모바일은 40%로 줄인다 — 화면이 작아 밀도 차이가 눈에 띄지 않는다. */
 const MOBILE_PARTICLES = Math.round(DESKTOP_PARTICLES * 0.4);
 
@@ -83,7 +83,6 @@ export function FrontierVisualizer({
     const [projected, setProjected] = useState<Projected[]>([]);
     // 초기값은 구독이 아니라 첫 렌더에서 읽는다 — 이펙트에서 setState하면 렌더가 한 번 더 돈다
     const [scan, setScan] = useState(() => scanValue?.get() ?? 0);
-    const [height, setHeight] = useState(1);
 
     // 매 프레임 바뀌는 값은 state로 두지 않는다 — 리렌더가 프레임을 잡아먹는다
     const scrollRef = useRef(0);
@@ -122,7 +121,7 @@ export function FrontierVisualizer({
                         : DESKTOP_PARTICLES
                 );
                 setOffsetX(
-                    window.matchMedia("(min-width: 1024px)").matches ? 1.5 : 0
+                    window.matchMedia("(min-width: 1024px)").matches ? 1.85 : 0
                 );
                 setMounted(true);
             },
@@ -131,19 +130,6 @@ export function FrontierVisualizer({
         observer.observe(element);
         return () => observer.disconnect();
     }, [disabled]);
-
-    // 오버레이 좌표계는 캔버스 높이를 알아야 한다 — 스크롤 방식과 무관하게 항상 잰다
-    useEffect(() => {
-        const element = containerRef.current;
-        if (!element) return;
-
-        const measure = () => setHeight(element.getBoundingClientRect().height);
-        measure();
-
-        const observer = new ResizeObserver(measure);
-        observer.observe(element);
-        return () => observer.disconnect();
-    }, []);
 
     // 무대 진행도를 외부에서 받는 경우 — 자체 스크롤 계산은 돌리지 않는다
     useEffect(() => {
@@ -240,16 +226,12 @@ export function FrontierVisualizer({
                         count={count}
                         scroll={scrollRef}
                         orbit={orbitRef}
+                        scan={scan}
                         anchors={anchorPositions}
                         offsetX={offsetX}
                         onProject={handleProject}
                     />
-                    <CvOverlay
-                        anchors={anchors}
-                        projected={projected}
-                        scan={scan}
-                        height={height}
-                    />
+                    <CvOverlay anchors={anchors} projected={projected} />
                 </>
             ) : (
                 /*
