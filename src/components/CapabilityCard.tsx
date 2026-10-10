@@ -23,14 +23,13 @@ const ICONS = {
 
 interface CapabilityCardProps {
     capability: Capability;
-    index: number;
 }
 
 /**
  * 카드는 border와 배경만 바뀐다 — translate/scale을 걸면 4장 그리드가 출렁인다.
  * 움직이는 건 안쪽 다이어그램뿐이다.
  */
-export function CapabilityCard({ capability, index }: CapabilityCardProps) {
+export function CapabilityCard({ capability }: CapabilityCardProps) {
     const Icon = ICONS[capability.id as keyof typeof ICONS];
 
     /*
@@ -59,9 +58,6 @@ export function CapabilityCard({ capability, index }: CapabilityCardProps) {
             <div className="flex items-start justify-between gap-4">
                 <span className="grid size-10 place-items-center rounded-xl border border-border bg-surface-2 text-bright transition-colors duration-500 group-hover:border-bright/30">
                     <Icon size={17} strokeWidth={1.75} />
-                </span>
-                <span className="font-mono text-[11px] tracking-[0.14em] text-faint">
-                    {String(index + 1).padStart(2, "0")}
                 </span>
             </div>
 

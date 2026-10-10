@@ -113,7 +113,7 @@ export function Hero() {
                 <div className="grid flex-1 items-center lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
                     <div className="max-w-[40rem]">
                         <LoadIn delay={0} y={8}>
-                            <p className="type-eyebrow">{HERO.eyebrow}</p>
+                            <p className="section-label">{HERO.eyebrow}</p>
                         </LoadIn>
 
                         <MaskedText

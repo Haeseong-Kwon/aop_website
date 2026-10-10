@@ -136,9 +136,6 @@ export function Navbar() {
                                         onClick={() => setIsOpen(false)}
                                         className="flex items-baseline gap-4 border-b border-border py-4 text-2xl tracking-[-0.03em] text-bright"
                                     >
-                                        <span className="font-mono text-[11px] text-faint">
-                                            {String(index + 1).padStart(2, "0")}
-                                        </span>
                                         {item.label}
                                     </a>
                                 </motion.li>

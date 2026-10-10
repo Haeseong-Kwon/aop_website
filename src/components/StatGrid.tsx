@@ -99,7 +99,7 @@ function StatCell({
             className="group relative px-6 py-10 md:px-10 md:py-14"
         >
             <p className="type-eyebrow">{stat.label}</p>
-            <p className="stat-value mt-6">{String(value).padStart(2, "0")}</p>
+            <p className="stat-value mt-6">{value}</p>
 
             {/* 셀마다 밑줄이 빛을 머금는다 — 그래픽이 텍스트를 피해 경계로 물러난다 */}
             <span className="mt-6 block h-px w-full bg-border">

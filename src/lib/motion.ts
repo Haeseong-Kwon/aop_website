@@ -32,8 +32,12 @@ export const STAGGER = { tight: 0.04, base: 0.07, loose: 0.12 } as const;
  */
 export const VIEWPORT = {
     once: true,
-    amount: 0.25,
-    margin: "0px 0px -12% 0px",
+    /*
+     * 비율이 아니라 '조금이라도 들어오면'에 가깝게 건다. 키가 큰 블록은 0.25를 채우기 전에
+     * 화면 위로 지나가 버려, 앵커 이동 뒤 빈 화면이 한참 남았다.
+     */
+    amount: 0.1,
+    margin: "0px 0px -8% 0px",
 } as const;
 
 /** 모션 축소 환경에서 쓰는 전환 — 최종 상태로 즉시 점프시킨다. */

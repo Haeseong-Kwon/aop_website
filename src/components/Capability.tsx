@@ -18,7 +18,7 @@ export function Capability() {
                             y={18}
                             className="h-full"
                         >
-                            <CapabilityCard capability={capability} index={index} />
+                            <CapabilityCard capability={capability} />
                         </Reveal>
                     ))}
                 </div>

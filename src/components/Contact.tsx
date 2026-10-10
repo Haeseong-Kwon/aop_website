@@ -65,7 +65,7 @@ export function Contact() {
             <div className="container-x">
                 <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
                     <div>
-                        <SectionHeading {...SECTIONS.contact} />
+                        <SectionHeading {...SECTIONS.contact} layout="stack" />
 
                         <Reveal delay={0.1} className="mt-10">
                             <a

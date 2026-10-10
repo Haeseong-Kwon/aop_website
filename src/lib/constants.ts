@@ -31,7 +31,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 
 /** `*강조*` 로 감싼 구간은 세리프 이탤릭으로 렌더된다. */
 export const HERO = {
-    eyebrow: "AI AGENT TECHNOLOGY",
+    eyebrow: "AI agent technology",
     headline: "에이전트가 끝까지 일하는 구조를 설계합니다",
     sub: "AOP는 마케팅, 수출, 교육, 건설 분야의 AI 에이전트 제품을 직접 만들고 운영합니다. 서로 다른 현장의 일을 하나의 실행 구조로 풀어냅니다.",
     subSecondary:
@@ -468,7 +468,7 @@ export const FRONTIER_TRACKS: readonly FrontierTrack[] = [
 ];
 
 export const FRONTIER = {
-    eyebrow: "FRONTIER R&D",
+    eyebrow: "Frontier R&D",
     title: "에이전트가 화면을 읽는 방식을 직접 만듭니다",
     description:
         "LLM은 텍스트를 읽습니다. 그러나 실제 업무는 화면, 도면, 현장 사진 위에서 벌어집니다. AOP는 에이전트가 시각 정보를 근거로 판단하도록 만드는 인식 계층을 연구합니다.",
@@ -538,43 +538,43 @@ export const INQUIRY_TYPES = [
 /** 섹션 헤더 카피. `*강조*` 구간은 세리프 이탤릭. */
 export const SECTIONS = {
     capability: {
-        eyebrow: "CAPABILITY",
+        eyebrow: "Capability",
         title: "모델 위에 필요한 네 겹의 기술",
         description:
             "좋은 모델만으로는 에이전트 제품을 만들 수 없습니다. 계획, 실행 중단, 복구, 품질 측정까지 담당하는 계층이 필요합니다.",
     },
     products: {
-        eyebrow: "PRODUCTS",
+        eyebrow: "Products",
         title: "현장에서 쓰이고 있는 제품들",
         description:
             "연구한 기술은 자사 제품에서 먼저 검증합니다. 마케팅, 수출, 교육, 건설 분야의 제품이 같은 실행 엔진을 각자의 방식으로 사용하거나 준비 중입니다.",
     },
     technology: {
-        eyebrow: "TECHNOLOGY",
+        eyebrow: "Technology",
         title: "요청 하나가 결과가 되는 경로",
         description:
             "각 단계는 독립적으로 교체하고 재시도할 수 있습니다. 실행 상태는 체크포인트로 남기 때문에 멈춘 자리에서 이어갈 수 있습니다.",
     },
     research: {
-        eyebrow: "RESEARCH & IP",
+        eyebrow: "Research & IP",
         title: "제품이 되기 전의 문제들",
         description:
             "당장 제품에 들어가지 않는 주제도 연구합니다. 생성 설계, 과학 계산, 관측 가능성 트랙은 다음 기능이나 특허로 이어집니다.",
     },
     approach: {
-        eyebrow: "APPROACH",
+        eyebrow: "Approach",
         title: "문제는 운영에서 찾고, 해법은 제품에서 검증합니다",
         description:
             "연구실에서 출발해 제품으로 내려오는 방식이 아닙니다. 실제로 운영되는 제품에서 문제를 찾고, 반복되는 것만 기술로 풉니다.",
     },
     partners: {
-        eyebrow: "PARTNERS",
+        eyebrow: "Partners",
         title: "기술이 적용되는 현장",
         description:
             "계열사와 파트너사는 각자의 산업에서 에이전트를 실무에 적용합니다. 현장에서 나온 요구는 다음 기술 과제로 돌아옵니다.",
     },
     contact: {
-        eyebrow: "CONTACT",
+        eyebrow: "Contact",
         title: "어떤 문제를 풀고 계신가요",
         description:
             "제품 도입, 공동 연구, 제휴 논의가 필요하다면 현재 막혀 있는 지점을 남겨 주세요. 담당자가 직접 회신합니다.",

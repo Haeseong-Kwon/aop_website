@@ -1,0 +1,7 @@
+{
+  "tool_name": "mcp__claude-in-chrome__browser_batch",
+  "tool_input_preview": "{\"actions\":[{\"name\":\"javascript_tool\",\"input\":{\"action\":\"javascript_exec\",\"tabId\":1673942289,\"text\":\"lenis.scrollTo(1600,{immediate:true});1\"}},{\"name\":\"computer\",\"input\":{\"action\":\"wait\",\"duration\":1...",
+  "error": "actions[0] (javascript_tool:javascript_exec) failed: JavaScript execution error: TypeError: lenis.scrollTo is not a function\n    at <anonymous>:1:8 (0 completed, 14 remaining)",
+  "timestamp": "2026-10-10T02:19:59.075Z",
+  "retry_count": 1
+}

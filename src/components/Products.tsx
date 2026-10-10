@@ -326,7 +326,7 @@ function ProductStage() {
                 {/* 상단 코너 */}
                 <div className="container-x pointer-events-none relative flex items-start justify-between pt-28">
                     <div>
-                        <p className="type-eyebrow">{SECTIONS.products.eyebrow}</p>
+                        <p className="section-label">{SECTIONS.products.eyebrow}</p>
                         <h2 className="mt-4 max-w-[18ch] text-[clamp(1.5rem,2.3vw,2.25rem)] font-semibold leading-[1.15] tracking-[-0.035em] text-bright">
                             {SECTIONS.products.title}
                         </h2>
@@ -411,7 +411,7 @@ function GalleryCaption({
                     {product.nameKo ? <span className="text-sm text-muted">{product.nameKo}</span> : null}
                 </div>
 
-                <div className="mt-3 overflow-hidden pb-[0.08em]">
+                <div className="relative mt-3 overflow-hidden pb-[0.08em]">
                     <AnimatePresence mode="popLayout" initial={false}>
                         <motion.h3
                             key={product.id}

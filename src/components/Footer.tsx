@@ -47,7 +47,7 @@ export function Footer() {
                                     className="flex items-baseline gap-2 text-sm text-muted"
                                 >
                                     {partner.name}
-                                    <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                                    <span className="text-[11px] text-faint">
                                         {partner.relation}
                                     </span>
                                 </li>

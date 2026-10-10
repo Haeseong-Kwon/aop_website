@@ -8,15 +8,13 @@ import {
     useTransform,
     type MotionValue,
 } from "framer-motion";
-import { MaskedText } from "@/components/motion/MaskedText";
+import { SectionHeading } from "@/components/SectionHeading";
 import { FlipPanel } from "@/components/motion/FlipPanel";
 import { FrontierVisualizer } from "@/components/frontier/FrontierVisualizer";
 import { WebcamDemo } from "@/components/frontier/WebcamDemo";
 import { faceIndexFromProgress } from "@/components/motion/RotaryStage";
 import type { ShapeId } from "@/components/frontier/shapes";
-import { useEnter } from "@/hooks/useEnter";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { DUR } from "@/lib/motion";
 import { FRONTIER, FRONTIER_TRACKS, type FrontierTrack } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -76,31 +74,17 @@ export function Frontier() {
         setActiveIndex(faceIndexFromProgress(value, COUNT));
     });
 
-    const eyebrowEnter = useEnter({ y: 8 });
-    const descriptionEnter = useEnter({ y: 14, delay: 0.2, duration: DUR.slow });
 
     const active = FRONTIER_TRACKS[activeIndex];
 
     return (
         <section id="frontier" className="relative">
             <div className="container-x pt-[clamp(7rem,14vw,14rem)]">
-                <div className="max-w-3xl">
-                    <motion.p {...eyebrowEnter} className="type-eyebrow text-bright">
-                        {FRONTIER.eyebrow}
-                    </motion.p>
-
-                    <MaskedText
-                        as="h2"
-                        text={FRONTIER.title}
-                        trigger="inView"
-                        delay={0.08}
-                        className="type-h2 mt-6"
-                    />
-
-                    <motion.p {...descriptionEnter} className="type-body mt-7 text-muted">
-                        {FRONTIER.description}
-                    </motion.p>
-                </div>
+                <SectionHeading
+                    eyebrow={FRONTIER.eyebrow}
+                    title={FRONTIER.title}
+                    description={FRONTIER.description}
+                />
             </div>
 
             {/*

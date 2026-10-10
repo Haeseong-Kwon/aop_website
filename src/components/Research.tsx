@@ -79,7 +79,7 @@ export function Research() {
                         <Reveal
                             key={track.title}
                             y={18}
-                            delay={index * STAGGER.base}
+                            delay={(index % 3) * STAGGER.base}
                             className="h-full"
                         >
                             <TrackCard track={track} />

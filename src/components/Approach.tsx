@@ -89,7 +89,7 @@ export function Approach() {
                             progress={stageProgress}
                             faces={faces}
                             activeIndex={active}
-                            className="mx-auto mt-8 h-[clamp(17rem,34vh,22rem)] max-w-4xl"
+                            className="mt-8 h-[clamp(17rem,34vh,22rem)]"
                         />
                     </div>
                 </div>
@@ -114,7 +114,7 @@ export function Approach() {
 /** 단계 눈금. 회전 중 지금 어디쯤인지 알려주고, 라벨은 판이 넘어가듯 바뀐다. */
 function StepTicks({ active }: { active: number }) {
     return (
-        <div className="mx-auto mt-12 flex max-w-4xl items-center gap-4">
+        <div className="mt-12 flex items-center gap-4">
             <div className="flex flex-1 gap-1.5">
                 {APPROACH.map((step, index) => (
                     <span

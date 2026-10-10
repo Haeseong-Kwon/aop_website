@@ -59,7 +59,7 @@ export function Manifesto() {
             </div>
 
             <div ref={ref} className="container-x relative">
-                <p className="type-eyebrow">{MANIFESTO.eyebrow}</p>
+                <p className="section-label">{MANIFESTO.eyebrow}</p>
 
                 <p className="mt-10 max-w-[22ch] text-[clamp(1.75rem,3.6vw,3.25rem)] font-semibold leading-[1.28] tracking-[-0.035em] text-bright sm:max-w-[26ch]">
                     {WORDS.map((entry, index) => (
