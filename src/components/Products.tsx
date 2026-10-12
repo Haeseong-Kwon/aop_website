@@ -213,6 +213,7 @@ export function Products() {
 /** 360° 갤러리 무대. 레퍼런스처럼 네 귀퉁이에만 UI를 두고 가운데는 작품에 내준다. */
 function ProductStage() {
     const pinRef = useRef<HTMLDivElement>(null);
+    const stageRef = useRef<HTMLDivElement>(null);
     const [active, setActive] = useState(0);
     const [hovered, setHovered] = useState<number | null>(null);
     const [view, setView] = useState<View>("gallery");
@@ -224,6 +225,8 @@ function ProductStage() {
      */
     const shouldMount = useInView(pinRef, { margin: "200% 0px 200% 0px", once: true });
     const [isReady, setIsReady] = useState(false);
+    // 무대가 화면 절반 이상 들어왔을 때 알약 줄이 펴진다 — 미리 마운트된 사이에 끝나 버리지 않게
+    const isRevealed = useInView(stageRef, { amount: 0.5, once: true });
     const handleReady = useCallback(() => setIsReady(true), []);
 
     // 페이지가 한가해지면 three 청크와 캡처 이미지를 미리 받아 둔다 — 섹션에 닿았을 때는 이미 캐시에 있다
@@ -293,6 +296,7 @@ function ProductStage() {
     return (
         <div ref={pinRef} className="relative h-[460vh]">
             <div
+                ref={stageRef}
                 className="sticky top-0 h-[100svh] overflow-hidden"
                 data-cursor={isGallery && hovered !== null ? "card" : undefined}
             >
@@ -308,6 +312,7 @@ function ProductStage() {
                             progress={stageProgress}
                             running={isNear && isGallery}
                             hoveredIndex={hovered}
+                            revealed={isRevealed && isReady}
                             onActive={setActive}
                             onHover={setHovered}
                             onSelect={handleSelect}

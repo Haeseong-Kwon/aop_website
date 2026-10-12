@@ -2,38 +2,74 @@
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree, type ThreeEvent } from "@react-three/fiber";
+import { useFBO } from "@react-three/drei";
 import * as THREE from "three";
 import type { MotionValue } from "framer-motion";
 import type { Product } from "@/lib/constants";
+import {
+    CARD_FRAGMENT,
+    CARD_VERTEX,
+    FLOOR_FRAGMENT,
+    FLOOR_VERTEX,
+} from "@/components/products/carouselShaders";
 
 /*
- * 제품 곡면 캐러셀.
+ * 제품 리본 캐러셀.
  *
- * 카메라는 원통 한가운데에 서 있고, 카드는 원통 안쪽 벽에 붙어 있다. 그래서 가장자리
- * 카드일수록 관객 쪽으로 감겨 들어오고, 바닥 격자도 같은 축으로 함께 돈다.
- * 스크롤은 회전각만 정한다 — 카드가 휘고 기우는 건 회전 '속도'다. 멈추면 판이 펴지고,
- * 빠르게 넘기면 천처럼 휘었다가 관성으로 돌아온다. 정지 화면이 아니라 물성으로 읽히는 이유다.
+ * 카메라는 정면에서 평평한 카드 줄을 본다. 카드를 휘게 하는 건 화면 가로에 고정된 곡면
+ * (carouselShaders.ts의 sheet)이고, 카드는 그 면을 통과한다. 스크롤은 줄의 위치만 정한다.
+ * 속도는 '목표와 현재의 거리'로 읽는다 — 늦게 따라오는 만큼 리본이 깊어지고, 왼쪽이 들리고,
+ * 가장자리가 비틀린다. 멈추면 거리가 0이 되어 면이 쉬는 모양으로 돌아온다.
+ *
+ * 렌더는 요청형이다. 스크롤·호버·인트로가 움직이는 동안만 프레임을 그리고, 다 멈추면
+ * GPU를 완전히 쉬게 한다.
  */
 
-/** 원통 반지름(월드 단위). 줄이면 곡률이 세져 가장자리 카드가 깔때기처럼 말린다. */
-const RADIUS = 9;
-const CARD_W = 4.6;
-/** 캡처 원본 비율(1280×820)과 맞춘다. 다르면 커버 크롭이 화면 위아래를 잘라낸다. */
-const CARD_H = CARD_W / (1280 / 820);
-const GAP = 0.32;
-/** 카드 하나가 차지하는 각도. */
-const STEP = (CARD_W + GAP) / RADIUS;
-const FLOOR_Y = -CARD_H / 2 - 1.1;
+const FOV = 53.4;
+const CAM_Z = 41.18;
+/** 카드 높이 = 화면 높이의 이 비율. */
+const CARD_VH = 0.435;
+/** 캡처 원본 비율(1280×820)과 맞춘다. */
+const CARD_ASPECT = 1280 / 820;
+/** 세로가 긴 화면에서 카드가 화면을 꽉 채우지 않게 하는 상한(화면 폭 대비). */
+const CARD_MAX_VW = 0.62;
+const GAP_PX = 14;
+const CORNER_PX = 18;
+
+/** 깊이 S의 진폭(화면 반폭 대비)과 속도에 따른 증폭. */
+const DEPTH = 0.2;
+const DEPTH_VEL = 1.1;
+const SPAN = 1.15;
+/** 문짝 경사 — 오른쪽이 물러나고 왼쪽이 다가온다. */
+const DOOR = -0.12;
+/** 호버 시 가운데가 물러나는 깊이(카드 높이 대비). */
+const DENT = 0.1;
+
+/** 60fps 한 프레임에 남은 거리의 몇 할을 따라가는가. */
+const FOLLOW = 0.1;
+/** 한 번에 끌려갈 수 있는 최대 거리(카드). 빠른 스크롤이 리본을 찢지 않게 한다. */
+const LEASH = 1.2;
+/** 이 거리(px)만큼 뒤처지면 속도 변형이 약 60%에 이른다. */
+const VEL_NORM_PX = 550;
+const HOVER_RATE = 6;
+
+const INTRO_DUR = 1.5;
+const INTRO_STAGGER = 0.05;
+/** 인트로 시작 모양 — 지평선 위의 작은 알약 줄. */
+const INTRO_SCALE: [number, number] = [0.13, 0.077];
+
+const FLOOR = { drop: 0.06, run: 6, cell: 0.22, grid: 0.02, alpha: 0.9, refl: 0.5, lip: 0.2 };
+/** 반사 패스 해상도(화면 대비). 흐릿할수록 바닥이 거울이 아니라 광택 면으로 읽힌다. */
+const REFL_SCALE = 0.1;
+
 /**
- * 원통에 놓는 최소 칸 수. 제품이 4개뿐이면 감아 넘기는 지점(±2칸)이 화면 가장자리라
- * 카드가 한쪽에서 사라지고 반대쪽에서 툭 튀어나온다. 사본을 채워 넘김 지점을 등 뒤로 보낸다.
+ * 줄에 놓는 최소 칸 수. 제품이 적으면 감아 넘기는 지점이 화면 안에 들어와
+ * 카드가 한쪽에서 사라지고 반대쪽에서 튀어나온다. 사본으로 넘김 지점을 화면 밖으로 보낸다.
  */
 const MIN_SLOTS = 8;
-/**
- * 카드 하나 구간에서 정면에 머무는 비율(앞뒤 각각). 이 구간에서는 스크롤해도 카드가
- * 정면에 고정되고, 가운데 구간에서만 다음 카드로 넘어간다 — 어중간한 각도에 멈추지 않는다.
- */
+/** 카드 하나 구간에서 정면에 머무는 비율(앞뒤 각각). */
 const DWELL = 0.3;
+const EPSILON = 1e-4;
 
 /** 연속 진행도를 카드 정면에서 머물다 넘어가는 계단형 곡선으로 바꾼다. */
 function snapToCards(raw: number) {
@@ -43,118 +79,48 @@ function snapToCards(raw: number) {
     return base + s * s * (3 - 2 * s);
 }
 
-const CARD_VERTEX = /* glsl */ `
-uniform float uAngle;
-uniform float uRadius;
-uniform float uVelocity;
-
-varying vec2 vUv;
-varying float vAngle;
-
-void main() {
-  vUv = uv;
-
-  // 평면의 x를 원통 둘레 위의 호 길이로 읽는다
-  float a = uAngle + position.x / uRadius;
-  vAngle = a;
-
-  vec3 world = vec3(sin(a) * uRadius, position.y, -cos(a) * uRadius);
-
-  /*
-   * 속도 변형 두 가지.
-   * 1) 기울기: 회전 방향 쪽 카드가 내려가고 반대쪽이 올라간다 — 원통이 관성으로 비틀린다.
-   *    각도를 그대로 곱하면 링 반대편 카드가 크게 튀어 '어긋나' 보인다. sin으로 묶어 상한을 둔다.
-   * 2) 배부름: 카드 가운데가 바깥으로 밀려 천처럼 부푼다. 가장자리는 고정이라 휨이 생긴다.
-   */
-  world.y += uVelocity * sin(a) * 0.9;
-  float belly = sin(uv.x * 3.14159265);
-  float push = abs(uVelocity) * belly * 0.9;
-  world.x += sin(a) * push;
-  world.z -= cos(a) * push;
-
-  gl_Position = projectionMatrix * viewMatrix * vec4(world, 1.0);
-}
-`;
-
-const CARD_FRAGMENT = /* glsl */ `
-uniform sampler2D uMap;
-uniform vec2 uSize;
-uniform float uVelocity;
-uniform float uFocus;
-uniform float uHover;
-
-varying vec2 vUv;
-varying float vAngle;
-
-float roundedBox(vec2 p, vec2 b, float r) {
-  vec2 q = abs(p) - b + r;
-  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+function expoInOut(t: number) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
 }
 
-void main() {
-  // 모서리 라운드. 셰이더에서 잘라야 원통에 감겨도 곡선이 일그러지지 않는다.
-  vec2 p = (vUv - 0.5) * uSize;
-  float d = roundedBox(p, uSize * 0.5, 0.16);
-  float edge = 1.0 - smoothstep(-0.01, 0.01, d);
-  if (edge <= 0.0) discard;
+const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
-  // 호버하면 화면이 프레임 안에서 살짝 다가온다 — 프레임은 그대로, 내용만
-  vec2 uv = (vUv - 0.5) * (1.0 - uHover * 0.06) + 0.5;
-
-  // 속도에 비례한 색수차. 정지 상태에서는 0이라 캡처가 깨끗하게 보인다.
-  float shift = uVelocity * 0.012;
-  vec3 color = vec3(
-    texture2D(uMap, uv + vec2(shift, 0.0)).r,
-    texture2D(uMap, uv).g,
-    texture2D(uMap, uv - vec2(shift, 0.0)).b
-  );
-
-  // 초점 밖 카드는 채도와 밝기를 덜어낸다 — 지금 읽을 카드가 하나여야 한다
-  float luma = dot(color, vec3(0.299, 0.587, 0.114));
-  color = mix(vec3(luma), color, 0.35 + uFocus * 0.65);
-  color *= 0.18 + uFocus * 0.82;
-
-  // 곡면을 따라 흐르는 광택 띠. 원통 각도에 묶여 있어 회전할 때 판 위를 미끄러진다.
-  float sheen = smoothstep(0.32, 0.0, abs(vUv.x - 0.5 + vAngle * 1.4));
-  color += sheen * 0.07;
-
-  // 아래쪽을 살짝 눌러 바닥 격자와 이어지게 한다
-  color *= mix(0.78, 1.0, smoothstep(0.0, 0.35, vUv.y));
-
-  gl_FragColor = vec4(color, edge);
-  #include <colorspace_fragment>
+/** 화면 크기에서 유도한 월드 치수. z=0 평면에서 1px이 몇 월드 단위인지가 기준이다. */
+interface Layout {
+    W: number;
+    H: number;
+    px: number;
+    cardW: number;
+    cardH: number;
+    pitch: number;
+    corner: number;
+    floorY: number;
 }
-`;
 
-const FLOOR_VERTEX = /* glsl */ `
-varying vec3 vWorld;
-void main() {
-  vec4 world = modelMatrix * vec4(position, 1.0);
-  vWorld = world.xyz;
-  gl_Position = projectionMatrix * viewMatrix * world;
+function useLayout(): Layout {
+    const width = useThree((state) => state.size.width);
+    const height = useThree((state) => state.size.height);
+
+    return useMemo(() => {
+        const H = Math.tan(((FOV / 2) * Math.PI) / 180) * CAM_Z;
+        const W = H * (width / Math.max(height, 1));
+        const px = (2 * H) / Math.max(height, 1);
+        const cardW = Math.min(2 * H * CARD_VH * CARD_ASPECT, 2 * W * CARD_MAX_VW);
+        const cardH = cardW / CARD_ASPECT;
+        return {
+            W,
+            H,
+            px,
+            cardW,
+            cardH,
+            pitch: cardW + GAP_PX * px,
+            corner: CORNER_PX * px,
+            floorY: -cardH / 2 - H * FLOOR.drop,
+        };
+    }, [width, height]);
 }
-`;
-
-/*
- * 바닥 격자. 선 두께를 fwidth로 화면 픽셀에 맞춰서, 멀어져도 선이 뭉개지거나
- * 지글거리지 않는다. 격자는 원점 기준 로컬 좌표라 메시를 돌리면 카드와 함께 돈다.
- */
-const FLOOR_FRAGMENT = /* glsl */ `
-uniform vec3 uColor;
-uniform float uOpacity;
-varying vec3 vWorld;
-
-void main() {
-  vec2 coord = vWorld.xz / 1.1;
-  vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
-  float line = 1.0 - min(min(grid.x, grid.y), 1.0);
-
-  float dist = length(vWorld.xz);
-  float fade = smoothstep(26.0, 6.0, dist) * smoothstep(0.0, 3.0, dist);
-
-  gl_FragColor = vec4(uColor, line * fade * uOpacity);
-}
-`;
 
 /** 프로덕션 캡처가 없는 제품용 카드 면. 지어낸 화면 대신 출시 예정 표지를 그린다. */
 function buildPendingTexture(product: Product) {
@@ -202,131 +168,209 @@ function buildPendingTexture(product: Product) {
     return texture;
 }
 
+/** 프레임 사이에 공유하는 움직임 상태. React 상태가 아니라 매 프레임 덮어쓰는 값이다. */
 interface Motion {
     /** 스무딩된 현재 위치(카드 단위). */
     offset: number;
-    /** 카드/초. 셰이더가 쓰는 건 이 값을 다시 눌러 담은 것이다. */
-    velocity: number;
+    /** 인트로 시작 시각(초). null이면 아직 무대에 오르지 않았다. */
+    introAt: number | null;
+    /** 이번 프레임에 아직 움직이는 것이 있으면 true — 다음 프레임을 요청한다. */
+    busy: boolean;
+    /** 곡면 값. 드라이버가 한 번 계산하고 카드·바닥이 각자 유니폼으로 옮겨 담는다. */
+    sheet: SheetState;
+}
+
+interface SheetState {
+    /** z=0에서의 화면 반폭. */
+    W: number;
+    /** 깊이 S의 진폭. */
+    D: number;
+    /** 속도 0..1. */
+    V: number;
+    /** 문짝 깊이. */
+    A: number;
+}
+
+/** R3F는 재질마다 uniforms를 복사해 가므로 객체를 공유할 수 없다 — 값을 매 프레임 옮긴다. */
+function applySheet(uniforms: Record<string, THREE.IUniform>, sheet: SheetState) {
+    uniforms.uSheetW.value = sheet.W;
+    uniforms.uSheetD.value = sheet.D;
+    uniforms.uSheetV.value = sheet.V;
+    uniforms.uLeanA.value = sheet.A;
+}
+
+function createSheetUniforms() {
+    return {
+        uSheetW: { value: 1 },
+        uSheetD: { value: 0 },
+        uSheetT: { value: SPAN },
+        uSheetV: { value: 0 },
+        uLeanA: { value: 0 },
+    };
 }
 
 interface CardProps {
     /** 제품 번호. 호버·클릭은 사본이어도 같은 제품을 가리킨다. */
     index: number;
-    /** 원통 위 칸 번호와 전체 칸 수. */
     slot: number;
     slots: number;
     texture: THREE.Texture;
+    layout: Layout;
     motionRef: React.RefObject<Motion>;
     hoveredRef: React.RefObject<number>;
     onHover: (index: number | null) => void;
     onSelect: (index: number) => void;
 }
 
-function Card({ index, slot, slots, texture, motionRef, hoveredRef, onHover, onSelect }: CardProps) {
-    const hit = useRef<THREE.Mesh>(null);
-    const card = useRef<THREE.Mesh>(null);
+function Card({ index, slot, slots, texture, layout, motionRef, hoveredRef, onHover, onSelect }: CardProps) {
+    const mesh = useRef<THREE.Mesh>(null);
     const material = useRef<THREE.ShaderMaterial>(null);
     const uniforms = useMemo(
         () => ({
+            ...createSheetUniforms(),
             uMap: { value: texture },
-            uAngle: { value: 0 },
-            uRadius: { value: RADIUS },
-            uVelocity: { value: 0 },
-            uSize: { value: new THREE.Vector2(CARD_W, CARD_H) },
-            uFocus: { value: 0 },
+            uRes: { value: new THREE.Vector2(1, 1) },
             uHover: { value: 0 },
+            uDent: { value: DENT },
+            uSheetP: { value: 0 },
+            uCorner: { value: 0 },
+            uWhite: { value: 1 },
+            uWash: { value: new THREE.Color("#d9d9d9") },
+            uHaze: { value: new THREE.Color("#0f0f0f") },
         }),
         [texture]
     );
 
-    useFrame((_, delta) => {
-        const { offset, velocity } = motionRef.current;
-        // 원형 목록: 상대 위치를 [-칸/2, 칸/2)로 감아 끝없이 이어지게 한다
-        const rel = ((((slot - offset) % slots) + slots * 1.5) % slots) - slots / 2;
-        const ease = 1 - Math.exp(-delta * 8);
-
+    useFrame((_, rawDelta) => {
+        const node = mesh.current;
         const live = material.current?.uniforms;
-        if (live) {
-            live.uAngle.value = rel * STEP;
-            live.uVelocity.value = velocity;
-            live.uFocus.value = Math.max(0, 1 - Math.abs(rel) * 1.15);
-            const isHovered = hoveredRef.current === index && Math.abs(rel) < 1.5;
-            live.uHover.value += ((isHovered ? 1 : 0) - live.uHover.value) * ease;
-        }
+        if (!node || !live) return;
+        const motion = motionRef.current;
+        const { W, cardW, cardH, pitch, corner } = layout;
+
+        // 원형 목록: 상대 위치를 [-칸/2, 칸/2)로 감는다
+        const rel = ((((slot - motion.offset) % slots) + slots * 1.5) % slots) - slots / 2;
 
         /*
-         * 카드는 셰이더 안에서만 휘므로 레이캐스트는 그 모양을 모른다.
-         * 보이지 않는 평면 하나를 원통 위 같은 자리에 세워 히트 판정을 대신 받는다.
+         * 인트로: 간격은 줄 전체가 한 시계로 펴지고, 카드 크기만 가운데부터 바깥으로 조금씩 늦는다.
+         * 크기가 간격보다 늦으니 펴지는 동안 카드끼리 겹치지 않는다.
          */
-        const plane = hit.current;
-        if (plane) {
-            const angle = rel * STEP;
-            plane.position.set(Math.sin(angle) * RADIUS, 0, -Math.cos(angle) * RADIUS);
-            plane.rotation.y = -angle;
-            // 뒤로 감겨 넘어간 카드는 클릭을 받지 않는다
-            plane.visible = Math.abs(rel) < 1.5;
-            const mesh = card.current;
-            if (mesh) mesh.visible = Math.abs(rel) < 2.6;
+        let spread = 0;
+        let intro = 0;
+        if (motion.introAt !== null) {
+            const elapsed = performance.now() / 1000 - motion.introAt;
+            const delay = Math.abs(rel) * INTRO_STAGGER;
+            spread = expoInOut(elapsed / INTRO_DUR);
+            intro = expoInOut((elapsed - delay) / INTRO_DUR);
+            if (elapsed - delay < INTRO_DUR) motion.busy = true;
         }
+
+        const sx = mix(INTRO_SCALE[0], 1, intro);
+        const sy = mix(INTRO_SCALE[1], 1, intro);
+        const x = rel * pitch * mix(INTRO_SCALE[0], 1, spread);
+        node.position.set(x, 0, 0);
+        node.scale.set(cardW * sx, cardH * sy, 1);
+        node.visible = motion.introAt !== null && Math.abs(x) < W + cardW;
+
+        applySheet(live, motion.sheet);
+        live.uRes.value.set(cardW * sx, cardH * sy);
+        live.uCorner.value = corner;
+        live.uSheetP.value = intro;
+        live.uWhite.value = 1 - THREE.MathUtils.smoothstep(intro, 0.2, 0.85);
+
+        const isHovered = hoveredRef.current === index && Math.abs(rel) < 1.5;
+        const target = isHovered ? 1 : 0;
+        const delta = Math.min(rawDelta, 1 / 30);
+        const hover = live.uHover.value;
+        live.uHover.value = hover + (target - hover) * (1 - Math.exp(-delta * HOVER_RATE));
+        if (Math.abs(target - live.uHover.value) > EPSILON) motion.busy = true;
+        else live.uHover.value = target;
     });
 
     return (
-        <group>
-            <mesh ref={card} frustumCulled={false} renderOrder={1}>
-                <planeGeometry args={[CARD_W, CARD_H, 48, 12]} />
-                <shaderMaterial
-                    ref={material}
-                    vertexShader={CARD_VERTEX}
-                    fragmentShader={CARD_FRAGMENT}
-                    uniforms={uniforms}
-                    transparent
-                    depthWrite={false}
-                />
-            </mesh>
-            <mesh
-                ref={hit}
-                onPointerOver={(event: ThreeEvent<PointerEvent>) => {
-                    event.stopPropagation();
-                    onHover(index);
-                }}
-                onPointerOut={() => onHover(null)}
-                onClick={(event: ThreeEvent<MouseEvent>) => {
-                    event.stopPropagation();
-                    onSelect(index);
-                }}
-            >
-                <planeGeometry args={[CARD_W, CARD_H]} />
-                <meshBasicMaterial colorWrite={false} depthWrite={false} />
-            </mesh>
-        </group>
+        <mesh
+            ref={mesh}
+            frustumCulled={false}
+            renderOrder={1}
+            onPointerOver={(event: ThreeEvent<PointerEvent>) => {
+                event.stopPropagation();
+                onHover(index);
+            }}
+            onPointerOut={() => onHover(null)}
+            onClick={(event: ThreeEvent<MouseEvent>) => {
+                event.stopPropagation();
+                onSelect(index);
+            }}
+        >
+            {/* 휨은 셰이더가 하지만 실루엣은 정점이 그린다 — 비틀림이 각지지 않을 만큼 나눈다 */}
+            <planeGeometry args={[1, 1, 48, 16]} />
+            <shaderMaterial
+                ref={material}
+                vertexShader={CARD_VERTEX}
+                fragmentShader={CARD_FRAGMENT}
+                uniforms={uniforms}
+                transparent
+                depthWrite={false}
+                depthTest={false}
+                // 반사 패스는 거울 카메라라 면의 감김이 뒤집힌다
+                side={THREE.DoubleSide}
+            />
+        </mesh>
     );
 }
 
-function Floor({ motionRef }: { motionRef: React.RefObject<Motion> }) {
-    const mesh = useRef<THREE.Mesh>(null);
+interface FloorProps {
+    layout: Layout;
+    motionRef: React.RefObject<Motion>;
+    reflection: THREE.Texture;
+    reflVP: THREE.Matrix4;
+    meshRef: React.RefObject<THREE.Mesh | null>;
+}
+
+/** 카드 아래로 뻗어 나가는 바닥. 카드 줄 바로 앞에서 시작해 먼 지평선으로 사라진다. */
+function Floor({ layout, motionRef, reflection, reflVP, meshRef }: FloorProps) {
+    const material = useRef<THREE.ShaderMaterial>(null);
+    const geometry = useMemo(() => new THREE.PlaneGeometry(1, 1, 32, 12).rotateX(-Math.PI / 2), []);
+    const { H, W, floorY } = layout;
+    const run = H * FLOOR.run;
+    const near = Math.min(CAM_Z * (1 - Math.abs(floorY) / H) + H * FLOOR.lip, CAM_Z * 0.8);
+    const width = W * 2 * 4;
+    const cell = H * FLOOR.cell;
+
     const uniforms = useMemo(
         () => ({
-            uColor: { value: new THREE.Color("#ffffff") },
-            uOpacity: { value: 0.16 },
+            ...createSheetUniforms(),
+            uRun: { value: run },
+            uGrid: { value: FLOOR.grid },
+            uAlpha: { value: FLOOR.alpha },
+            uGridF: { value: new THREE.Vector2(width / cell, run / cell) },
+            uRefl: { value: reflection },
+            uReflA: { value: FLOOR.refl },
+            uReflVP: { value: reflVP },
         }),
-        []
+        [reflection, reflVP, run, width, cell]
     );
 
     useFrame(() => {
-        // 카드와 같은 각속도로 돈다. 바닥이 따로 놀면 카드가 미끄러지는 것처럼 보인다.
-        if (mesh.current) mesh.current.rotation.z = motionRef.current.offset * STEP;
+        const live = material.current?.uniforms;
+        if (live) applySheet(live, motionRef.current.sheet);
     });
 
     return (
-        <mesh ref={mesh} position={[0, FLOOR_Y, 0]} rotation-x={-Math.PI / 2}>
-            <circleGeometry args={[28, 96]} />
+        <mesh
+            ref={meshRef}
+            geometry={geometry}
+            position={[0, floorY, (near - run) / 2]}
+            scale={[width, 1, near + run]}
+            renderOrder={0}
+        >
             <shaderMaterial
+                ref={material}
                 vertexShader={FLOOR_VERTEX}
                 fragmentShader={FLOOR_FRAGMENT}
                 uniforms={uniforms}
                 transparent
                 depthWrite={false}
-                extensions={{ derivatives: true } as never}
             />
         </mesh>
     );
@@ -335,39 +379,95 @@ function Floor({ motionRef }: { motionRef: React.RefObject<Motion> }) {
 interface DriverProps {
     target: MotionValue<number>;
     motionRef: React.RefObject<Motion>;
+    layout: Layout;
     count: number;
     onActive: (index: number) => void;
     animate: boolean;
 }
 
-/** 스크롤 목표를 따라가는 스프링. 속도는 여기서 한 번만 계산해 카드와 바닥이 공유한다. */
-function Driver({ target, motionRef, count, onActive, animate }: DriverProps) {
+/** 스크롤 목표를 따라가며 속도를 한 번만 계산해 곡면 유니폼에 쓴다. */
+function Driver({ target, motionRef, layout, count, onActive, animate }: DriverProps) {
     const lastActive = useRef(-1);
 
     useFrame((_, rawDelta) => {
-        const delta = Math.min(rawDelta, 1 / 20);
+        // 요청형 렌더라 쉬고 난 첫 프레임의 delta가 길다 — 한 번에 튀지 않게 자른다
+        const delta = Math.min(rawDelta, 1 / 30);
+        const motion = motionRef.current;
         const goal = snapToCards(Math.min(1, Math.max(0, target.get())) * (count - 1));
-        const previous = motionRef.current.offset;
-        // Lenis가 이미 스크롤을 한 번 부드럽게 한다 — 여기 감쇠까지 느리면 카드가 스크롤에 끌려오듯 늦는다
-        const offset = animate
-            ? previous + (goal - previous) * (1 - Math.exp(-delta * 8))
-            : goal;
 
-        const instant = delta > 0 ? (offset - previous) / delta : 0;
-        // 속도도 한 번 더 감쇠시킨다 — 원값을 바로 쓰면 휨이 프레임마다 떨린다
-        const clamped = Math.max(-1, Math.min(1, instant * 0.22));
-        const velocity = animate
-            ? motionRef.current.velocity +
-              (clamped - motionRef.current.velocity) * (1 - Math.exp(-delta * 7))
-            : 0;
-        motionRef.current = { offset, velocity };
+        const leashed = Math.tanh((goal - motion.offset) / LEASH) * LEASH;
+        const follow = animate ? 1 - Math.pow(1 - FOLLOW, delta * 60) : 1;
+        motion.offset += leashed * follow;
+        if (Math.abs(goal - motion.offset) < EPSILON) motion.offset = goal;
+        else motion.busy = true;
 
-        const active = ((Math.round(offset) % count) + count) % count;
+        // 남은 거리 = 리본이 받는 속도. 부호 있는 제곱이라 작은 흔들림은 거의 무시된다
+        const lagPx = ((goal - motion.offset) * layout.pitch) / layout.px;
+        const t = Math.tanh(lagPx / VEL_NORM_PX);
+        const speed = animate ? Math.min(1, t * t) : 0;
+
+        motion.sheet = {
+            W: layout.W,
+            D: layout.W * DEPTH * (1 + DEPTH_VEL * speed),
+            V: speed,
+            A: layout.W * DOOR,
+        };
+
+        const active = ((Math.round(motion.offset) % count) + count) % count;
         if (active !== lastActive.current) {
             lastActive.current = active;
             onActive(active);
         }
-    });
+    }, -1);
+
+    return null;
+}
+
+interface PassesProps {
+    layout: Layout;
+    floorRef: React.RefObject<THREE.Mesh | null>;
+    reflection: THREE.WebGLRenderTarget;
+    reflVP: THREE.Matrix4;
+    motionRef: React.RefObject<Motion>;
+}
+
+/**
+ * 렌더를 직접 맡는다: 바닥을 기준으로 뒤집은 카메라로 카드를 저해상도 타깃에 한 번,
+ * 그다음 화면에 한 번. 움직임이 남아 있을 때만 다음 프레임을 요청한다.
+ */
+function Passes({ layout, floorRef, reflection, reflVP, motionRef }: PassesProps) {
+    const mirror = useMemo(() => {
+        const camera = new THREE.PerspectiveCamera();
+        camera.matrixAutoUpdate = false;
+        camera.matrixWorldAutoUpdate = false;
+        return camera;
+    }, []);
+    const flip = useMemo(() => new THREE.Matrix4(), []);
+
+    useFrame(({ gl, scene, camera, invalidate }) => {
+        const floor = floorRef.current;
+        (window as unknown as { __dbg: unknown }).__dbg = { floor: !!floor, u: floor ? (floor.material as THREE.ShaderMaterial).uniforms.uSheetW.value : null };
+        if (floor) {
+            // y = floorY 평면에 대한 반사: y' = 2·floorY − y
+            flip.makeScale(1, -1, 1).setPosition(0, 2 * layout.floorY, 0);
+            mirror.projectionMatrix.copy(camera.projectionMatrix);
+            mirror.matrixWorld.multiplyMatrices(flip, camera.matrixWorld);
+            mirror.matrixWorldInverse.copy(mirror.matrixWorld).invert();
+            reflVP.multiplyMatrices(mirror.projectionMatrix, mirror.matrixWorldInverse);
+
+            floor.visible = false;
+            gl.setRenderTarget(reflection);
+            gl.clear();
+            gl.render(scene, mirror);
+            gl.setRenderTarget(null);
+            floor.visible = true;
+        }
+        gl.render(scene, camera);
+
+        const motion = motionRef.current;
+        if (motion.busy) invalidate();
+        motion.busy = false;
+    }, 1);
 
     return null;
 }
@@ -377,16 +477,49 @@ interface SceneProps {
     /** 텍스처가 올라가 첫 프레임을 그릴 준비가 됐을 때 한 번 부른다. */
     onReady?: () => void;
     progress: MotionValue<number>;
-    hoveredRef: React.RefObject<number>;
     onActive: (index: number) => void;
     onHover: (index: number | null) => void;
     onSelect: (index: number) => void;
     animate: boolean;
 }
 
-function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, onReady, animate }: SceneProps) {
-    const motionRef = useRef<Motion>({ offset: 0, velocity: 0 });
+interface StageProps extends SceneProps {
+    hoveredIndex: number | null;
+    /** true가 되는 순간 인트로가 시작된다. */
+    revealed: boolean;
+    running: boolean;
+}
+
+function Scene({
+    products,
+    progress,
+    hoveredIndex,
+    revealed,
+    running,
+    onActive,
+    onHover,
+    onSelect,
+    onReady,
+    animate,
+}: StageProps) {
+    const motionRef = useRef<Motion>({
+        offset: 0,
+        introAt: null,
+        busy: true,
+        sheet: { W: 1, D: 0, V: 0, A: 0 },
+    });
+    const hoveredRef = useRef(-1);
     const gl = useThree((state) => state.gl);
+    const invalidate = useThree((state) => state.invalidate);
+    const size = useThree((state) => state.size);
+    const layout = useLayout();
+    const reflection = useFBO(
+        Math.max(1, Math.round(size.width * REFL_SCALE)),
+        Math.max(1, Math.round(size.height * REFL_SCALE))
+    );
+    const reflVP = useMemo(() => new THREE.Matrix4(), []);
+    const floorRef = useRef<THREE.Mesh>(null);
+
     const urls = useMemo(
         () => products.map((product) => product.image).filter((url): url is string => url !== null),
         [products]
@@ -410,6 +543,25 @@ function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, on
         onReady?.();
     }, [textures, gl, onReady]);
 
+    // 요청형 렌더의 깨우는 신호들: 스크롤, 호버, 무대 등장, 루프 재개
+    useEffect(() => progress.on("change", () => invalidate()), [progress, invalidate]);
+
+    useEffect(() => {
+        hoveredRef.current = hoveredIndex ?? -1;
+        invalidate();
+    }, [hoveredIndex, invalidate]);
+
+    useEffect(() => {
+        if (!revealed || motionRef.current.introAt !== null) return;
+        // 모션 축소에서는 인트로 끝 상태로 바로 선다
+        motionRef.current.introAt = performance.now() / 1000 - (animate ? 0 : INTRO_DUR * 4);
+        invalidate();
+    }, [revealed, animate, invalidate]);
+
+    useEffect(() => {
+        if (running) invalidate();
+    }, [running, invalidate, size]);
+
     const copies = Math.ceil(MIN_SLOTS / products.length);
     const slots = products.length * copies;
 
@@ -418,11 +570,18 @@ function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, on
             <Driver
                 target={progress}
                 motionRef={motionRef}
+                layout={layout}
                 count={products.length}
                 onActive={onActive}
                 animate={animate}
             />
-            <Floor motionRef={motionRef} />
+            <Floor
+                layout={layout}
+                motionRef={motionRef}
+                reflection={reflection.texture}
+                reflVP={reflVP}
+                meshRef={floorRef}
+            />
             {Array.from({ length: slots }, (_, slot) => (
                 <Card
                     key={slot}
@@ -430,20 +589,25 @@ function Scene({ products, progress, hoveredRef, onActive, onHover, onSelect, on
                     slot={slot}
                     slots={slots}
                     texture={textures[slot % products.length]}
+                    layout={layout}
                     motionRef={motionRef}
                     hoveredRef={hoveredRef}
                     onHover={onHover}
                     onSelect={onSelect}
                 />
             ))}
+            <Passes
+                layout={layout}
+                floorRef={floorRef}
+                reflection={reflection}
+                reflVP={reflVP}
+                motionRef={motionRef}
+            />
         </>
     );
 }
 
-interface ProductCarouselProps extends Omit<SceneProps, "hoveredRef"> {
-    /** false면 렌더 루프를 멈춘다(화면 밖, 인덱스 보기). */
-    running: boolean;
-    hoveredIndex: number | null;
+interface ProductCarouselProps extends StageProps {
     className?: string;
 }
 
@@ -453,29 +617,18 @@ export function preloadProductTextures(products: readonly Product[]) {
     useLoader.preload(THREE.TextureLoader, urls);
 }
 
-export default function ProductCarousel({
-    running,
-    hoveredIndex,
-    className,
-    ...scene
-}: ProductCarouselProps) {
-    const hoveredRef = useRef(-1);
-
-    useEffect(() => {
-        hoveredRef.current = hoveredIndex ?? -1;
-    }, [hoveredIndex]);
-
+export default function ProductCarousel({ className, ...stage }: ProductCarouselProps) {
     return (
         <div className={className}>
             <Canvas
                 dpr={[1, 2]}
-                camera={{ position: [0, 0.35, 0], rotation: [-0.05, 0, 0], fov: 42, near: 0.1, far: 60 }}
-                frameloop={running ? "always" : "never"}
-                gl={{ antialias: true, alpha: true }}
+                camera={{ position: [0, 0, CAM_Z], fov: FOV, near: 1, far: 400 }}
+                frameloop={stage.running ? "demand" : "never"}
+                gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
             >
-                {/* 텍스처가 다 올 때까지 무대를 비워 둔다 — 반쯤 빈 원통을 보여주지 않는다 */}
+                {/* 텍스처가 다 올 때까지 무대를 비워 둔다 — 반쯤 빈 줄을 보여주지 않는다 */}
                 <Suspense fallback={null}>
-                    <Scene hoveredRef={hoveredRef} {...scene} />
+                    <Scene {...stage} />
                 </Suspense>
             </Canvas>
         </div>
