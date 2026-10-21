@@ -11,6 +11,9 @@ export const SITE = {
     fullName: "Art of Programming",
     slogan: "기술을 예술로",
     email: "aopbusiness2025@gmail.com",
+    ceo: "권해성",
+    businessNumber: "174-81-04330",
+    address: "경기도 고양시 일산동구 위시티3로 110, 104동 7층 703호",
 } as const;
 
 export interface NavItem {
@@ -19,13 +22,14 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
+    { label: "Company", href: "#company" },
     { label: "Capability", href: "#capability" },
     { label: "Products", href: "#products" },
     { label: "Technology", href: "#technology" },
     { label: "Frontier", href: "#frontier" },
-    { label: "Approach", href: "#approach" },
     { label: "Research", href: "#research" },
     { label: "Partners", href: "#partners" },
+    { label: "Roadmap", href: "#roadmap" },
     { label: "Contact", href: "#contact" },
 ];
 
@@ -33,7 +37,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 export const HERO = {
     eyebrow: "AI agent technology",
     headline: "에이전트가 끝까지 일하는 구조를 설계합니다",
-    sub: "AOP는 마케팅, 수출, 교육, 건설 분야의 AI 에이전트 제품을 직접 만들고 운영합니다. 서로 다른 현장의 일을 하나의 실행 구조로 풀어냅니다.",
+    sub: "AOP는 마케팅, 수출, 리커머스, 교육, 건설 분야의 AI 에이전트 제품과 플랫폼을 직접 만들고 운영합니다. 서로 다른 현장의 일을 하나의 실행 구조로 풀어냅니다.",
     subSecondary:
         "제품을 운영하며 마주친 문제가 곧 연구 주제가 됩니다. 아래 지표는 지금까지 만든 실행 기반입니다.",
     primaryCta: { label: "제품 보기", href: "#products" },
@@ -71,10 +75,10 @@ export const CAPABILITIES: readonly Capability[] = [
     },
     {
         id: "context-engineering",
-        title: "Context Engineering",
+        title: "Model Routing",
         subtitle: "비용 설계",
         description:
-            "프롬프트 캐싱과 토큰 예산 배분으로 필요한 품질에 더 낮은 비용으로 도달합니다. 컨텍스트를 비용 자원으로 다룹니다.",
+            "가장 좋은 모델이 아니라 작업에 맞는 모델을 고릅니다. 작업마다 모델 티어를 나누고, 호출 단위로 비용과 지연을 실측합니다.",
     },
     {
         id: "evaluation",
@@ -85,7 +89,12 @@ export const CAPABILITIES: readonly Capability[] = [
     },
 ];
 
-export type ProductStatus = "live" | "coming-soon";
+/**
+ * live: 공개 URL에서 운영 중.
+ * pre-launch: 제품은 실제로 구동되지만 공개 출시 전 — 데모로만 보여줄 수 있다.
+ * coming-soon: 아직 보여줄 화면이 없다.
+ */
+export type ProductStatus = "live" | "pre-launch" | "coming-soon";
 
 /**
  * 제품 화면에서 에이전트가 읽어야 하는 영역. 퍼센트 좌표.
@@ -108,6 +117,8 @@ export interface Product {
     name: string;
     nameKo?: string;
     domain: string;
+    /** 운영·퍼블리싱 주체가 AOP가 아닐 때만 — 개발은 AOP, 사업은 협력사인 제품. */
+    operator?: string;
     tagline: string;
     description: string;
     /** 제품이 해결하는 단계 — 카드 하단 칩. */
@@ -150,10 +161,11 @@ export const PRODUCTS: readonly Product[] = [
         name: "INSPEC",
         nameKo: "인스펙",
         domain: "inspec.it.kr",
+        operator: "주식회사 인스펙",
         tagline: "시공 과정을 사진과 체크리스트로 남깁니다",
         description:
-            "중립 감리자가 철거부터 마감까지 현장을 확인합니다. 말로만 지나가기 쉬운 시공 과정을 사진, 체크리스트, 위치 정보로 남겨 품질 분쟁을 줄입니다.",
-        highlights: ["중립 감리", "단계별 분리 결제", "GPS·촬영시간 증거", "결과 공유"],
+            "철거부터 마감까지 현장 관리·기록·확인을 디지털로 옮겼습니다. 말로만 지나가기 쉬운 시공 과정을 사진, 체크리스트, 위치 정보로 남겨 품질 분쟁을 줄입니다.",
+        highlights: ["현장 기록", "단계별 분리 결제", "GPS·촬영시간 증거", "결과 공유"],
         link: "https://inspec.it.kr/",
         status: "live",
         image: "/products/inspec.jpg",
@@ -170,6 +182,7 @@ export const PRODUCTS: readonly Product[] = [
         name: "TalkPic",
         nameKo: "톡픽",
         domain: "talkpic.co.kr",
+        operator: "톡픽글로벌",
         tagline: "하루 3분, 아는 영어를 바로 나오는 영어로",
         description:
             "사진 한 장과 한국어 한 줄을 보고 3초 안에 영어로 말하는 직반응 교수법을 하루 3분 차시로 만들었습니다. 같은 표현을 12번 마주치도록 설계해 외운 문장이 아니라 입에서 먼저 나오는 문장으로 남깁니다.",
@@ -189,19 +202,45 @@ export const PRODUCTS: readonly Product[] = [
     {
         id: "buyerpilot",
         name: "BuyerPilot",
-        nameKo: "바이어에이전트",
-        domain: "출시 예정",
-        tagline: "첫 해외 고객을 찾는 수출 에이전트",
+        nameKo: "바이어파일럿",
+        domain: "BuyerPilot Desktop",
+        operator: "주식회사 온엑스",
+        tagline: "시장조사부터 바이어 발굴·연락까지 한 흐름으로",
         description:
-            "HS코드와 품목을 바탕으로 해외 시장을 진단하고, 진입 가능한 국가와 바이어 후보를 리포트로 정리합니다. 데이터 반출이 어려운 기관을 위해 온프레미스 배포도 지원합니다.",
-        highlights: ["HS코드 분석", "국가별 진입성", "바이어 후보", "온프레미스"],
+            "HS코드와 품목으로 해외 시장을 진단하고, 근거가 확인된 바이어 후보만 점수와 함께 추립니다. 데이터는 사용자의 컴퓨터에만 저장되는 데스크톱 앱으로, 지금 실제로 구동되며 정식 출시를 준비하고 있습니다.",
+        highlights: ["HS코드 시장조사", "근거 검증 바이어 발굴", "메일 캠페인", "로컬 저장"],
         link: null,
-        status: "coming-soon",
-        // TODO: 실제 에셋 교체 — 출시 후 프로덕션 화면 캡처로 대체
-        image: null,
+        status: "pre-launch",
+        image: "/products/buyerpilot.jpg",
         hue: ["#4a8cff", "#0a2a66"],
-        // 아직 검출할 화면이 없다. 없는 제품에 신뢰도 숫자를 지어내지 않는다.
-        regions: [],
+        // 데스크톱 앱 캡처 기준(16:9로 잘린 위쪽 영역을 100%로 둔 값)
+        regions: [
+            { x: 2.5, y: 16.5, w: 18.5, h: 47, label: "nav", confidence: 0.97 },
+            { x: 25.5, y: 4, w: 15, h: 9, label: "title", confidence: 0.95 },
+            { x: 27.5, y: 31, w: 27.5, h: 66, label: "candidates", confidence: 0.93 },
+            { x: 55.5, y: 31, w: 41, h: 58, label: "evidence", confidence: 0.91 },
+        ],
+    },
+    {
+        id: "sellphone",
+        name: "Sell-Phone",
+        nameKo: "셀폰",
+        domain: "Sell-Phone Web",
+        operator: "SH International",
+        tagline: "쓰던 휴대폰을 확정가로 파는 비대면 매입 플랫폼",
+        description:
+            "기기 검사와 외관 촬영으로 금액을 확정하고, 받은 기기가 검사 내용과 같으면 그 금액 그대로 지급합니다. 신청부터 검수·정산·데이터 삭제 인증서까지 전 구간을 감사 로그로 남깁니다.",
+        highlights: ["확정가 견적", "외관 촬영 검수", "삭제 인증서", "정산 자동화"],
+        link: null,
+        status: "pre-launch",
+        image: "/products/sellphone.jpg",
+        hue: ["#4a8cff", "#0a2a66"],
+        regions: [
+            { x: 2.5, y: 0.5, w: 95, h: 8, label: "nav", confidence: 0.98 },
+            { x: 5, y: 27.5, w: 27, h: 18.5, label: "headline", confidence: 0.96 },
+            { x: 5, y: 60.5, w: 45, h: 8.5, label: "search", confidence: 0.94 },
+            { x: 58, y: 31, w: 37.5, h: 58.5, label: "quote", confidence: 0.92 },
+        ],
     },
 ];
 
@@ -227,7 +266,7 @@ export const APPROACH: readonly ApproachStep[] = [
         id: "observe",
         title: "운영에서 문제를 찾습니다",
         description:
-            "네 개의 제품이 실제 사용자 흐름 안에서 돌아갑니다. 실패 지점은 추정하지 않습니다. 트레이스, 비용, 지연 시간을 함께 기록합니다.",
+            "자체 제품과 협력사 플랫폼이 실제 사용자 흐름 안에서 돌아갑니다. 실패 지점은 추정하지 않습니다. 트레이스, 비용, 지연 시간을 함께 기록합니다.",
     },
     {
         id: "solve",
@@ -414,8 +453,8 @@ export const RESEARCH: readonly ResearchTrack[] = [
 
 /**
  * 원천기술 트랙. RESEARCH와 계층이 다르다 —
- * RESEARCH는 제품이 되기 전의 탐색 과제, FRONTIER는 제품이 지금 쓰고 있는 기술이다.
- * 카피와 시각 위계가 그 차이를 드러내야 한다.
+ * RESEARCH는 개별 탐색 과제, FRONTIER는 자사 제품 화면을 시험대로 삼는 연구 방향이다.
+ * 아직 제품 코드에 들어간 기술이 아니므로 '적용 목표'로만 표기한다(회사소개서와 같은 기준).
  */
 export interface FrontierTrack {
     id: string;
@@ -424,7 +463,7 @@ export interface FrontierTrack {
     name: string;
     title: string;
     description: string;
-    /** 이 트랙을 실제로 쓰고 있는 제품 */
+    /** 이 트랙을 검증할 대상 제품 */
     product: string;
 }
 
@@ -445,7 +484,7 @@ export const FRONTIER_TRACKS: readonly FrontierTrack[] = [
         title: "문서와 표를 구조로 복원합니다",
         description:
             "상세페이지, 리포트, 견적서의 레이아웃을 계층 구조로 복원해 에이전트가 항목 단위로 판단하게 합니다.",
-        product: "Autopilot / BuyerPilot",
+        product: "Autopilot · BuyerPilot",
     },
     {
         id: "verification",
@@ -472,7 +511,7 @@ export const FRONTIER = {
     title: "에이전트가 화면을 읽는 방식을 직접 만듭니다",
     description:
         "LLM은 텍스트를 읽습니다. 그러나 실제 업무는 화면, 도면, 현장 사진 위에서 벌어집니다. AOP는 에이전트가 시각 정보를 근거로 판단하도록 만드는 인식 계층을 연구합니다.",
-    caption: "이 트랙들은 자사 제품에서 먼저 검증된 뒤 계열사 현장으로 확장됩니다.",
+    caption: "네 트랙은 연구 단계입니다. 자사 제품 화면을 시험대로 먼저 검증한 뒤 협력사 현장으로 넓힙니다.",
 } as const;
 
 export interface Patent {
@@ -485,45 +524,234 @@ export const PATENTS: readonly Patent[] = [
     { number: "KR-10-2025-0009967", title: "개인 맞춤형 추천" },
 ];
 
-export type PartnerRelation = "계열" | "파트너";
-
 export interface Partner {
     id: string;
     name: string;
     nameEn: string;
-    relation: PartnerRelation;
+    /** 업종 */
     description: string;
+    /** AOP 대표의 참여 방식. 지분·지배 관계를 뜻하지 않는다. */
+    relation: string;
+    /** 함께 만드는 것 */
+    project: string;
 }
 
 // TODO: 로고 SVG 교체 — 현재는 워드마크 타이포그래피로 대체
 export const PARTNERS: readonly Partner[] = [
     {
+        id: "growingup",
+        name: "그로윙업 주식회사",
+        nameEn: "GrowingUp",
+        description: "퍼포먼스 마케팅",
+        relation: "CTO 참여",
+        project: "Autopilot 공동개발",
+    },
+    {
         id: "inspec",
         name: "주식회사 인스펙",
         nameEn: "INSPEC",
-        relation: "계열",
-        description: "인테리어 감리자 파견 플랫폼",
+        description: "건설 현장 관리",
+        relation: "공동창업",
+        project: "현장 플랫폼 개발",
     },
     {
         id: "onax",
         name: "주식회사 온엑스",
         nameEn: "ON-AX",
-        relation: "계열",
-        description: "수출 에이전트 기술",
+        description: "수출 데이터 인텔리전스",
+        relation: "대표이사 겸직",
+        project: "BuyerPilot 개발",
     },
     {
-        id: "growingup",
-        name: "그로윙업 주식회사",
-        nameEn: "GROWINGUP",
-        relation: "파트너",
-        description: "퍼포먼스 마케팅",
+        id: "sh",
+        name: "SH International",
+        nameEn: "SH International",
+        description: "중고폰 수출 · 리커머스",
+        relation: "플랫폼 개발 협력",
+        project: "셀폰 매입 플랫폼",
     },
     {
-        id: "aenox",
-        name: "애녹스",
-        nameEn: "AENOX",
-        relation: "파트너",
+        id: "talkpic",
+        name: "톡픽글로벌",
+        nameEn: "TalkPic",
+        description: "영어 교육",
+        relation: "CTO 참여",
+        project: "학습 플랫폼 개발",
+    },
+    {
+        id: "anocs",
+        name: "주식회사 애녹스",
+        nameEn: "ANOCS",
         description: "수출 컨설팅",
+        relation: "전략적 협력",
+        project: "글로벌 사업화",
+    },
+];
+
+/** 회사 기본 정보 — 회사소개서 'Company facts'와 같은 값. */
+export const COMPANY_FACTS: readonly { label: string; value: string }[] = [
+    { label: "회사명", value: `${SITE.legalName} (${SITE.name})` },
+    { label: "브랜드", value: `${SITE.fullName} · ${SITE.slogan}` },
+    { label: "대표이사", value: SITE.ceo },
+    { label: "핵심 사업", value: "AI 에이전트 R&D · AI SaaS · 산업 플랫폼" },
+    { label: "사업자번호", value: SITE.businessNumber },
+];
+
+export interface CompanyPillar {
+    index: string;
+    title: string;
+    en: string;
+    description: string;
+    evidence: string;
+}
+
+/** 사업의 세 축. 같은 엔지니어링 원칙으로 연결된다. */
+export const COMPANY_PILLARS: readonly CompanyPillar[] = [
+    {
+        index: "01",
+        title: "원천기술",
+        en: "Core technology",
+        description:
+            "제품마다 반복되는 실행·검증·비용 문제를 공통 설계 원칙으로 정리해 다음 제품에 이식합니다.",
+        evidence: "실행 구조 · 모델 라우팅 · 데이터",
+    },
+    {
+        index: "02",
+        title: "자체 제품",
+        en: "Own products",
+        description:
+            "마케팅, 창업 행정, 지식 관리 등 업무 영역별 AI 제품을 직접 개발하고 운영합니다.",
+        evidence: "Autopilot · StartUp Pilot · AOP Inbox 외",
+    },
+    {
+        index: "03",
+        title: "산업 플랫폼",
+        en: "Industry platforms",
+        description:
+            "마케팅, 건설, 수출, 리커머스, 교육 현장의 디지털 플랫폼을 협력사와 함께 구축합니다.",
+        evidence: "6개 협력·관계사",
+    },
+];
+
+export const LEADER = {
+    name: SITE.ceo,
+    title: "Founder & CEO",
+    role: "CEO × CTO · Full-Stack / AI Engineer",
+    profile: [
+        { label: "학력", value: "한양대학교 ERICA 컴퓨터학부", note: "수석 졸업 · 졸업우등상" },
+        { label: "특허", value: "출원 2건 (KIPO)", note: "공정 검증·분할지급 / 맞춤 추천" },
+        { label: "자격", value: "SQLD · ADsP · CPMS", note: "SQL 개발자 · 데이터분석 · 프로젝트관리" },
+    ],
+    roles: [
+        { company: "주식회사 에이오피", en: "AOP", role: "대표이사" },
+        { company: "주식회사 인스펙", en: "INSPEC", role: "대표이사 · 공동창업" },
+        { company: "주식회사 온엑스", en: "ON-AX", role: "대표이사" },
+        { company: "그로윙업 주식회사", en: "GrowingUp", role: "기술이사 · CTO" },
+        { company: "톡픽", en: "TalkPic", role: "CTO · 기술 총괄" },
+    ],
+    awards: [
+        { year: "2026", title: "인하대 예비창업패키지 선정 (INSPEC)" },
+        { year: "2026", title: "한양대 SW/AI 융합 창업연구개발과제 선정" },
+        { year: "2025", title: "한양대 SW종합학술대회 대상 · 총장상" },
+        { year: "2025", title: "한양대 AI-커리어톤 최우수상 · 총장상" },
+        { year: "2025", title: "Deep-Tech Audition 최우수상 · 드론 배터리 관제" },
+        { year: "2025", title: "SW융합대학 포트폴리오 경진대회 최우수상" },
+        { year: "2025", title: "SW창업우수상 · IR·해동창업 장려상" },
+        { year: "실증", title: "드론실증사업 선정·납품 (Guardion)" },
+    ],
+} as const;
+
+/**
+ * 지난 1년의 개발 기록. GitHub 전 저장소(비공개 포함) 커밋을 SHA 기준으로 중복 제거해 집계한 값 —
+ * 회사소개서 'One year of building'과 같은 원본(commit-calendar.json)이다.
+ */
+export const BUILD_RECORD = {
+    commits: 2604,
+    activeDays: 207,
+    repositories: 47,
+    longestStreak: 26,
+} as const;
+
+/** 제품 성숙도 6단계. 마지막 단계는 아직 도달한 제품이 없는 다음 목표다. */
+export const MATURITY_STAGES = [
+    "기획",
+    "프로토타입",
+    "MVP",
+    "공개 배포·베타",
+    "공개 운영",
+    "상용 운영",
+] as const;
+
+export interface PortfolioItem {
+    name: string;
+    domain: string;
+    /** MATURITY_STAGES 인덱스 */
+    stage: number;
+    group: "own" | "partner";
+    /** 협력·관계사 플랫폼의 운영 주체 */
+    operator?: string;
+}
+
+/** 단계는 코드·배포 기록 기준(회사소개서 부록 A3). 부풀리지 않는다. */
+export const PORTFOLIO: readonly PortfolioItem[] = [
+    { name: "Autopilot", domain: "마케팅 에이전트", stage: 4, group: "own" },
+    { name: "StartUp Pilot", domain: "창업 행정", stage: 3, group: "own" },
+    { name: "Blog Pilot", domain: "콘텐츠", stage: 3, group: "own" },
+    { name: "AOP Inbox", domain: "지식 관리", stage: 2, group: "own" },
+    { name: "Seed Pilot", domain: "인플루언서", stage: 2, group: "own" },
+    { name: "Stay Pilot", domain: "숙박 직접 예약", stage: 2, group: "own" },
+    { name: "AOP Agent", domain: "에이전트 런타임", stage: 2, group: "own" },
+    { name: "AOP Note", domain: "업무 메모 · MCP", stage: 2, group: "own" },
+    { name: "ChartPilot", domain: "금융 차트", stage: 2, group: "own" },
+    { name: "AOP JARVIS", domain: "개인 AI", stage: 1, group: "own" },
+    { name: "Vid Pilot", domain: "광고 영상", stage: 1, group: "own" },
+    { name: "AOP Hub", domain: "API 플랫폼", stage: 0, group: "own" },
+    { name: "BuyerPilot", domain: "수출", stage: 2, group: "partner", operator: "ON-AX" },
+    { name: "셀폰", domain: "중고폰 매입", stage: 2, group: "partner", operator: "SH International" },
+    { name: "INSPEC", domain: "건설", stage: 2, group: "partner", operator: "인스펙" },
+    { name: "TalkPic", domain: "교육", stage: 3, group: "partner", operator: "톡픽글로벌" },
+];
+
+export interface RoadmapPhase {
+    id: string;
+    label: string;
+    title: string;
+    items: readonly string[];
+}
+
+/** 각 제품 개발 문서에 기록된 다음 단계. 확정 일정이 아니라 방향이다. */
+export const ROADMAP: readonly RoadmapPhase[] = [
+    {
+        id: "now",
+        label: "Now",
+        title: "지금 진행",
+        items: [
+            "Autopilot 결제·구독 연동",
+            "BuyerPilot 베타 운영과 품질 평가셋 구축",
+            "셀폰 실거래 연동",
+            "AOP Inbox 실제 LLM 연동 검증",
+        ],
+    },
+    {
+        id: "next",
+        label: "Next",
+        title: "다음 단계",
+        items: [
+            "공통 실행 커널을 공유 패키지로 정리",
+            "AOP Hub 첫 API: 모델 라우팅·도구",
+            "셀폰 2단계: AI 외관 등급 판정",
+            "INSPEC 2단계: 현장 데이터 분석",
+        ],
+    },
+    {
+        id: "later",
+        label: "Later",
+        title: "확장",
+        items: [
+            "작업별 오픈웨이트 모델 튜닝 연구",
+            "산업별 에이전트 템플릿",
+            "교육 서비스의 AI 학습 기능 검토",
+        ],
     },
 ];
 
@@ -537,6 +765,30 @@ export const INQUIRY_TYPES = [
 
 /** 섹션 헤더 카피. `*강조*` 구간은 세리프 이탤릭. */
 export const SECTIONS = {
+    company: {
+        eyebrow: "Who we are",
+        title: "AI 에이전트 기술로 제품을 만들고, 산업 현장의 플랫폼을 구축합니다",
+        description:
+            "AOP의 역량은 원천기술, 자체 제품, 산업 플랫폼의 세 축으로 나뉩니다. 세 축은 하나의 런타임이 아니라 검증된 설계 원칙으로 연결됩니다.",
+    },
+    leadership: {
+        eyebrow: "Leadership",
+        title: "연구부터 제품 출시, 법인 운영까지 직접 이끕니다",
+        description:
+            "대표가 아키텍처와 릴리스를 직접 소유하는 playing CTO로 일합니다. 여러 산업의 법인과 협력사에서 같은 원칙으로 제품을 만듭니다.",
+    },
+    portfolio: {
+        eyebrow: "Product maturity",
+        title: "16개 제품과 플랫폼, 지금 서 있는 단계 그대로",
+        description:
+            "단계는 코드와 배포 기록으로만 매깁니다. 공개 운영까지 올라온 제품과 아직 MVP인 제품을 구분해 보여드립니다. 상용 운영은 다음 목표입니다.",
+    },
+    roadmap: {
+        eyebrow: "Roadmap",
+        title: "검증된 제품을 사업화하고, 공통 기술을 플랫폼으로 만듭니다",
+        description:
+            "각 제품의 개발 문서에 기록된 다음 단계를 정리했습니다. 확정 일정이 아니라 우선순위의 방향입니다.",
+    },
     capability: {
         eyebrow: "Capability",
         title: "모델 위에 필요한 네 겹의 기술",
@@ -545,9 +797,9 @@ export const SECTIONS = {
     },
     products: {
         eyebrow: "Products",
-        title: "현장에서 쓰이고 있는 제품들",
+        title: "직접 만들고 운영하는 제품들",
         description:
-            "연구한 기술은 자사 제품에서 먼저 검증합니다. 마케팅, 수출, 교육, 건설 분야의 제품이 같은 실행 엔진을 각자의 방식으로 사용하거나 준비 중입니다.",
+            "연구한 기술은 자사 제품에서 먼저 검증합니다. 마케팅, 수출, 리커머스, 교육, 건설 현장의 제품이 같은 설계 원칙 위에서 운영되거나 출시를 앞두고 있습니다.",
     },
     technology: {
         eyebrow: "Technology",
@@ -559,7 +811,7 @@ export const SECTIONS = {
         eyebrow: "Research & IP",
         title: "제품이 되기 전의 문제들",
         description:
-            "당장 제품에 들어가지 않는 주제도 연구합니다. 생성 설계, 과학 계산, 관측 가능성 트랙은 다음 기능이나 특허로 이어집니다.",
+            "당장 제품에 들어가지 않는 주제도 연구합니다. 대표와 핵심 개발인력이 만든 생성 설계, 과학 계산, 관측 가능성 프로토타입이 다음 기능이나 특허로 이어집니다.",
     },
     approach: {
         eyebrow: "Approach",
@@ -569,9 +821,9 @@ export const SECTIONS = {
     },
     partners: {
         eyebrow: "Partners",
-        title: "기술이 적용되는 현장",
+        title: "서로 다른 산업 현장에서 기술을 검증합니다",
         description:
-            "계열사와 파트너사는 각자의 산업에서 에이전트를 실무에 적용합니다. 현장에서 나온 요구는 다음 기술 과제로 돌아옵니다.",
+            "여섯 협력·관계사가 각자의 산업에서 AOP의 엔지니어링을 실무에 적용합니다. 현장에서 나온 요구는 다음 기술 과제로 돌아옵니다.",
     },
     contact: {
         eyebrow: "Contact",

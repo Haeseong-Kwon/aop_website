@@ -29,29 +29,84 @@ const ProductCarousel = dynamic(() => import("@/components/products/ProductCarou
 const COUNT = PRODUCTS.length;
 /** 스크롤 진행도 중 캐러셀이 실제로 도는 구간. 앞뒤 여백 동안 무대가 자리를 잡는다. */
 const STAGE_RANGE: [number, number] = [0.06, 0.94];
+/** 핀 구간 길이. 카드 하나에 한 화면 남짓 — 제품 수가 늘어도 한 장에 머무는 시간이 같다. */
+const PIN_HEIGHT = `${(COUNT + 1) * 92}vh`;
 
 type View = "gallery" | "index";
 
-const STATUS_LABEL: Record<Product["status"], string> = {
-    live: "Live",
-    "coming-soon": "Coming Soon",
+const STATUS: Record<Product["status"], { label: string; badge: string; dot: string }> = {
+    live: { label: "Live", badge: "border-transparent bg-signal/12 text-signal", dot: "bg-signal" },
+    "pre-launch": {
+        label: "Pre-launch",
+        badge: "border-transparent bg-beam/16 text-glow",
+        dot: "bg-glow",
+    },
+    "coming-soon": { label: "Coming Soon", badge: "border-border text-muted", dot: "bg-faint" },
 };
 
 function StatusBadge({ status }: { status: Product["status"] }) {
-    const isLive = status === "live";
+    const { label, badge, dot } = STATUS[status];
 
     return (
-        <span
-            className={cn(
-                "badge",
-                isLive
-                    ? "border-transparent bg-signal/12 text-signal"
-                    : "border-border text-muted"
-            )}
-        >
-            <span className={cn("size-1.5 rounded-full", isLive ? "bg-signal" : "bg-faint")} />
-            {STATUS_LABEL[status]}
+        <span className={cn("badge", badge)}>
+            <span className="relative flex size-1.5">
+                {/* 구동 중인 제품은 맥박이 뛴다 — 출시 전이지만 멈춰 있는 화면이 아니다 */}
+                {status === "coming-soon" ? null : (
+                    <span className={cn("absolute inset-0 rounded-full opacity-70 motion-safe:animate-ping", dot)} />
+                )}
+                <span className={cn("relative size-1.5 rounded-full", dot)} />
+            </span>
+            {label}
         </span>
+    );
+}
+
+/** 이름 옆 보조 줄 — 한글명과, 운영 주체가 AOP가 아니면 그 이름. */
+function ProductMeta({ product }: { product: Product }) {
+    return (
+        <>
+            {product.nameKo ? <span className="text-sm text-muted">{product.nameKo}</span> : null}
+            {product.operator ? (
+                <span className="text-[12.5px] text-faint">· {product.operator}</span>
+            ) : null}
+        </>
+    );
+}
+
+/**
+ * 카드 아래 행동 유도. 출시 전 제품은 링크가 없지만 실제로 구동되므로 데모를 요청받는다.
+ * 카드 전체가 링크인 경우(<a> 안)에는 중첩 링크를 만들 수 없어 span으로 그린다.
+ */
+function ProductCta({ product, asSpan = false }: { product: Product; asSpan?: boolean }) {
+    if (product.status === "coming-soon") {
+        return <span className="text-sm text-muted">출시 준비 중</span>;
+    }
+
+    const isLive = product.link !== null;
+    const label = isLive ? `${product.domain} 방문` : "데모 요청하기";
+    const content = (
+        <>
+            <span className="underline-sweep">{label}</span>
+            <ArrowUpRight
+                size={15}
+                className={cn(
+                    "transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5",
+                    !isLive && "rotate-45 group-hover:translate-y-0.5 group-hover:translate-x-0"
+                )}
+            />
+        </>
+    );
+    const className = "group inline-flex items-center gap-1.5 text-sm font-medium text-bright";
+
+    if (asSpan) return <span className={className}>{content}</span>;
+    return isLive ? (
+        <a href={product.link ?? undefined} target="_blank" rel="noreferrer noopener" className={className}>
+            {content}
+        </a>
+    ) : (
+        <a href="#contact" className={className}>
+            {content}
+        </a>
     );
 }
 
@@ -123,9 +178,7 @@ function ProductFace({ product, index, scanned }: { product: Product; index: num
                         {String(index + 1).padStart(2, "0")}
                     </span>
                     <StatusBadge status={product.status} />
-                    {product.nameKo ? (
-                        <span className="text-sm text-muted">{product.nameKo}</span>
-                    ) : null}
+                    <ProductMeta product={product} />
                 </div>
 
                 <h3 className="type-h2 mt-4">{product.name}</h3>
@@ -147,19 +200,9 @@ function ProductFace({ product, index, scanned }: { product: Product; index: num
                     ))}
                 </ul>
 
-                {hasLink ? (
-                    <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-bright">
-                        <span className="underline-sweep">{product.domain} 방문</span>
-                        <ArrowUpRight
-                            size={15}
-                            className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                        />
-                    </span>
-                ) : (
-                    <span className="mt-auto inline-flex pt-6 text-sm text-muted">
-                        출시 준비 중
-                    </span>
-                )}
+                <div className="mt-auto pt-6">
+                    <ProductCta product={product} asSpan={hasLink} />
+                </div>
             </div>
         </div>
     );
@@ -294,7 +337,7 @@ function ProductStage() {
     const isGallery = view === "gallery";
 
     return (
-        <div ref={pinRef} className="relative h-[460vh]">
+        <div ref={pinRef} className="relative" style={{ height: PIN_HEIGHT }}>
             <div
                 ref={stageRef}
                 className="sticky top-0 h-[100svh] overflow-hidden"
@@ -413,7 +456,7 @@ function GalleryCaption({
                         {String(index + 1).padStart(2, "0")}
                     </span>
                     <StatusBadge status={product.status} />
-                    {product.nameKo ? <span className="text-sm text-muted">{product.nameKo}</span> : null}
+                    <ProductMeta product={product} />
                 </div>
 
                 <div className="relative mt-3 overflow-hidden pb-[0.08em]">
@@ -446,22 +489,7 @@ function GalleryCaption({
             </div>
 
             <div className="flex shrink-0 flex-col items-end gap-5">
-                {product.link ? (
-                    <a
-                        href={product.link}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="group inline-flex items-center gap-1.5 text-sm font-medium text-bright"
-                    >
-                        <span className="underline-sweep">{product.domain} 방문</span>
-                        <ArrowUpRight
-                            size={15}
-                            className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                        />
-                    </a>
-                ) : (
-                    <span className="text-sm text-muted">출시 준비 중</span>
-                )}
+                <ProductCta product={product} />
 
                 <div className="flex items-center gap-4 font-mono text-[11px] tracking-[0.18em] text-faint">
                     <span className="text-bright">{String(index + 1).padStart(2, "0")}</span>
@@ -551,9 +579,11 @@ function ProductIndex() {
                     const label = (
                         <>
                             {product.name}
-                            {product.status === "coming-soon" ? (
-                                <sup className="ml-1 font-mono text-[11px] tracking-[0.14em] text-faint">SOON</sup>
-                            ) : null}
+                            {product.status === "live" ? null : (
+                                <sup className="ml-1 font-mono text-[11px] tracking-[0.14em] text-faint">
+                                    {product.status === "pre-launch" ? "PRE" : "SOON"}
+                                </sup>
+                            )}
                         </>
                     );
                     const className = cn(

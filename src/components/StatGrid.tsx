@@ -5,38 +5,40 @@ import { motion, useInView } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useEnter, useTransition } from "@/hooks/useEnter";
 import { DUR, EASE, STAGGER, VIEWPORT } from "@/lib/motion";
-import { PARTNERS, PATENTS, PIPELINE, PRODUCTS } from "@/lib/constants";
+import { BUILD_RECORD, PARTNERS, PATENTS, PORTFOLIO } from "@/lib/constants";
 
 // 서버 렌더 중에는 useLayoutEffect가 경고를 내므로 useEffect로 떨어뜨린다.
 const useIsomorphicLayoutEffect =
     typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /**
- * 숫자는 전부 데이터 길이에서 계산한다 — 콘텐츠가 바뀌어도 어긋나지 않고,
- * 지어낸 실적이 끼어들 자리가 없다.
+ * 숫자는 데이터 길이나 집계 원본에서만 가져온다 — 콘텐츠가 바뀌어도 어긋나지 않고,
+ * 지어낸 실적이 끼어들 자리가 없다. 고객 수·매출처럼 검증되지 않은 지표는 쓰지 않는다.
  */
 const STATS = [
     {
-        value: PRODUCTS.length,
-        label: "Products",
-        caption: "마케팅, 건설, 교육, 수출 분야에서 운영 및 준비 중인 에이전트 제품",
+        value: PORTFOLIO.length,
+        label: "Products & platforms",
+        caption: "기획부터 공개 운영까지, 직접 만들고 있는 제품과 산업 플랫폼",
     },
     {
-        value: PIPELINE.length,
-        label: "Pipeline stages",
-        caption: "요청을 결과로 만들기 위해 거치는 실행 단계",
-    },
-    {
-        value: PATENTS.length,
-        label: "Patents filed",
-        caption: "공정 검증과 개인화 추천에 관해 출원한 특허",
+        value: BUILD_RECORD.commits,
+        label: "Commits / 1 year",
+        caption: `지난 1년, ${BUILD_RECORD.repositories}개 저장소에서 ${BUILD_RECORD.activeDays}일 동안 쌓은 개발 기록`,
     },
     {
         value: PARTNERS.length,
         label: "Network",
-        caption: "산업 현장에서 기술을 함께 검증하는 계열사와 파트너사",
+        caption: "마케팅·건설·수출·리커머스·교육 현장의 협력·관계사",
+    },
+    {
+        value: PATENTS.length,
+        label: "Patents filed",
+        caption: "공정 검증·분할지급과 개인 맞춤 추천에 관한 출원 특허",
     },
 ];
+
+const formatStat = (value: number) => value.toLocaleString("en-US");
 
 /**
  * 화면에 들어올 때 0에서 목표값까지 세어 올린다.
@@ -99,7 +101,7 @@ function StatCell({
             className="group relative px-6 py-10 md:px-10 md:py-14"
         >
             <p className="type-eyebrow">{stat.label}</p>
-            <p className="stat-value mt-6">{value}</p>
+            <p className="stat-value mt-6">{formatStat(value)}</p>
 
             {/* 셀마다 밑줄이 빛을 머금는다 — 그래픽이 텍스트를 피해 경계로 물러난다 */}
             <span className="mt-6 block h-px w-full bg-border">

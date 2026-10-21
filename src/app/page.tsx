@@ -6,9 +6,13 @@ import { StatGrid } from "@/components/StatGrid";
 import { Capability } from "@/components/Capability";
 import { Manifesto } from "@/components/Manifesto";
 import { Approach } from "@/components/Approach";
+import { Company } from "@/components/Company";
+import { Leadership } from "@/components/Leadership";
 import { Products } from "@/components/Products";
+import { Portfolio } from "@/components/Portfolio";
 import { Research } from "@/components/Research";
 import { Partners } from "@/components/Partners";
+import { Roadmap } from "@/components/Roadmap";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
@@ -50,13 +54,17 @@ export default function Home() {
         <WordEquation />
         <StatGrid />
         <Manifesto />
+        <Company />
+        <Leadership />
         <Capability />
         <Products />
+        <Portfolio />
         <Technology />
         <Frontier />
         <Approach />
         <Research />
         <Partners />
+        <Roadmap />
         <Contact />
       </main>
 

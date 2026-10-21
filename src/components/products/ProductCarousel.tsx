@@ -446,7 +446,6 @@ function Passes({ layout, floorRef, reflection, reflVP, motionRef }: PassesProps
 
     useFrame(({ gl, scene, camera, invalidate }) => {
         const floor = floorRef.current;
-        (window as unknown as { __dbg: unknown }).__dbg = { floor: !!floor, u: floor ? (floor.material as THREE.ShaderMaterial).uniforms.uSheetW.value : null };
         if (floor) {
             // y = floorY 평면에 대한 반사: y' = 2·floorY − y
             flip.makeScale(1, -1, 1).setPosition(0, 2 * layout.floorY, 0);

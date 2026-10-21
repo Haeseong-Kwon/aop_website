@@ -294,7 +294,7 @@ function TrackCard({ track }: { track: FrontierTrack }) {
 
             <p className="mt-5 flex flex-wrap items-center gap-2.5">
                 <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
-                    적용 제품
+                    검증 대상
                 </span>
                 <span className="badge border-transparent bg-surface-2 text-bright">
                     {track.product}
