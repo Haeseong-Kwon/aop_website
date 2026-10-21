@@ -7,7 +7,7 @@ import { CopyableCode } from "@/components/CopyableCode";
 import { Reveal } from "@/components/motion/Reveal";
 import { useFinePointer } from "@/hooks/useReducedMotion";
 import { DUR, EASE, STAGGER } from "@/lib/motion";
-import { PATENTS, RESEARCH, SECTIONS, type ResearchTrack } from "@/lib/constants";
+import { PATENTS, RESEARCH, SECTIONS, SITE, type ResearchTrack } from "@/lib/constants";
 
 /**
  * 기술 스택 태그는 카드에 hover할 때 아래에서 순차로 올라온다.
@@ -88,7 +88,10 @@ export function Research() {
                 </div>
 
                 <Reveal className="surface-card mt-4 p-7 md:p-9">
-                    <p className="type-eyebrow">출원 특허</p>
+                    <p className="flex flex-wrap items-baseline justify-between gap-2">
+                        <span className="type-eyebrow">출원 특허</span>
+                        <span className="text-[12.5px] text-faint">출원인 대표이사 {SITE.ceo} · 등록 전 출원 단계</span>
+                    </p>
                     <ul className="mt-5 divide-y divide-border">
                         {PATENTS.map((patent) => (
                             <li

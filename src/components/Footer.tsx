@@ -20,6 +20,20 @@ export function Footer() {
                         >
                             {SITE.email}
                         </a>
+                        <dl className="mt-6 space-y-1.5 text-[12.5px] leading-relaxed text-faint">
+                            <div className="flex gap-2">
+                                <dt>대표이사</dt>
+                                <dd className="text-muted">{SITE.ceo}</dd>
+                            </div>
+                            <div className="flex gap-2">
+                                <dt>사업자등록번호</dt>
+                                <dd className="text-muted">{SITE.businessNumber}</dd>
+                            </div>
+                            <div className="flex gap-2">
+                                <dt className="shrink-0">주소</dt>
+                                <dd className="text-muted">{SITE.address}</dd>
+                            </div>
+                        </dl>
                     </div>
 
                     <nav aria-label="푸터 메뉴">
@@ -46,9 +60,9 @@ export function Footer() {
                                     key={partner.id}
                                     className="flex items-baseline gap-2 text-sm text-muted"
                                 >
-                                    {partner.name}
+                                    {partner.nameEn}
                                     <span className="text-[11px] text-faint">
-                                        {partner.relation}
+                                        {partner.project}
                                     </span>
                                 </li>
                             ))}

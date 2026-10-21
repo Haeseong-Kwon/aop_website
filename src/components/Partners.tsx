@@ -2,11 +2,10 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "@/components/motion/Reveal";
 import { STAGGER } from "@/lib/motion";
 import { PARTNERS, SECTIONS } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 
 /**
  * 파트너는 카드 격자가 아니라 명부로 읽힌다 — 워드마크가 행의 주인공이고,
- * 관계와 분야는 같은 행 오른쪽에 조용히 붙는다. 넷뿐이라 크게 써도 넘치지 않는다.
+ * 함께 만드는 것과 참여 방식은 같은 행 오른쪽에 조용히 붙는다.
  */
 export function Partners() {
     return (
@@ -23,25 +22,24 @@ export function Partners() {
                             role="listitem"
                             className="group relative border-b border-border"
                         >
-                            <div className="grid items-baseline gap-x-8 gap-y-2 py-7 grid-cols-[minmax(0,1fr)_3.5rem] md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_3.5rem] md:py-9">
+                            <div className="grid items-baseline gap-x-8 gap-y-3 py-7 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)_minmax(0,0.95fr)] md:py-9">
                                 {/* TODO: 로고 SVG 교체 — 현재는 워드마크 타이포그래피 */}
-                                <p className="text-[clamp(1.75rem,4vw,3.25rem)] font-semibold leading-none tracking-[-0.045em] text-bright/60 transition-colors duration-500 group-hover:text-bright">
+                                <p className="text-[clamp(1.75rem,3.6vw,3rem)] font-semibold leading-none tracking-[-0.045em] text-bright/60 transition-[color,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 group-hover:text-bright">
                                     {partner.nameEn}
                                 </p>
 
                                 <p className="text-[15px] leading-relaxed text-muted">
-                                    {partner.name}
+                                    {/* 워드마크와 법인명이 같으면 한 번만 쓴다 */}
+                                    {partner.name === partner.nameEn ? null : partner.name}
                                     <span className="block text-faint">{partner.description}</span>
                                 </p>
 
-                                <span
-                                    className={cn(
-                                        "col-start-2 row-start-1 text-right text-[13px] md:col-start-3",
-                                        partner.relation === "계열" ? "text-bright" : "text-faint"
-                                    )}
-                                >
-                                    {partner.relation}
-                                </span>
+                                <p className="flex flex-wrap items-center gap-2 md:justify-end">
+                                    <span className="text-[13.5px] font-medium text-text">{partner.project}</span>
+                                    <span className="rounded-full border border-beam/40 bg-beam/10 px-2.5 py-0.5 text-[12px] text-glow">
+                                        {partner.relation}
+                                    </span>
+                                </p>
                             </div>
 
                             {/* hover 시 행 아래 선이 빔으로 채워진다 — 명부에서 지금 읽는 줄 */}
@@ -52,6 +50,10 @@ export function Partners() {
                         </Reveal>
                     ))}
                 </div>
+
+                <p className="mt-5 text-[13px] text-faint">
+                    표기는 협력 관계와 대표의 참여 방식이며, 지분·지배 관계를 뜻하지 않습니다.
+                </p>
             </div>
         </section>
     );

@@ -66,6 +66,13 @@ const organizationJsonLd = {
   description,
   email: SITE.email,
   slogan: SITE.slogan,
+  founder: { "@type": "Person", name: SITE.ceo },
+  taxID: SITE.businessNumber,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: SITE.address,
+    addressCountry: "KR",
+  },
 };
 
 export default function RootLayout({

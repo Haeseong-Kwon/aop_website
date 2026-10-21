@@ -181,7 +181,7 @@ function CheckpointTimeline() {
     );
 }
 
-/** 03 — 토큰 예산 배분. 캐시된 구간이 밝고, 나머지가 실제 비용이다. */
+/** 03 — 작업별 모델 배분. 경량 티어가 맡는 구간이 밝고, 나머지가 상위 모델에 쓰는 비용이다. */
 function TokenBudgetBars() {
     const rows = [
         { y: 22, cached: 96, live: 54 },
