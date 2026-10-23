@@ -29,6 +29,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     { label: "Frontier", href: "#frontier" },
     { label: "Research", href: "#research" },
     { label: "Partners", href: "#partners" },
+    { label: "References", href: "#references" },
     { label: "Roadmap", href: "#roadmap" },
     { label: "Contact", href: "#contact" },
 ];
@@ -824,6 +825,12 @@ export const SECTIONS = {
         title: "서로 다른 산업 현장에서 기술을 검증합니다",
         description:
             "여섯 협력·관계사가 각자의 산업에서 AOP의 엔지니어링을 실무에 적용합니다. 현장에서 나온 요구는 다음 기술 과제로 돌아옵니다.",
+    },
+    references: {
+        eyebrow: "References",
+        title: "현장에 납품하고, 지금도 돌아가는 결과물",
+        description:
+            "공공 실증사업의 관제 시스템부터 기업·기관의 웹 플랫폼까지, 발주처에 직접 납품한 프로젝트입니다. 맡은 범위만 적고 부풀리지 않습니다.",
     },
     contact: {
         eyebrow: "Contact",
