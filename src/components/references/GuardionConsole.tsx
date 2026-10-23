@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useInView } from "framer-motion";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 import {
     BASE,
@@ -18,11 +15,10 @@ import {
     type DronePhase,
     type DroneSnapshot,
 } from "./guardionSim";
+import { useSceneClock } from "./useSceneClock";
 
 /** SSR·모션 축소 환경에서 보여줄 고정 시각 — 세 기체가 비행·경보·충전으로 갈려 있는 순간 */
 const STILL_T = 7.3;
-/** 화면 갱신 간격(ms). 관제 화면은 30fps면 충분하고, 그 이상은 배터리만 쓴다 */
-const FRAME_MS = 33;
 const TRAIL = { count: 16, step: 0.09 } as const;
 const SPARK = { count: 48, step: 0.25, w: 240, h: 44 } as const;
 const PATHS = DRONES.map(patrolPath);
@@ -33,36 +29,6 @@ const PHASE_LABEL: Record<DronePhase, string> = {
     rtb: "RTB",
     charge: "CHARGE",
 };
-
-/** 화면에 보일 때만 흐르는 시뮬레이션 시계 */
-function useSimTime(isActive: boolean): number {
-    const [time, setTime] = useState(STILL_T);
-
-    useEffect(() => {
-        if (!isActive) return;
-        let frame = 0;
-        let last = performance.now();
-        let acc = 0;
-
-        const tick = (now: number) => {
-            const dt = now - last;
-            last = now;
-            acc += dt;
-            if (acc >= FRAME_MS) {
-                // 탭 전환 뒤 돌아왔을 때 수십 초를 한 번에 건너뛰지 않게 상한을 둔다
-                const step = Math.min(acc, 100) / 1000;
-                acc = 0;
-                setTime((prev) => prev + step);
-            }
-            frame = requestAnimationFrame(tick);
-        };
-
-        frame = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(frame);
-    }, [isActive]);
-
-    return time;
-}
 
 function tone(drone: DroneSnapshot) {
     if (drone.isLow || drone.phase === "rtb") return { stroke: "var(--color-destructive)", text: "text-destructive" };
@@ -258,10 +224,7 @@ function Sparkline({ time }: { time: number }) {
  * 알림 — 를 웹 그래픽으로 다시 그린 것이며 실데이터가 아니다.
  */
 export function GuardionConsole({ className }: { className?: string }) {
-    const ref = useRef<HTMLDivElement>(null);
-    const isInView = useInView(ref, { margin: "0px 0px -10% 0px" });
-    const prefersReduced = useReducedMotion();
-    const time = useSimTime(isInView && !prefersReduced);
+    const [ref, time] = useSceneClock<HTMLDivElement>(STILL_T);
     const drones = DRONES.map((spec) => droneAt(spec, time));
     const alerts = drones.filter((d) => d.isLow || d.phase === "rtb");
 
